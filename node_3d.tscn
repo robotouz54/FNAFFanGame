@@ -556,7 +556,7 @@ surface_material_override/0 = SubResource("StandardMaterial3D_imku0")
 
 [node name="DebugCamera3D" type="Camera3D" parent="Pivot/CharacterBody3D" unique_id=1098025240]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3.5, 0)
-fov = 70.0
+fov = 100.0
 
 [node name="SpotLight3D" type="SpotLight3D" parent="Pivot/CharacterBody3D" unique_id=590837208]
 transform = Transform3D(1.0000001, 0, -4.656613e-09, 0, 1, 0, 3.7252903e-09, 0, 1.0000001, 0, 2.763029, 0)
