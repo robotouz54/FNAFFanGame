@@ -690,12 +690,6 @@ use_collision = true
 size = Vector3(0.21569824, 6.803364, 14.844486)
 material = SubResource("StandardMaterial3D_a0tk4")
 
-[node name="duvar66" type="CSGBox3D" parent="Map/duvarlar" unique_id=1776250268]
-transform = Transform3D(0.60059994, 0.7995497, 0, -0.7995497, 0.60059994, 0, 0, 0, 1.2402859, -37.9088, 2.8870857, -11.99071)
-use_collision = true
-size = Vector3(0.21569824, 7.8606663, 14.844486)
-material = SubResource("StandardMaterial3D_a0tk4")
-
 [node name="duvar67" type="CSGBox3D" parent="Map/duvarlar" unique_id=1380212169]
 transform = Transform3D(0.43538946, -0.9002423, 0, 0.9002423, 0.43538946, 0, 0, 0, 1.2402859, 30.73706, 2.881209, -11.99071)
 use_collision = true
@@ -894,10 +888,10 @@ use_collision = true
 size = Vector3(0.21569824, 8.180799, 8.125503)
 material = SubResource("StandardMaterial3D_a0tk4")
 
-[node name="kapi_boslugu4" type="CSGBox3D" parent="Map/duvarlar/duvar29" unique_id=1095617777]
-transform = Transform3D(-6.4717845e-08, 0, 1, 0, 1, 0, -0.8062657, 0, -2.1587443e-08, 0.09161186, -0.63835335, 0.1251297)
+[node name="kapi_boslugu6" type="CSGBox3D" parent="Map/duvarlar/duvar29" unique_id=705951270]
+transform = Transform3D(-5.4214595e-08, 0, 0.6500644, 0, 1, 0, -1.2402859, 0, -2.8415213e-08, 0.027406693, -1.2011828, 0.28728247)
 operation = 2
-size = Vector3(6.952466, 6.8368683, 0.4657898)
+size = Vector3(3.4199219, 5.138748, 0.4657898)
 material = SubResource("StandardMaterial3D_a0tk4")
 
 [node name="duvar30" type="CSGBox3D" parent="Map/duvarlar" unique_id=1121136970]

@@ -2,6 +2,7 @@
 
 [ext_resource type="PackedScene" uid="uid://c5q4uo2qt24se" path="res://node_3d.tscn" id="1_ig7tw"]
 [ext_resource type="Script" uid="uid://d0aipphxjnvu5" path="res://camera_system_ui.gd" id="2_0xm2m"]
+[ext_resource type="Texture2D" uid="uid://cpg4aabrod7pk" path="res://png/camera_map.png" id="3_h2yge"]
 
 [node name="Main" type="Control" unique_id=350637478]
 layout_mode = 3
@@ -74,11 +75,23 @@ mouse_filter = 2
 color = Color(1, 1, 1, 0.05490196)
 
 [node name="Frame" type="TextureRect" parent="CameraSystemUI/Root" unique_id=24624276]
-layout_mode = 0
-offset_right = 40.0
-offset_bottom = 40.0
+visible = false
+layout_mode = 1
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -360.0
+offset_top = -360.0
+offset_right = 664.0
+offset_bottom = 664.0
+grow_horizontal = 0
+grow_vertical = 0
 mouse_filter = 2
+texture = ExtResource("3_h2yge")
 expand_mode = 1
+stretch_mode = 4
 
 [node name="CamLabel" type="Label" parent="CameraSystemUI/Root" unique_id=1111438015]
 layout_mode = 0

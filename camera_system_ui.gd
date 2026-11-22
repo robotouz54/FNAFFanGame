@@ -7,6 +7,7 @@ const CURSOR_HAND = preload("res://png/cursor_hand.png")
 const BTN_NORMAL = preload("res://png/btn_normal.png")
 const BTN_HOVER = preload("res://png/btn_hover.png")
 const BTN_PRESSED = preload("res://png/btn_pressed.png")
+const CAMERA_MAP_TEX: Texture2D = preload("res://png/camera_map.png")
 const STATIC_DIR_CANDIDATES: PackedStringArray = [
 	"res://textures",
 	"res://static",
@@ -17,6 +18,14 @@ const STATIC_DIR_CANDIDATES: PackedStringArray = [
 @export_group("Görsel")
 ## İsteğe bağlı: Windows 95 tarzı .ttf/.otf font dosyası (boşsa sistem fontu kullanılır)
 @export var win95_font: FontFile
+## Harita görseli (boş bırakılırsa res://png/camera_map.png kullanılır)
+@export var camera_map_texture: Texture2D = CAMERA_MAP_TEX
+## Haritanın ekrandaki boyutu (piksel)
+@export var map_size_px: Vector2 = Vector2(360.0, 360.0)
+## Haritanın sağ kenardan boşluğu (piksel)
+@export var map_margin_px: float = 24.0
+## Haritanın alt kenardan yukarı kayma mesafesi (EXIT butonuyla çakışmaması için)
+@export var map_bottom_offset_px: float = 84.0
 ## static_01 ... static_09 dosyalarını buraya ekle (boş bırakılırsa kod otomatik yükler)
 @export var static_frames: Array[Texture2D]
 @export_range(0.0, 1.0) var static_alpha: float = 0.06
@@ -58,6 +67,7 @@ const STATIC_DIR_CANDIDATES: PackedStringArray = [
 @onready var cam_camera: Camera3D = $Root/CamViewContainer/CamViewport/CamCamera
 @onready var static_noise: TextureRect = $Root/StaticNoise
 @onready var scanline: Control = $Root/Scanline
+@onready var frame_rect: TextureRect = $Root/Frame
 @onready var cam_label: Label = $Root/CamLabel
 @onready var btn_cam1: Button = $Root/BtnCam1
 @onready var btn_cam2: Button = $Root/BtnCam2
@@ -232,17 +242,37 @@ func _order_pending_behind_hud() -> void:
 		return
 	if _pending_overlay.get_parent() != root_ctrl:
 		return
+	var hud_nodes: Array[Control] = [frame_rect, cam_label, btn_cam1, btn_cam2, btn_exit]
 	var first_hud_idx: int = root_ctrl.get_child_count()
-	for hud_node: Control in [cam_label, btn_cam1, btn_cam2, btn_exit]:
+	for hud_node: Control in hud_nodes:
 		if hud_node and hud_node.get_parent() == root_ctrl:
 			first_hud_idx = mini(first_hud_idx, hud_node.get_index())
 	var desired_idx: int = maxi(first_hud_idx - 1, 0)
 	if _pending_overlay.get_index() >= first_hud_idx:
 		desired_idx = first_hud_idx
 	root_ctrl.move_child(_pending_overlay, desired_idx)
-	for hud_node: Control in [cam_label, btn_cam1, btn_cam2, btn_exit]:
+	for hud_node: Control in hud_nodes:
 		if hud_node and hud_node.get_parent() == root_ctrl and hud_node.get_index() < _pending_overlay.get_index():
 			root_ctrl.move_child(hud_node, _pending_overlay.get_index() + 1)
+
+
+func _setup_map_frame() -> void:
+	if not frame_rect or not is_instance_valid(frame_rect):
+		return
+	var tex: Texture2D = camera_map_texture if camera_map_texture else CAMERA_MAP_TEX
+	if tex:
+		frame_rect.texture = tex
+	frame_rect.visible = true
+	frame_rect.modulate = Color(1.0, 1.0, 1.0, 1.0)
+	frame_rect.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	frame_rect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	frame_rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
+
+	frame_rect.set_anchors_and_offsets_preset(Control.PRESET_BOTTOM_RIGHT, Control.PRESET_MODE_KEEP_SIZE)
+	frame_rect.offset_right = -map_margin_px
+	frame_rect.offset_bottom = -map_bottom_offset_px
+	frame_rect.offset_left = -map_margin_px - map_size_px.x
+	frame_rect.offset_top = -map_bottom_offset_px - map_size_px.y
 
 
 func _force_layout() -> void:
@@ -250,11 +280,6 @@ func _force_layout() -> void:
 		c.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 
 	static_noise.modulate.a = static_alpha
-
-	var frame := get_node_or_null("Root/Frame") as Control
-	if frame:
-		frame.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-		frame.mouse_filter = Control.MOUSE_FILTER_IGNORE
 
 	_ensure_extra_scanlines()
 	_ensure_pending_overlay()
@@ -279,6 +304,7 @@ func _force_layout() -> void:
 	_refresh_label()
 	if auto_layout:
 		_layout_ui()
+	_setup_map_frame()
 	_order_pending_behind_hud()
 
 
