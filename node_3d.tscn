@@ -13,7 +13,6 @@
 [ext_resource type="Texture2D" uid="uid://c8ooxl4o565jw" path="res://textures/Plastic005_1K-JPG_Displacement.jpg" id="7_tereu"]
 [ext_resource type="Texture2D" uid="uid://cqgglosmrp7j4" path="res://textures/Metal056B_1K-JPG_Color.jpg" id="9_6iypd"]
 [ext_resource type="Script" uid="uid://b367r5sfsom3" path="res://debug_walker.gd" id="13_imku0"]
-[ext_resource type="Texture2D" uid="uid://bbybkxymdt70f" path="res://png/ahmakislatan.jpeg" id="14_wlxy5"]
 
 [sub_resource type="Environment" id="Environment_noarx"]
 background_mode = 1
@@ -21,6 +20,116 @@ ambient_light_source = 2
 ambient_light_color = Color(0.08668149, 0.17381425, 0.17381425, 1)
 tonemap_mode = 2
 fog_density = 0.0249
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_plheh"]
+radius = 0.65
+height = 3.5
+
+[sub_resource type="CapsuleMesh" id="CapsuleMesh_plheh"]
+radius = 0.6484375
+height = 4.1446533
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_imku0"]
+albedo_color = Color(0.32156864, 0.57254905, 0.5529412, 1)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_a0tk4"]
+albedo_color = Color(0.48730573, 0.44071043, 0.47883388, 1)
+albedo_texture = ExtResource("2_4arys")
+roughness = 0.9
+uv1_scale = Vector3(0.05, 0.05, 0.05)
+uv1_triplanar = true
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_i5arm"]
+albedo_color = Color(0.26293266, 0.2629324, 0.26293245, 1)
+albedo_texture = ExtResource("4_jka67")
+uv1_scale = Vector3(-0.095, -0.095, -0.095)
+uv1_triplanar = true
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_tereu"]
+albedo_color = Color(0.29411766, 0.28235295, 0.29411766, 1)
+albedo_texture = ExtResource("9_6iypd")
+uv1_scale = Vector3(0.185, 0.185, 0.185)
+uv1_triplanar = true
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_jka67"]
+albedo_color = Color(0.4183394, 0.41209188, 0.3951491, 1)
+albedo_texture = ExtResource("5_i5arm")
+uv1_scale = Vector3(0.45, 0.45, 0.45)
+uv1_offset = Vector3(-0.595, 0, 0)
+uv1_triplanar = true
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_6iypd"]
+transparency = 1
+albedo_color = Color(0.34509805, 0.5176471, 0.8235294, 0.3137255)
+albedo_texture = ExtResource("5_6iypd")
+roughness = 0.3
+emission_enabled = true
+emission = Color(0.017809093, 0.017722998, 0.055213764, 1)
+uv1_scale = Vector3(0.185, 0.185, 0.185)
+uv1_triplanar = true
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_7e1ge"]
+albedo_color = Color(0.16298196, 0.059720516, 6.016344e-09, 1)
+albedo_texture = ExtResource("2_a0tk4")
+roughness = 0.8
+uv1_scale = Vector3(0.175, 0.175, 0.175)
+uv1_triplanar = true
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_plheh"]
+albedo_color = Color(0.019211002, 0.017286172, 0.016823366, 1)
+albedo_texture = ExtResource("4_4arys")
+emission_enabled = true
+emission = Color(0.017809093, 0.017722998, 0.055213764, 1)
+uv1_scale = Vector3(0.335, 0.335, 0.335)
+uv1_triplanar = true
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_a202f"]
+albedo_color = Color(0.34509805, 0.5176471, 0.8235294, 1)
+albedo_texture = ExtResource("5_6iypd")
+roughness = 0.7
+emission_enabled = true
+emission = Color(0.017809093, 0.017722998, 0.055213764, 1)
+uv1_triplanar = true
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_plheh"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_lwsih"]
+albedo_color = Color(0.38681057, 0.5511097, 0.24304882, 1)
+albedo_texture = ExtResource("5_6iypd")
+roughness = 0.7
+emission_enabled = true
+emission = Color(0, 0, 0.09411765, 1)
+uv1_scale = Vector3(0.97, 0.97, 0.97)
+uv1_triplanar = true
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_j06il"]
+albedo_color = Color(0.003921569, 0.003921569, 0.003921569, 0)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_3o4bs"]
+albedo_color = Color(0.36367702, 0.36367702, 0.36367702, 1)
+albedo_texture = ExtResource("7_tereu")
+uv1_scale = Vector3(0.45, 0.45, 0.45)
+uv1_triplanar = true
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_qiyxg"]
+albedo_color = Color(0.36367702, 0.36367702, 0.36367702, 1)
+albedo_texture = ExtResource("7_tereu")
+uv1_scale = Vector3(0.24, 0.24, 0.24)
+uv1_triplanar = true
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_noarx"]
+albedo_color = Color(0.31891543, 0.31891543, 0.31891543, 1)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_r3fl7"]
+albedo_color = Color(0.2523523, 0.2523523, 0.2523523, 1)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_50sfa"]
+albedo_color = Color(0.049669262, 0.049669262, 0.049669262, 0)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_ni871"]
+albedo_color = Color(0.17997457, 0.17997457, 0.17997457, 0)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_noarx"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_w7sca"]
 albedo_color = Color(0.96862745, 0.8901961, 0.101960786, 1)
@@ -356,190 +465,507 @@ tracks/13/keys = {
 "values": [Vector3(0, 4.230363, -9.656786)]
 }
 
+[sub_resource type="Animation" id="Animation_imku0"]
+resource_name = "pose_sit"
+length = 0.001
+tracks/0/type = "position_3d"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("govde")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = PackedFloat32Array(0, 1, 0, 0, 0)
+tracks/1/type = "position_3d"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("sagbacak")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = PackedFloat32Array(0, 1, 0, 1.606577, -9.545041)
+tracks/2/type = "value"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath("solbacak:position")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector3(1.1325378, 1.606577, -10.6374035)]
+}
+tracks/3/type = "value"
+tracks/3/imported = false
+tracks/3/enabled = true
+tracks/3/path = NodePath("solbacak:rotation")
+tracks/3/interp = 1
+tracks/3/loop_wrap = true
+tracks/3/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector3(0.07093515, 0.52001464, 0.6565808)]
+}
+tracks/4/type = "value"
+tracks/4/imported = false
+tracks/4/enabled = true
+tracks/4/path = NodePath("sagbacak:rotation")
+tracks/4/interp = 1
+tracks/4/loop_wrap = true
+tracks/4/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector3(-0.08013207, -0.3783972, 0.8856)]
+}
+tracks/5/type = "value"
+tracks/5/imported = false
+tracks/5/enabled = true
+tracks/5/path = NodePath("govde:rotation")
+tracks/5/interp = 1
+tracks/5/loop_wrap = true
+tracks/5/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector3(0, 0, 0.18965359)]
+}
+tracks/6/type = "value"
+tracks/6/imported = false
+tracks/6/enabled = true
+tracks/6/path = NodePath("solkol:position")
+tracks/6/interp = 1
+tracks/6/loop_wrap = true
+tracks/6/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector3(-0.5780945, 1.4655002, -10.954258)]
+}
+tracks/7/type = "value"
+tracks/7/imported = false
+tracks/7/enabled = true
+tracks/7/path = NodePath("solkol:rotation")
+tracks/7/interp = 1
+tracks/7/loop_wrap = true
+tracks/7/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector3(0.57697225, 0, 0)]
+}
+tracks/8/type = "value"
+tracks/8/imported = false
+tracks/8/enabled = true
+tracks/8/path = NodePath("sagkol:position")
+tracks/8/interp = 1
+tracks/8/loop_wrap = true
+tracks/8/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector3(-0.49089813, 1.4627005, -8.459621)]
+}
+tracks/9/type = "value"
+tracks/9/imported = false
+tracks/9/enabled = true
+tracks/9/path = NodePath("sagkol:rotation")
+tracks/9/interp = 1
+tracks/9/loop_wrap = true
+tracks/9/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector3(2.555764, 0, 0)]
+}
+tracks/10/type = "value"
+tracks/10/imported = false
+tracks/10/enabled = true
+tracks/10/path = NodePath("head:position")
+tracks/10/interp = 1
+tracks/10/loop_wrap = true
+tracks/10/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector3(0.61628723, 4.2313704, -9.8218155)]
+}
+tracks/11/type = "value"
+tracks/11/imported = false
+tracks/11/enabled = true
+tracks/11/path = NodePath("head:rotation")
+tracks/11/interp = 1
+tracks/11/loop_wrap = true
+tracks/11/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector3(0, 0, -1.1234311)]
+}
+tracks/12/type = "value"
+tracks/12/imported = false
+tracks/12/enabled = true
+tracks/12/path = NodePath("sagbacak:position")
+tracks/12/interp = 1
+tracks/12/loop_wrap = true
+tracks/12/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector3(1.1871796, 1.606577, -8.828938)]
+}
+tracks/13/type = "value"
+tracks/13/imported = false
+tracks/13/enabled = true
+tracks/13/path = NodePath("govde:position")
+tracks/13/interp = 1
+tracks/13/loop_wrap = true
+tracks/13/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector3(-0.49697113, 2.039334, -9.656786)]
+}
+
+[sub_resource type="Animation" id="Animation_3v7ru"]
+resource_name = "pose_stand"
+length = 0.001
+tracks/0/type = "position_3d"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("govde")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = PackedFloat32Array(0, 1, 0, 0, 0)
+tracks/1/type = "position_3d"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("sagbacak")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = PackedFloat32Array(0, 1, 0, 1.606577, -9.545041)
+tracks/2/type = "value"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath("solbacak:position")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector3(-0.33917236, 1.606577, -9.890139)]
+}
+tracks/3/type = "value"
+tracks/3/imported = false
+tracks/3/enabled = true
+tracks/3/path = NodePath("solbacak:rotation")
+tracks/3/interp = 1
+tracks/3/loop_wrap = true
+tracks/3/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector3(0.1538189, -0.033641946, -0.21622513)]
+}
+tracks/4/type = "value"
+tracks/4/imported = false
+tracks/4/enabled = true
+tracks/4/path = NodePath("sagbacak:rotation")
+tracks/4/interp = 1
+tracks/4/loop_wrap = true
+tracks/4/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector3(-0.124180235, -0.022675803, 0.18109937)]
+}
+tracks/5/type = "value"
+tracks/5/imported = false
+tracks/5/enabled = true
+tracks/5/path = NodePath("govde:rotation")
+tracks/5/interp = 1
+tracks/5/loop_wrap = true
+tracks/5/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector3(0, 0, 0)]
+}
+tracks/6/type = "value"
+tracks/6/imported = false
+tracks/6/enabled = true
+tracks/6/path = NodePath("solkol:position")
+tracks/6/interp = 1
+tracks/6/loop_wrap = true
+tracks/6/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector3(0.38341522, 3.980945, -10.41415)]
+}
+tracks/7/type = "value"
+tracks/7/imported = false
+tracks/7/enabled = true
+tracks/7/path = NodePath("solkol:rotation")
+tracks/7/interp = 1
+tracks/7/loop_wrap = true
+tracks/7/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector3(0.32768655, 0.09744532, 0.29487064)]
+}
+tracks/8/type = "value"
+tracks/8/imported = false
+tracks/8/enabled = true
+tracks/8/path = NodePath("sagkol:position")
+tracks/8/interp = 1
+tracks/8/loop_wrap = true
+tracks/8/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector3(-0.12750244, 4.0284643, -8.831598)]
+}
+tracks/9/type = "value"
+tracks/9/imported = false
+tracks/9/enabled = true
+tracks/9/path = NodePath("sagkol:rotation")
+tracks/9/interp = 1
+tracks/9/loop_wrap = true
+tracks/9/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector3(0.17548883, -3.0719056, -2.7612624)]
+}
+tracks/10/type = "value"
+tracks/10/imported = false
+tracks/10/enabled = true
+tracks/10/path = NodePath("head:position")
+tracks/10/interp = 1
+tracks/10/loop_wrap = true
+tracks/10/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector3(1.2945786, 6.9737835, -9.358812)]
+}
+tracks/11/type = "value"
+tracks/11/imported = false
+tracks/11/enabled = true
+tracks/11/path = NodePath("head:rotation")
+tracks/11/interp = 1
+tracks/11/loop_wrap = true
+tracks/11/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector3(1.415426e-09, -0.2925572, -0.4848891)]
+}
+tracks/12/type = "value"
+tracks/12/imported = false
+tracks/12/enabled = true
+tracks/12/path = NodePath("sagbacak:position")
+tracks/12/interp = 1
+tracks/12/loop_wrap = true
+tracks/12/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector3(0.35741425, 1.606577, -9.466797)]
+}
+tracks/13/type = "value"
+tracks/13/imported = false
+tracks/13/enabled = true
+tracks/13/path = NodePath("govde:position")
+tracks/13/interp = 1
+tracks/13/loop_wrap = true
+tracks/13/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector3(0, 4.230363, -9.656786)]
+}
+
+[sub_resource type="Animation" id="Animation_tcnuu"]
+resource_name = "pose_window"
+length = 0.001
+tracks/0/type = "position_3d"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("govde")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = PackedFloat32Array(0, 1, 0, 0, 0)
+tracks/1/type = "position_3d"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("sagbacak")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = PackedFloat32Array(0, 1, 0, 1.606577, -9.545041)
+tracks/2/type = "value"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath("solbacak:position")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector3(0.25061798, 1.606577, -10.961849)]
+}
+tracks/3/type = "value"
+tracks/3/imported = false
+tracks/3/enabled = true
+tracks/3/path = NodePath("solbacak:rotation")
+tracks/3/interp = 1
+tracks/3/loop_wrap = true
+tracks/3/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector3(0.15381892, -0.03364195, -0.21622513)]
+}
+tracks/4/type = "value"
+tracks/4/imported = false
+tracks/4/enabled = true
+tracks/4/path = NodePath("sagbacak:rotation")
+tracks/4/interp = 1
+tracks/4/loop_wrap = true
+tracks/4/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector3(-0.12418023, -0.0226758, 0.18109937)]
+}
+tracks/5/type = "value"
+tracks/5/imported = false
+tracks/5/enabled = true
+tracks/5/path = NodePath("govde:rotation")
+tracks/5/interp = 1
+tracks/5/loop_wrap = true
+tracks/5/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector3(0, 0, 0)]
+}
+tracks/6/type = "value"
+tracks/6/imported = false
+tracks/6/enabled = true
+tracks/6/path = NodePath("solkol:position")
+tracks/6/interp = 1
+tracks/6/loop_wrap = true
+tracks/6/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector3(1.5475464, 3.980945, -11.485859)]
+}
+tracks/7/type = "value"
+tracks/7/imported = false
+tracks/7/enabled = true
+tracks/7/path = NodePath("solkol:rotation")
+tracks/7/interp = 1
+tracks/7/loop_wrap = true
+tracks/7/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector3(0.28622425, 0.18864429, 0.59457695)]
+}
+tracks/8/type = "value"
+tracks/8/imported = false
+tracks/8/enabled = true
+tracks/8/path = NodePath("sagkol:position")
+tracks/8/interp = 1
+tracks/8/loop_wrap = true
+tracks/8/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector3(1.6220169, 5.1079926, -9.595411)]
+}
+tracks/9/type = "value"
+tracks/9/imported = false
+tracks/9/enabled = true
+tracks/9/path = NodePath("sagkol:rotation")
+tracks/9/interp = 1
+tracks/9/loop_wrap = true
+tracks/9/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector3(0.5025895, 2.2225606, 0.8953566)]
+}
+tracks/10/type = "value"
+tracks/10/imported = false
+tracks/10/enabled = true
+tracks/10/path = NodePath("head:position")
+tracks/10/interp = 1
+tracks/10/loop_wrap = true
+tracks/10/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector3(1.6622391, 6.705788, -10.71121)]
+}
+tracks/11/type = "value"
+tracks/11/imported = false
+tracks/11/enabled = true
+tracks/11/path = NodePath("head:rotation")
+tracks/11/interp = 1
+tracks/11/loop_wrap = true
+tracks/11/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector3(1.415426e-09, -0.2925572, -0.48488906)]
+}
+tracks/12/type = "value"
+tracks/12/imported = false
+tracks/12/enabled = true
+tracks/12/path = NodePath("sagbacak:position")
+tracks/12/interp = 1
+tracks/12/loop_wrap = true
+tracks/12/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector3(0.9472122, 1.606577, -10.538507)]
+}
+tracks/13/type = "value"
+tracks/13/imported = false
+tracks/13/enabled = true
+tracks/13/path = NodePath("govde:position")
+tracks/13/interp = 1
+tracks/13/loop_wrap = true
+tracks/13/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector3(0.58979034, 4.230363, -10.728497)]
+}
+
 [sub_resource type="AnimationLibrary" id="AnimationLibrary_tuemg"]
 _data = {
 &"RESET": SubResource("Animation_wlxy5"),
-&"idil": SubResource("Animation_cdqbm")
+&"idil": SubResource("Animation_cdqbm"),
+&"pose_sit": SubResource("Animation_imku0"),
+&"pose_stand": SubResource("Animation_3v7ru"),
+&"pose_window": SubResource("Animation_tcnuu")
 }
-
-[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_plheh"]
-radius = 0.65
-height = 3.5
-
-[sub_resource type="CapsuleMesh" id="CapsuleMesh_plheh"]
-radius = 0.6484375
-height = 4.1446533
-
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_imku0"]
-albedo_color = Color(0.32156864, 0.57254905, 0.5529412, 1)
-
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_qw0oa"]
-albedo_texture = ExtResource("14_wlxy5")
-uv1_scale = Vector3(-1, 1, 1)
-
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_a0tk4"]
-albedo_color = Color(0.48730573, 0.44071043, 0.47883388, 1)
-albedo_texture = ExtResource("2_4arys")
-roughness = 0.9
-uv1_scale = Vector3(0.05, 0.05, 0.05)
-uv1_triplanar = true
-
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_i5arm"]
-albedo_color = Color(0.26293266, 0.2629324, 0.26293245, 1)
-albedo_texture = ExtResource("4_jka67")
-uv1_scale = Vector3(-0.095, -0.095, -0.095)
-uv1_triplanar = true
-
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_tereu"]
-albedo_color = Color(0.29411766, 0.28235295, 0.29411766, 1)
-albedo_texture = ExtResource("9_6iypd")
-uv1_scale = Vector3(0.185, 0.185, 0.185)
-uv1_triplanar = true
-
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_jka67"]
-albedo_color = Color(0.4183394, 0.41209188, 0.3951491, 1)
-albedo_texture = ExtResource("5_i5arm")
-uv1_scale = Vector3(0.45, 0.45, 0.45)
-uv1_offset = Vector3(-0.595, 0, 0)
-uv1_triplanar = true
-
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_6iypd"]
-transparency = 1
-albedo_color = Color(0.34509805, 0.5176471, 0.8235294, 0.3137255)
-albedo_texture = ExtResource("5_6iypd")
-roughness = 0.3
-emission_enabled = true
-emission = Color(0.017809093, 0.017722998, 0.055213764, 1)
-uv1_scale = Vector3(0.185, 0.185, 0.185)
-uv1_triplanar = true
-
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_7e1ge"]
-albedo_color = Color(0.16298196, 0.059720516, 6.016344e-09, 1)
-albedo_texture = ExtResource("2_a0tk4")
-roughness = 0.8
-uv1_scale = Vector3(0.175, 0.175, 0.175)
-uv1_triplanar = true
-
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_plheh"]
-albedo_color = Color(0.019211002, 0.017286172, 0.016823366, 1)
-albedo_texture = ExtResource("4_4arys")
-emission_enabled = true
-emission = Color(0.017809093, 0.017722998, 0.055213764, 1)
-uv1_scale = Vector3(0.335, 0.335, 0.335)
-uv1_triplanar = true
-
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_a202f"]
-albedo_color = Color(0.34509805, 0.5176471, 0.8235294, 1)
-albedo_texture = ExtResource("5_6iypd")
-roughness = 0.7
-emission_enabled = true
-emission = Color(0.017809093, 0.017722998, 0.055213764, 1)
-uv1_triplanar = true
-
-[sub_resource type="BoxShape3D" id="BoxShape3D_plheh"]
-
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_lwsih"]
-albedo_color = Color(0.38681057, 0.5511097, 0.24304882, 1)
-albedo_texture = ExtResource("5_6iypd")
-roughness = 0.7
-emission_enabled = true
-emission = Color(0, 0, 0.09411765, 1)
-uv1_scale = Vector3(0.97, 0.97, 0.97)
-uv1_triplanar = true
-
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_j06il"]
-albedo_color = Color(0.003921569, 0.003921569, 0.003921569, 0)
-
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_3o4bs"]
-albedo_color = Color(0.36367702, 0.36367702, 0.36367702, 1)
-albedo_texture = ExtResource("7_tereu")
-uv1_scale = Vector3(0.45, 0.45, 0.45)
-uv1_triplanar = true
-
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_qiyxg"]
-albedo_color = Color(0.36367702, 0.36367702, 0.36367702, 1)
-albedo_texture = ExtResource("7_tereu")
-uv1_scale = Vector3(0.24, 0.24, 0.24)
-uv1_triplanar = true
-
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_noarx"]
-albedo_color = Color(0.31891543, 0.31891543, 0.31891543, 1)
-
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_r3fl7"]
-albedo_color = Color(0.2523523, 0.2523523, 0.2523523, 1)
-
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_50sfa"]
-albedo_color = Color(0.049669262, 0.049669262, 0.049669262, 0)
-
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_ni871"]
-albedo_color = Color(0.17997457, 0.17997457, 0.17997457, 0)
-
-[sub_resource type="BoxShape3D" id="BoxShape3D_noarx"]
 
 [node name="Node3D" type="Node3D" unique_id=1695713827]
 
 [node name="WorldEnvironment" type="WorldEnvironment" parent="." unique_id=215971607]
 environment = SubResource("Environment_noarx")
 
-[node name="MayinMelih" type="CSGCombiner3D" parent="." unique_id=1005678622]
-transform = Transform3D(0.56, 0, 0, 0, 0.56, 0, 0, 0, 0.56, -46.659973, 0, -1.9653072)
-autosmooth = true
-use_collision = true
-
-[node name="head" type="CSGCombiner3D" parent="MayinMelih" unique_id=379398852]
-transform = Transform3D(0.8847266, 0.46611023, 0, -0.46611023, 0.8847266, 0, 0, 0, 1, 0.70030856, 6.9737835, -9.8218155)
-
-[node name="bant" type="CSGBox3D" parent="MayinMelih/head" unique_id=1716013663]
-transform = Transform3D(0.99999994, 0, 0, 0, 0.99999994, 0, 0, 0, 1, 0, 0, 0)
-size = Vector3(0.36437988, 0.001, 0.29867554)
-material = SubResource("StandardMaterial3D_w7sca")
-
-[node name="gulensurat" type="CSGBox3D" parent="MayinMelih/head" unique_id=1139404033]
-transform = Transform3D(0.68790495, 0.005572652, -0.72577935, 0.72575545, 0.005879311, 0.6879275, 0.008100661, -0.9999671, 2.4270026e-08, 0.68202996, -0.4690733, 0.047175407)
-size = Vector3(0.0018920898, 1.3125, 1.3759766)
-material = SubResource("StandardMaterial3D_7u4a5")
-
-[node name="kelle" type="CSGSphere3D" parent="MayinMelih/head" unique_id=1228739456]
-transform = Transform3D(0.88472664, -0.46611026, 0, 0.46611026, 0.88472664, 0, 0, 0, 1, -0.25204897, -1.0240364, 0.04831505)
-radius = 1.0362726
-rings = 20
-material = SubResource("StandardMaterial3D_bvq72")
-
-[node name="govde" type="CSGCylinder3D" parent="MayinMelih" unique_id=1545358190]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 4.230363, -9.656786)
-height = 2.3742676
-sides = 20
-material = SubResource("StandardMaterial3D_bvq72")
-
-[node name="sagbacak" type="CSGCylinder3D" parent="MayinMelih" unique_id=161419831]
-transform = Transform3D(1, 0, 0, 0, 0.99204457, 0.12588821, 0, -0.12588821, 0.99204457, 0, 1.606577, -9.466797)
-height = 2.9819336
-sides = 20
-material = SubResource("StandardMaterial3D_bvq72")
-
-[node name="sagkol" type="CSGCylinder3D" parent="MayinMelih" unique_id=1667410097]
-transform = Transform3D(0.7600001, 0, 0, 0, -3.322066e-08, -0.7600001, 0, 0.7600001, -3.322066e-08, 0, 5.0003858, -8.157237)
-height = 2.9819336
-sides = 20
-material = SubResource("StandardMaterial3D_bvq72")
-
-[node name="solkol" type="CSGCylinder3D" parent="MayinMelih" unique_id=2116673593]
-transform = Transform3D(0.76, 0, 0, 0, -3.3220655e-08, -0.76, 0, 0.76, -3.3220655e-08, 0, 5.0200925, -11.219304)
-height = 2.9819336
-sides = 20
-material = SubResource("StandardMaterial3D_bvq72")
-
-[node name="solbacak" type="CSGCylinder3D" parent="MayinMelih" unique_id=1188177137]
-transform = Transform3D(1, 0, 0, 0, 0.9876338, -0.15677698, 0, 0.15677698, 0.9876338, 0, 1.606577, -9.890139)
-height = 2.9819336
-sides = 20
-material = SubResource("StandardMaterial3D_bvq72")
-
-[node name="AnimationPlayer" type="AnimationPlayer" parent="MayinMelih" unique_id=875225098]
-libraries/ = SubResource("AnimationLibrary_tuemg")
-
 [node name="Pivot" type="Node3D" parent="." unique_id=1885355889]
-visible = false
 
 [node name="CharacterBody3D" type="CharacterBody3D" parent="Pivot" unique_id=703755988 node_paths=PackedStringArray("debug_camera")]
 transform = Transform3D(0.010493638, 0, 0.9999449, 0, 1, 0, -0.9999449, 0, 0.010493638, -1.5870726, 0, 1.3782055)
@@ -566,11 +992,6 @@ shadow_enabled = true
 spot_range = 12.113
 spot_attenuation = 0.0
 spot_angle = 64.15
-
-[node name="Sema" type="CSGBox3D" parent="." unique_id=1788273799]
-transform = Transform3D(-0.99997866, 0, 0.0065368786, 0, 1, 0, -0.0065368786, 0, -0.99997866, -8.82468, 2.8021317, 83.828575)
-size = Vector3(103.45828, 2.284546, 97.58203)
-material = SubResource("StandardMaterial3D_qw0oa")
 
 [node name="Map" type="CSGCombiner3D" parent="." unique_id=217649274]
 use_collision = true
@@ -1074,6 +1495,13 @@ light_energy = 1.44
 shadow_enabled = true
 omni_range = 12.661
 
+[node name="omniisik20" type="OmniLight3D" parent="Map/isiklar" unique_id=1278751145]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6.951149, 7.0813794, -16.27264)
+light_color = Color(1, 0.8509804, 0.627451, 1)
+light_energy = 1.44
+shadow_enabled = true
+omni_range = 12.661
+
 [node name="omniisik12" type="OmniLight3D" parent="Map/isiklar" unique_id=1116427488]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 16.721853, 4.7956905, -11.96277)
 light_color = Color(1, 0.8509804, 0.627451, 1)
@@ -1236,7 +1664,7 @@ transform = Transform3D(0.7343539, 0.3567477, -0.5774561, 0.032501396, 0.8312861
 fov = 60.0
 
 [node name="SecCam8" type="Camera3D" parent="SecCams" unique_id=745197343]
-transform = Transform3D(0.4498616, -0.42909804, 0.7832621, 0.035564948, 0.8849281, 0.46436778, -0.89239, -0.18104452, 0.413356, -2.6332176, 5.792942, 11.561461)
+transform = Transform3D(0.052639604, -0.46567547, 0.88338864, 0.035564937, 0.8849281, 0.46436772, -0.99798006, 0.006973475, 0.06314406, -2.6332176, 5.792942, 11.561461)
 fov = 60.0
 
 [node name="SecCam9" type="Camera3D" parent="SecCams" unique_id=824902290]
@@ -1252,99 +1680,478 @@ transform = Transform3D(0.81783247, 0.2668528, -0.50984293, 0.009635627, 0.87950
 fov = 60.0
 
 [node name="SecCam12" type="Camera3D" parent="SecCams" unique_id=204935900]
-transform = Transform3D(-0.9299229, -0.22001559, 0.29468045, -0.07697189, 0.8999924, 0.42905596, -0.3596092, 0.37630683, -0.8538586, 10.921991, 5.940019, -26.265669)
+transform = Transform3D(-0.9841167, -0.13762455, 0.112133995, -0.076971896, 0.8999924, 0.4290559, -0.15996836, 0.4136099, -0.89629066, 10.921991, 5.940019, -26.265669)
 fov = 60.0
 
 [node name="SecCam13" type="Camera3D" parent="SecCams" unique_id=806887645]
-transform = Transform3D(-0.17378843, -0.43463582, 0.8836794, 0.05626872, 0.8914856, 0.4495413, -0.98317415, 0.1278486, -0.13047346, 10.996109, 9.029026, -35.450356)
+transform = Transform3D(0.13577719, -0.45290437, 0.8811597, 0.056268726, 0.8914856, 0.4495413, -0.98914033, -0.011455722, 0.14652771, 10.996109, 9.029026, -35.450356)
 fov = 60.0
 
 [node name="SecurityRoom" type="Node3D" parent="." unique_id=1822807806]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5.664241, -0.47908115, 3.909802)
 
-[node name="kapi" type="CSGCombiner3D" parent="SecurityRoom" unique_id=112652280]
+[node name="kapistages" type="Node3D" parent="SecurityRoom" unique_id=654725979]
 
-[node name="kapiMain" type="CSGBox3D" parent="SecurityRoom/kapi" unique_id=1661963366]
+[node name="stage0" type="CSGCombiner3D" parent="SecurityRoom/kapistages" unique_id=112652280]
+
+[node name="kapiMain" type="CSGBox3D" parent="SecurityRoom/kapistages/stage0" unique_id=1661963366]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.484947, 2.407546, 0.46595097)
 size = Vector3(1.9941406, 4.7388153, 0.13305664)
 material = SubResource("StandardMaterial3D_tereu")
 
-[node name="kapipencereboslugu" type="CSGBox3D" parent="SecurityRoom/kapi/kapiMain" unique_id=125537640]
+[node name="kapipencereboslugu" type="CSGBox3D" parent="SecurityRoom/kapistages/stage0/kapiMain" unique_id=125537640]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.88427854, -0.010326862)
 operation = 2
 size = Vector3(1.46875, 1.3537598, 0.30786133)
 metadata/_edit_lock_ = true
 
-[node name="kapipencerecerceve" type="CSGCombiner3D" parent="SecurityRoom/kapi" unique_id=672861858]
+[node name="kapipencerecerceve" type="CSGCombiner3D" parent="SecurityRoom/kapistages/stage0" unique_id=672861858]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.4843366, 2.6477346, 0.4575281)
 
-[node name="CSGBox3D3" type="CSGBox3D" parent="SecurityRoom/kapi/kapipencerecerceve" unique_id=1907812152]
+[node name="CSGBox3D3" type="CSGBox3D" parent="SecurityRoom/kapistages/stage0/kapipencerecerceve" unique_id=1907812152]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.2893696, 0)
 size = Vector3(1.4709473, 0.07424927, 0.18725586)
 material = SubResource("StandardMaterial3D_jka67")
 
-[node name="CSGBox3D4" type="CSGBox3D" parent="SecurityRoom/kapi/kapipencerecerceve" unique_id=1104931669]
+[node name="CSGBox3D4" type="CSGBox3D" parent="SecurityRoom/kapistages/stage0/kapipencerecerceve" unique_id=1104931669]
 transform = Transform3D(-4.371139e-08, -1, 0, 1, -4.371139e-08, 0, 0, 0, 1, 0.70133615, 0.67528605, 0)
 size = Vector3(1.2883301, 0.07424927, 0.18725586)
 material = SubResource("StandardMaterial3D_jka67")
 
-[node name="CSGBox3D5" type="CSGBox3D" parent="SecurityRoom/kapi/kapipencerecerceve" unique_id=449144288]
+[node name="CSGBox3D5" type="CSGBox3D" parent="SecurityRoom/kapistages/stage0/kapipencerecerceve" unique_id=449144288]
 transform = Transform3D(-4.371139e-08, -1, 0, 1, -4.371139e-08, 0, 0, 0, 1, -0.6988559, 0.67528605, 0)
 size = Vector3(1.2883301, 0.07424927, 0.18725586)
 material = SubResource("StandardMaterial3D_jka67")
 
-[node name="csgbox" type="CSGBox3D" parent="SecurityRoom/kapi/kapipencerecerceve" unique_id=1382479925]
+[node name="csgbox" type="CSGBox3D" parent="SecurityRoom/kapistages/stage0/kapipencerecerceve" unique_id=1382479925]
 size = Vector3(1.4709473, 0.07424927, 0.18725586)
 material = SubResource("StandardMaterial3D_jka67")
 
-[node name="tutacak" type="CSGCombiner3D" parent="SecurityRoom/kapi" unique_id=1499197952]
+[node name="tutacak" type="CSGCombiner3D" parent="SecurityRoom/kapistages/stage0" unique_id=1499197952]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.768197, 2.08131, 0.28699493)
 
-[node name="CSGBox3D" type="CSGBox3D" parent="SecurityRoom/kapi/tutacak" unique_id=1440063045]
+[node name="CSGBox3D" type="CSGBox3D" parent="SecurityRoom/kapistages/stage0/tutacak" unique_id=1440063045]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.5185418, -0.0058915615, 0.12117243)
 size = Vector3(0.2947998, 0.8466797, 0.045043945)
 material = SubResource("StandardMaterial3D_jka67")
 
-[node name="CSGBox3D2" type="CSGBox3D" parent="SecurityRoom/kapi/tutacak" unique_id=1504642451]
+[node name="CSGBox3D2" type="CSGBox3D" parent="SecurityRoom/kapistages/stage0/tutacak" unique_id=1504642451]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 0.62672114, 1.5330529, 0.3002138, 0.06053543)
 size = Vector3(0.08859253, 0.08105469, 0.15576172)
 material = SubResource("StandardMaterial3D_jka67")
 
-[node name="CSGBox3D3" type="CSGBox3D" parent="SecurityRoom/kapi/tutacak" unique_id=1647466256]
+[node name="CSGBox3D3" type="CSGBox3D" parent="SecurityRoom/kapistages/stage0/tutacak" unique_id=1647466256]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 0.62672114, 1.5330529, -0.30349457, 0.06053543)
 size = Vector3(0.08859253, 0.08105469, 0.15576172)
 material = SubResource("StandardMaterial3D_jka67")
 
-[node name="CSGBox3D4" type="CSGBox3D" parent="SecurityRoom/kapi/tutacak" unique_id=1592247926]
+[node name="CSGBox3D4" type="CSGBox3D" parent="SecurityRoom/kapistages/stage0/tutacak" unique_id=1592247926]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.5330529, 0, 0)
 size = Vector3(0.08859253, 0.6798248, 0.04724121)
 material = SubResource("StandardMaterial3D_jka67")
 
-[node name="CSGBox3D" type="CSGBox3D" parent="SecurityRoom/kapi" unique_id=915520952]
+[node name="CSGBox3D" type="CSGBox3D" parent="SecurityRoom/kapistages/stage0" unique_id=915520952]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.5027378, 3.2378879, 0.45589638)
 size = Vector3(1.3339844, 1.3925781, 0.027832031)
 material = SubResource("StandardMaterial3D_6iypd")
 
-[node name="kapicevre" type="CSGCombiner3D" parent="SecurityRoom/kapi" unique_id=1831502488]
+[node name="kapicevre" type="CSGCombiner3D" parent="SecurityRoom/kapistages/stage0" unique_id=1831502488]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5.664241, 0.47908115, -3.909802)
 use_collision = true
 
-[node name="CSGBox3D" type="CSGBox3D" parent="SecurityRoom/kapi/kapicevre" unique_id=849419733]
+[node name="CSGBox3D" type="CSGBox3D" parent="SecurityRoom/kapistages/stage0/kapicevre" unique_id=849419733]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.0888488, 1.9795532, 4.384112)
 size = Vector3(0.21386719, 4.9591064, 0.25610352)
 material = SubResource("StandardMaterial3D_jka67")
 
-[node name="CSGBox3D2" type="CSGBox3D" parent="SecurityRoom/kapi/kapicevre" unique_id=571826945]
+[node name="CSGBox3D2" type="CSGBox3D" parent="SecurityRoom/kapistages/stage0/kapicevre" unique_id=571826945]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3.247919, 1.9795532, 4.384112)
 size = Vector3(0.21386719, 4.9591064, 0.25610352)
 material = SubResource("StandardMaterial3D_jka67")
 
-[node name="CSGBox3D3" type="CSGBox3D" parent="SecurityRoom/kapi/kapicevre" unique_id=1156538224]
+[node name="CSGBox3D3" type="CSGBox3D" parent="SecurityRoom/kapistages/stage0/kapicevre" unique_id=1156538224]
 transform = Transform3D(-4.371139e-08, -1, 0, 1, -4.371139e-08, 0, 0, 0, 1, -2.2376804, 4.3561025, 4.384112)
 size = Vector3(0.21386719, 2.1221008, 0.25610352)
 material = SubResource("StandardMaterial3D_jka67")
 
-[node name="CSGBox3D4" type="CSGBox3D" parent="SecurityRoom/kapi/kapicevre" unique_id=870886683]
+[node name="CSGBox3D4" type="CSGBox3D" parent="SecurityRoom/kapistages/stage0/kapicevre" unique_id=870886683]
+transform = Transform3D(-4.371139e-08, -1, 0, 1, -4.371139e-08, 0, 0, 0, 1, -2.2376804, -0.51992077, 4.384112)
+size = Vector3(0.21386719, 2.1221008, 0.25610352)
+material = SubResource("StandardMaterial3D_i5arm")
+
+[node name="stage4" type="CSGCombiner3D" parent="SecurityRoom/kapistages" unique_id=1995683678]
+transform = Transform3D(1.1924881e-08, 0, -1, 0, 1, 0, 1, 0, 1.1924881e-08, -39.044765, 0.603873, -14.941072)
+
+[node name="kapiMain" type="CSGBox3D" parent="SecurityRoom/kapistages/stage4" unique_id=1754903544]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.484947, 2.407546, 0.46595097)
+size = Vector3(1.9941406, 4.7388153, 0.13305664)
+material = SubResource("StandardMaterial3D_tereu")
+
+[node name="kapipencereboslugu" type="CSGBox3D" parent="SecurityRoom/kapistages/stage4/kapiMain" unique_id=655912383]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.88427854, -0.010326862)
+operation = 2
+size = Vector3(1.46875, 1.3537598, 0.30786133)
+metadata/_edit_lock_ = true
+
+[node name="kapipencerecerceve" type="CSGCombiner3D" parent="SecurityRoom/kapistages/stage4" unique_id=879744412]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.4843366, 2.6477346, 0.4575281)
+
+[node name="CSGBox3D3" type="CSGBox3D" parent="SecurityRoom/kapistages/stage4/kapipencerecerceve" unique_id=1587087518]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.2893696, 0)
+size = Vector3(1.4709473, 0.07424927, 0.18725586)
+material = SubResource("StandardMaterial3D_jka67")
+
+[node name="CSGBox3D4" type="CSGBox3D" parent="SecurityRoom/kapistages/stage4/kapipencerecerceve" unique_id=1995771297]
+transform = Transform3D(-4.371139e-08, -1, 0, 1, -4.371139e-08, 0, 0, 0, 1, 0.70133615, 0.67528605, 0)
+size = Vector3(1.2883301, 0.07424927, 0.18725586)
+material = SubResource("StandardMaterial3D_jka67")
+
+[node name="CSGBox3D5" type="CSGBox3D" parent="SecurityRoom/kapistages/stage4/kapipencerecerceve" unique_id=515640823]
+transform = Transform3D(-4.371139e-08, -1, 0, 1, -4.371139e-08, 0, 0, 0, 1, -0.6988559, 0.67528605, 0)
+size = Vector3(1.2883301, 0.07424927, 0.18725586)
+material = SubResource("StandardMaterial3D_jka67")
+
+[node name="csgbox" type="CSGBox3D" parent="SecurityRoom/kapistages/stage4/kapipencerecerceve" unique_id=467790414]
+size = Vector3(1.4709473, 0.07424927, 0.18725586)
+material = SubResource("StandardMaterial3D_jka67")
+
+[node name="tutacak" type="CSGCombiner3D" parent="SecurityRoom/kapistages/stage4" unique_id=731741974]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.768197, 2.08131, 0.28699493)
+
+[node name="CSGBox3D" type="CSGBox3D" parent="SecurityRoom/kapistages/stage4/tutacak" unique_id=1296174983]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.5185418, -0.0058915615, 0.12117243)
+size = Vector3(0.2947998, 0.8466797, 0.045043945)
+material = SubResource("StandardMaterial3D_jka67")
+
+[node name="CSGBox3D2" type="CSGBox3D" parent="SecurityRoom/kapistages/stage4/tutacak" unique_id=1862177672]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 0.62672114, 1.5330529, 0.3002138, 0.06053543)
+size = Vector3(0.08859253, 0.08105469, 0.15576172)
+material = SubResource("StandardMaterial3D_jka67")
+
+[node name="CSGBox3D3" type="CSGBox3D" parent="SecurityRoom/kapistages/stage4/tutacak" unique_id=1808187313]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 0.62672114, 1.5330529, -0.30349457, 0.06053543)
+size = Vector3(0.08859253, 0.08105469, 0.15576172)
+material = SubResource("StandardMaterial3D_jka67")
+
+[node name="CSGBox3D4" type="CSGBox3D" parent="SecurityRoom/kapistages/stage4/tutacak" unique_id=1525109080]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.5330529, 0, 0)
+size = Vector3(0.08859253, 0.6798248, 0.04724121)
+material = SubResource("StandardMaterial3D_jka67")
+
+[node name="CSGBox3D" type="CSGBox3D" parent="SecurityRoom/kapistages/stage4" unique_id=493336997]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.5027378, 3.2378879, 0.45589638)
+size = Vector3(1.3339844, 1.3925781, 0.027832031)
+material = SubResource("StandardMaterial3D_6iypd")
+
+[node name="kapicevre" type="CSGCombiner3D" parent="SecurityRoom/kapistages/stage4" unique_id=973242062]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5.664241, 0.47908115, -3.909802)
+use_collision = true
+
+[node name="CSGBox3D" type="CSGBox3D" parent="SecurityRoom/kapistages/stage4/kapicevre" unique_id=376965794]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.0888488, 1.9795532, 4.384112)
+size = Vector3(0.21386719, 4.9591064, 0.25610352)
+material = SubResource("StandardMaterial3D_jka67")
+
+[node name="CSGBox3D2" type="CSGBox3D" parent="SecurityRoom/kapistages/stage4/kapicevre" unique_id=607638711]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3.247919, 1.9795532, 4.384112)
+size = Vector3(0.21386719, 4.9591064, 0.25610352)
+material = SubResource("StandardMaterial3D_jka67")
+
+[node name="CSGBox3D3" type="CSGBox3D" parent="SecurityRoom/kapistages/stage4/kapicevre" unique_id=1420028229]
+transform = Transform3D(-4.371139e-08, -1, 0, 1, -4.371139e-08, 0, 0, 0, 1, -2.2376804, 4.3561025, 4.384112)
+size = Vector3(0.21386719, 2.1221008, 0.25610352)
+material = SubResource("StandardMaterial3D_jka67")
+
+[node name="CSGBox3D4" type="CSGBox3D" parent="SecurityRoom/kapistages/stage4/kapicevre" unique_id=1275481613]
+transform = Transform3D(-4.371139e-08, -1, 0, 1, -4.371139e-08, 0, 0, 0, 1, -2.2376804, -0.51992077, 4.384112)
+size = Vector3(0.21386719, 2.1221008, 0.25610352)
+material = SubResource("StandardMaterial3D_i5arm")
+
+[node name="stage1" type="CSGCombiner3D" parent="SecurityRoom/kapistages" unique_id=192229408]
+visible = false
+
+[node name="kapiMain" type="CSGBox3D" parent="SecurityRoom/kapistages/stage1" unique_id=1379041107]
+transform = Transform3D(1, 0, 0, 0, 0.9949762, -0.10011173, 0, 0.10011173, 0.9949762, 3.484947, 3.8020058, 0.34331226)
+size = Vector3(1.9941406, 2.0929623, 0.13305664)
+material = SubResource("StandardMaterial3D_tereu")
+
+[node name="kapipencereboslugu" type="CSGBox3D" parent="SecurityRoom/kapistages/stage1" unique_id=2072991132]
+transform = Transform3D(1, 0, 0, 0, 0.9949762, -0.10011173, 0, 0.10011173, 0.9949762, 3.484947, 3.2964451, 0.2820654)
+operation = 2
+size = Vector3(1.46875, 1.3537598, 0.30786133)
+metadata/_edit_lock_ = true
+
+[node name="kapiMain2" type="CSGBox3D" parent="SecurityRoom/kapistages/stage1" unique_id=1423575136]
+transform = Transform3D(1, 0, 0, 0, 0.99449646, 0.10476997, 0, -0.10476997, 0.99449646, 3.484947, 1.4111491, 0.3605981)
+size = Vector3(1.9941406, 2.7235222, 0.13305664)
+material = SubResource("StandardMaterial3D_tereu")
+
+[node name="kapipencerecerceve" type="CSGCombiner3D" parent="SecurityRoom/kapistages/stage1" unique_id=1719756473]
+transform = Transform3D(1, 0, 0, 0, 0.9988269, -0.048422884, 0, 0.048422884, 0.9988269, 3.4843366, 2.6477346, 0.29147148)
+
+[node name="CSGBox3D3" type="CSGBox3D" parent="SecurityRoom/kapistages/stage1/kapipencerecerceve" unique_id=1582607522]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.2893696, 0)
+size = Vector3(1.4709473, 0.07424927, 0.18725586)
+material = SubResource("StandardMaterial3D_jka67")
+
+[node name="CSGBox3D4" type="CSGBox3D" parent="SecurityRoom/kapistages/stage1/kapipencerecerceve" unique_id=2069528715]
+transform = Transform3D(-4.371139e-08, -1, 0, 1, -4.371139e-08, 0, 0, 0, 1, 0.70133615, 0.67528605, 0)
+size = Vector3(1.2883301, 0.07424927, 0.18725586)
+material = SubResource("StandardMaterial3D_jka67")
+
+[node name="CSGBox3D5" type="CSGBox3D" parent="SecurityRoom/kapistages/stage1/kapipencerecerceve" unique_id=1102369904]
+transform = Transform3D(-4.371139e-08, -1, 0, 1, -4.371139e-08, 0, 0, 0, 1, -0.6988559, 0.67528605, 0)
+size = Vector3(1.2883301, 0.07424927, 0.18725586)
+material = SubResource("StandardMaterial3D_jka67")
+
+[node name="csgbox" type="CSGBox3D" parent="SecurityRoom/kapistages/stage1/kapipencerecerceve" unique_id=1165751131]
+size = Vector3(1.4709473, 0.07424927, 0.18725586)
+material = SubResource("StandardMaterial3D_jka67")
+
+[node name="tutacak" type="CSGCombiner3D" parent="SecurityRoom/kapistages/stage1" unique_id=1886162331]
+transform = Transform3D(1, 0, 0, 0, 0.99449646, 0.10476997, 0, -0.10476997, 0.99449646, 2.768197, 2.0700603, 0.11123514)
+
+[node name="CSGBox3D" type="CSGBox3D" parent="SecurityRoom/kapistages/stage1/tutacak" unique_id=2074097331]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.5185418, -0.0058915615, 0.12117243)
+size = Vector3(0.2947998, 0.8466797, 0.045043945)
+material = SubResource("StandardMaterial3D_jka67")
+
+[node name="CSGBox3D2" type="CSGBox3D" parent="SecurityRoom/kapistages/stage1/tutacak" unique_id=2131626829]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 0.62672114, 1.5330529, 0.3002138, 0.06053543)
+size = Vector3(0.08859253, 0.08105469, 0.15576172)
+material = SubResource("StandardMaterial3D_jka67")
+
+[node name="CSGBox3D3" type="CSGBox3D" parent="SecurityRoom/kapistages/stage1/tutacak" unique_id=2138109398]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 0.62672114, 1.5330529, -0.30349457, 0.06053543)
+size = Vector3(0.08859253, 0.08105469, 0.15576172)
+material = SubResource("StandardMaterial3D_jka67")
+
+[node name="CSGBox3D4" type="CSGBox3D" parent="SecurityRoom/kapistages/stage1/tutacak" unique_id=646338850]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.5330529, 0, 0)
+size = Vector3(0.08859253, 0.6798248, 0.04724121)
+material = SubResource("StandardMaterial3D_jka67")
+
+[node name="kapicevre" type="CSGCombiner3D" parent="SecurityRoom/kapistages/stage1" unique_id=656222120]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5.664241, 0.47908115, -3.909802)
+use_collision = true
+
+[node name="CSGBox3D" type="CSGBox3D" parent="SecurityRoom/kapistages/stage1/kapicevre" unique_id=527461838]
+transform = Transform3D(1, 0, 0, 0, 0.9913345, -0.131362, 0, 0.131362, 0.9913345, -1.0888488, 3.3664627, 4.2860427)
+size = Vector3(0.21386719, 2.1852875, 0.25610352)
+material = SubResource("StandardMaterial3D_jka67")
+
+[node name="CSGBox3D5" type="CSGBox3D" parent="SecurityRoom/kapistages/stage1/kapicevre" unique_id=290217855]
+transform = Transform3D(1, 0, 0, 0, 0.98923206, 0.14635515, 0, -0.14635515, 0.98923206, -1.0888488, 0.92986727, 4.3363347)
+size = Vector3(0.21386719, 2.8611984, 0.25610352)
+material = SubResource("StandardMaterial3D_jka67")
+
+[node name="CSGBox3D2" type="CSGBox3D" parent="SecurityRoom/kapistages/stage1/kapicevre" unique_id=78599587]
+transform = Transform3D(1, 0, 0, 0, 0.9930046, 0.11807535, 0, -0.11807535, 0.9930046, -3.247919, 0.87210083, 4.417072)
+size = Vector3(0.21386719, 2.7442017, 0.25610352)
+material = SubResource("StandardMaterial3D_jka67")
+
+[node name="CSGBox3D6" type="CSGBox3D" parent="SecurityRoom/kapistages/stage1/kapicevre" unique_id=17932689]
+transform = Transform3D(1, 0, 0, 0, 0.9955586, -0.094143525, 0, 0.094143525, 0.9955586, -3.247919, 3.3313382, 4.397455)
+size = Vector3(0.21386719, 2.2364807, 0.25610352)
+material = SubResource("StandardMaterial3D_jka67")
+
+[node name="CSGBox3D3" type="CSGBox3D" parent="SecurityRoom/kapistages/stage1/kapicevre" unique_id=1793348708]
+transform = Transform3D(-4.371139e-08, -1, 0, 1, -4.371139e-08, 0, 0, 0, 1, -2.2376804, 4.3561025, 4.4313354)
+size = Vector3(0.21386719, 2.1221008, 0.25610352)
+material = SubResource("StandardMaterial3D_jka67")
+
+[node name="CSGBox3D4" type="CSGBox3D" parent="SecurityRoom/kapistages/stage1/kapicevre" unique_id=771946673]
+transform = Transform3D(-4.371139e-08, -1, 0, 1, -4.371139e-08, 0, 0, 0, 1, -2.2376804, -0.51992077, 4.384112)
+size = Vector3(0.21386719, 2.1221008, 0.25610352)
+material = SubResource("StandardMaterial3D_i5arm")
+
+[node name="stage2" type="CSGCombiner3D" parent="SecurityRoom/kapistages" unique_id=462590930]
+visible = false
+
+[node name="kapiMain" type="CSGBox3D" parent="SecurityRoom/kapistages/stage2" unique_id=177410150]
+transform = Transform3D(1, 0, 0, 0, 0.9837081, -0.17977354, 0, 0.17977354, 0.9837081, 3.484947, 3.7980542, 0.26134968)
+size = Vector3(1.9941406, 2.0929623, 0.13305664)
+material = SubResource("StandardMaterial3D_tereu")
+
+[node name="kapipencereboslugu" type="CSGBox3D" parent="SecurityRoom/kapistages/stage2" unique_id=570432449]
+transform = Transform3D(1, 0, 0, 0, 0.9837081, -0.17977354, 0, 0.17977354, 0.9837081, 3.484947, 3.2990534, 0.15965939)
+operation = 2
+size = Vector3(1.46875, 1.3537598, 0.30786133)
+metadata/_edit_lock_ = true
+
+[node name="kapiMain2" type="CSGBox3D" parent="SecurityRoom/kapistages/stage2" unique_id=404098608]
+transform = Transform3D(1, 0, 0, 0, 0.9795158, 0.20136759, 0, -0.20136759, 0.9795158, 3.484947, 1.4248965, 0.38453197)
+size = Vector3(1.9941406, 2.7235222, 0.13305664)
+material = SubResource("StandardMaterial3D_tereu")
+
+[node name="kapipencerecerceve" type="CSGCombiner3D" parent="SecurityRoom/kapistages/stage2" unique_id=1052929907]
+transform = Transform3D(1, 0, 0, 0, 0.99170154, -0.12856153, 0, 0.12856153, 0.99170154, 3.4843366, 2.6516862, 0.116885185)
+
+[node name="CSGBox3D3" type="CSGBox3D" parent="SecurityRoom/kapistages/stage2/kapipencerecerceve" unique_id=537989781]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.2893696, 0)
+size = Vector3(1.4709473, 0.07424927, 0.18725586)
+material = SubResource("StandardMaterial3D_jka67")
+
+[node name="CSGBox3D4" type="CSGBox3D" parent="SecurityRoom/kapistages/stage2/kapipencerecerceve" unique_id=1652203247]
+transform = Transform3D(-4.371139e-08, -1, 0, 1, -4.371139e-08, 0, 0, 0, 1, 0.70133615, 0.67528605, 0)
+size = Vector3(1.2883301, 0.07424927, 0.18725586)
+material = SubResource("StandardMaterial3D_jka67")
+
+[node name="CSGBox3D5" type="CSGBox3D" parent="SecurityRoom/kapistages/stage2/kapipencerecerceve" unique_id=1731131039]
+transform = Transform3D(-4.371139e-08, -1, 0, 1, -4.371139e-08, 0, 0, 0, 1, -0.6988559, 0.67528605, 0)
+size = Vector3(1.2883301, 0.07424927, 0.18725586)
+material = SubResource("StandardMaterial3D_jka67")
+
+[node name="csgbox" type="CSGBox3D" parent="SecurityRoom/kapistages/stage2/kapipencerecerceve" unique_id=1453058791]
+size = Vector3(1.4709473, 0.07424927, 0.18725586)
+material = SubResource("StandardMaterial3D_jka67")
+
+[node name="tutacak" type="CSGCombiner3D" parent="SecurityRoom/kapistages/stage2" unique_id=1492833325]
+transform = Transform3D(1, 0, 0, 0, 0.9795158, 0.20136759, 0, -0.20136759, 0.9795158, 2.768197, 2.0563128, 0.07202721)
+
+[node name="CSGBox3D" type="CSGBox3D" parent="SecurityRoom/kapistages/stage2/tutacak" unique_id=1289408440]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.5185418, -0.0058915615, 0.12117243)
+size = Vector3(0.2947998, 0.8466797, 0.045043945)
+material = SubResource("StandardMaterial3D_jka67")
+
+[node name="CSGBox3D2" type="CSGBox3D" parent="SecurityRoom/kapistages/stage2/tutacak" unique_id=830041241]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 0.62672114, 1.5330529, 0.3002138, 0.06053543)
+size = Vector3(0.08859253, 0.08105469, 0.15576172)
+material = SubResource("StandardMaterial3D_jka67")
+
+[node name="CSGBox3D3" type="CSGBox3D" parent="SecurityRoom/kapistages/stage2/tutacak" unique_id=488827681]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 0.62672114, 1.5330529, -0.30349457, 0.06053543)
+size = Vector3(0.08859253, 0.08105469, 0.15576172)
+material = SubResource("StandardMaterial3D_jka67")
+
+[node name="CSGBox3D4" type="CSGBox3D" parent="SecurityRoom/kapistages/stage2/tutacak" unique_id=1694922266]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.5330529, 0, 0)
+size = Vector3(0.08859253, 0.6798248, 0.04724121)
+material = SubResource("StandardMaterial3D_jka67")
+
+[node name="kapicevre" type="CSGCombiner3D" parent="SecurityRoom/kapistages/stage2" unique_id=1167386164]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5.664241, 0.47908115, -3.909802)
+use_collision = true
+
+[node name="CSGBox3D" type="CSGBox3D" parent="SecurityRoom/kapistages/stage2/kapicevre" unique_id=1697453793]
+transform = Transform3D(1, 0, 0, 0, 0.9913345, -0.131362, 0, 0.131362, 0.9913345, -1.0888488, 3.3664627, 4.2860427)
+size = Vector3(0.21386719, 2.1852875, 0.25610352)
+material = SubResource("StandardMaterial3D_jka67")
+
+[node name="CSGBox3D5" type="CSGBox3D" parent="SecurityRoom/kapistages/stage2/kapicevre" unique_id=1800684960]
+transform = Transform3D(1, 0, 0, 0, 0.98923206, 0.14635515, 0, -0.14635515, 0.98923206, -1.0888488, 0.92986727, 4.3363347)
+size = Vector3(0.21386719, 2.8611984, 0.25610352)
+material = SubResource("StandardMaterial3D_jka67")
+
+[node name="CSGBox3D2" type="CSGBox3D" parent="SecurityRoom/kapistages/stage2/kapicevre" unique_id=901525238]
+transform = Transform3D(1, 0, 0, 0, 0.9930046, 0.11807535, 0, -0.11807535, 0.9930046, -3.247919, 0.87210083, 4.417072)
+size = Vector3(0.21386719, 2.7442017, 0.25610352)
+material = SubResource("StandardMaterial3D_jka67")
+
+[node name="CSGBox3D6" type="CSGBox3D" parent="SecurityRoom/kapistages/stage2/kapicevre" unique_id=899715442]
+transform = Transform3D(1, 0, 0, 0, 0.9955586, -0.094143525, 0, 0.094143525, 0.9955586, -3.247919, 3.3313382, 4.397455)
+size = Vector3(0.21386719, 2.2364807, 0.25610352)
+material = SubResource("StandardMaterial3D_jka67")
+
+[node name="CSGBox3D3" type="CSGBox3D" parent="SecurityRoom/kapistages/stage2/kapicevre" unique_id=1909417039]
+transform = Transform3D(-4.371139e-08, -1, 0, 1, -4.371139e-08, 0, 0, 0, 1, -2.2376804, 4.3561025, 4.4604464)
+size = Vector3(0.21386719, 2.1221008, 0.25610352)
+material = SubResource("StandardMaterial3D_jka67")
+
+[node name="CSGBox3D4" type="CSGBox3D" parent="SecurityRoom/kapistages/stage2/kapicevre" unique_id=2011534637]
+transform = Transform3D(-4.371139e-08, -1, 0, 1, -4.371139e-08, 0, 0, 0, 1, -2.2376804, -0.51992077, 4.384112)
+size = Vector3(0.21386719, 2.1221008, 0.25610352)
+material = SubResource("StandardMaterial3D_i5arm")
+
+[node name="stage3" type="CSGCombiner3D" parent="SecurityRoom/kapistages" unique_id=600650992]
+visible = false
+
+[node name="kapiMain" type="CSGBox3D" parent="SecurityRoom/kapistages/stage3" unique_id=1071002850]
+transform = Transform3D(1, 0, 0, 0, 0.9583628, -0.28555346, 0, 0.28555346, 0.9583628, 3.484947, 3.7892964, 0.13060856)
+size = Vector3(1.9941406, 2.0929623, 0.13305664)
+material = SubResource("StandardMaterial3D_tereu")
+
+[node name="kapipencereboslugu" type="CSGBox3D" parent="SecurityRoom/kapistages/stage3" unique_id=853235222]
+transform = Transform3D(1, 0, 0, 0, 0.9583628, -0.28555346, 0, 0.28555346, 0.9583628, 3.484947, 3.2940965, 0.068641424)
+operation = 2
+size = Vector3(1.46875, 1.3537598, 0.30786133)
+
+[node name="kapiMain2" type="CSGBox3D" parent="SecurityRoom/kapistages/stage3" unique_id=111212159]
+transform = Transform3D(1, 0, 0, 0, 0.9499687, 0.3123453, 0, -0.3123453, 0.9499687, 3.484947, 1.5281786, 0.26103067)
+size = Vector3(1.9941406, 2.7235222, 0.13305664)
+material = SubResource("StandardMaterial3D_tereu")
+
+[node name="kapipencerecerceve" type="CSGCombiner3D" parent="SecurityRoom/kapistages/stage3" unique_id=438651398]
+transform = Transform3D(1, 0, 0, 0, 0.97187126, -0.23551264, 0, 0.23551264, 0.97187126, 3.4843366, 2.665401, -0.13751197)
+
+[node name="CSGBox3D3" type="CSGBox3D" parent="SecurityRoom/kapistages/stage3/kapipencerecerceve" unique_id=626692159]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.2893696, 0)
+size = Vector3(1.4709473, 0.07424927, 0.18725586)
+material = SubResource("StandardMaterial3D_jka67")
+
+[node name="CSGBox3D4" type="CSGBox3D" parent="SecurityRoom/kapistages/stage3/kapipencerecerceve" unique_id=1445821545]
+transform = Transform3D(-4.371139e-08, -1, 0, 1, -4.3711374e-08, 0, 0, 1.5987212e-14, 1, 0.70133615, 0.72734904, -2.3841858e-07)
+size = Vector3(1.1842041, 0.07424927, 0.18725586)
+material = SubResource("StandardMaterial3D_jka67")
+
+[node name="CSGBox3D5" type="CSGBox3D" parent="SecurityRoom/kapistages/stage3/kapipencerecerceve" unique_id=161236769]
+transform = Transform3D(-4.371139e-08, -1, 0, 1, -4.3711374e-08, 0, 0, 1.5099033e-14, 1, -0.6988559, 0.72246623, 2.3841858e-07)
+size = Vector3(1.1939697, 0.07424927, 0.18725586)
+material = SubResource("StandardMaterial3D_jka67")
+
+[node name="tutacak" type="CSGCombiner3D" parent="SecurityRoom/kapistages/stage3" unique_id=714709379]
+transform = Transform3D(1, 0, 0, 0, 0.9499687, 0.3123453, 0, -0.3123453, 0.9499687, 2.768197, 2.119601, -0.121807575)
+
+[node name="CSGBox3D" type="CSGBox3D" parent="SecurityRoom/kapistages/stage3/tutacak" unique_id=1599099189]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.5185418, -0.0058915615, 0.12117243)
+size = Vector3(0.2947998, 0.8466797, 0.045043945)
+material = SubResource("StandardMaterial3D_jka67")
+
+[node name="CSGBox3D2" type="CSGBox3D" parent="SecurityRoom/kapistages/stage3/tutacak" unique_id=1933813157]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 0.62672114, 1.5330529, 0.3002138, 0.06053543)
+size = Vector3(0.08859253, 0.08105469, 0.15576172)
+material = SubResource("StandardMaterial3D_jka67")
+
+[node name="CSGBox3D3" type="CSGBox3D" parent="SecurityRoom/kapistages/stage3/tutacak" unique_id=259585036]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 0.62672114, 1.5330529, -0.30349457, 0.06053543)
+size = Vector3(0.08859253, 0.08105469, 0.15576172)
+material = SubResource("StandardMaterial3D_jka67")
+
+[node name="CSGBox3D4" type="CSGBox3D" parent="SecurityRoom/kapistages/stage3/tutacak" unique_id=1033416798]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.5330529, 0, 0)
+size = Vector3(0.08859253, 0.6798248, 0.04724121)
+material = SubResource("StandardMaterial3D_jka67")
+
+[node name="kapicevre" type="CSGCombiner3D" parent="SecurityRoom/kapistages/stage3" unique_id=1959735130]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5.664241, 0.47908115, -3.909802)
+use_collision = true
+
+[node name="CSGBox3D" type="CSGBox3D" parent="SecurityRoom/kapistages/stage3/kapicevre" unique_id=654820322]
+transform = Transform3D(1, 0, 0, 0, 0.9913345, -0.131362, 0, 0.131362, 0.9913345, -1.0888488, 3.3664627, 4.2860427)
+size = Vector3(0.21386719, 2.1852875, 0.25610352)
+material = SubResource("StandardMaterial3D_jka67")
+
+[node name="CSGBox3D5" type="CSGBox3D" parent="SecurityRoom/kapistages/stage3/kapicevre" unique_id=1821539233]
+transform = Transform3D(1, 0, 0, 0, 0.98923206, 0.14635515, 0, -0.14635515, 0.98923206, -1.0888488, 0.92986727, 4.3363347)
+size = Vector3(0.21386719, 2.8611984, 0.25610352)
+material = SubResource("StandardMaterial3D_jka67")
+
+[node name="CSGBox3D2" type="CSGBox3D" parent="SecurityRoom/kapistages/stage3/kapicevre" unique_id=95623370]
+transform = Transform3D(1, 0, 0, 0, 0.9930046, 0.11807535, 0, -0.11807535, 0.9930046, -3.247919, 0.87210083, 4.417072)
+size = Vector3(0.21386719, 2.7442017, 0.25610352)
+material = SubResource("StandardMaterial3D_jka67")
+
+[node name="CSGBox3D6" type="CSGBox3D" parent="SecurityRoom/kapistages/stage3/kapicevre" unique_id=1926400378]
+transform = Transform3D(1, 0, 0, 0, 0.9955586, -0.094143525, 0, 0.094143525, 0.9955586, -3.247919, 3.3313382, 4.397455)
+size = Vector3(0.21386719, 2.2364807, 0.25610352)
+material = SubResource("StandardMaterial3D_jka67")
+
+[node name="CSGBox3D3" type="CSGBox3D" parent="SecurityRoom/kapistages/stage3/kapicevre" unique_id=1717125551]
+transform = Transform3D(-4.371139e-08, -1, 0, 1, -4.371139e-08, 0, 0, 0, 1, -2.2376804, 4.3561025, 4.4604464)
+size = Vector3(0.21386719, 2.1221008, 0.25610352)
+material = SubResource("StandardMaterial3D_jka67")
+
+[node name="CSGBox3D4" type="CSGBox3D" parent="SecurityRoom/kapistages/stage3/kapicevre" unique_id=614730402]
 transform = Transform3D(-4.371139e-08, -1, 0, 1, -4.371139e-08, 0, 0, 0, 1, -2.2376804, -0.51992077, 4.384112)
 size = Vector3(0.21386719, 2.1221008, 0.25610352)
 material = SubResource("StandardMaterial3D_i5arm")
@@ -1758,9 +2565,9 @@ spot_angle = 46.47
 [node name="OmniLight3D" type="OmniLight3D" parent="SecurityRoom/ODA" unique_id=1575904382]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.5333862, 1.795502, 0.0051888227)
 light_color = Color(1, 0.8509804, 0.627451, 1)
-light_energy = 0.379
+light_energy = 0.69
 shadow_enabled = true
-omni_range = 7.106
+omni_range = 6.381
 
 [node name="Camera3D" type="Camera3D" parent="SecurityRoom/ODA" unique_id=1568704782]
 transform = Transform3D(-0.053999532, -0.18549411, 0.9811606, -0.0101935, 0.9826454, 0.18521382, -0.99848896, -9.327319e-10, -0.054953225, -0.2173872, 0.46518564, 0)
@@ -1772,3 +2579,105 @@ script = ExtResource("1_a202f")
 transform = Transform3D(-0.14999725, -0.06769371, 0.9863663, 0.007513197, 0.9975465, 0.06960353, -0.9886579, 0.017851103, -0.14912063, -3.5531511, 0.7123406, 1.0972598)
 fov = 90.0
 script = ExtResource("1_a202f")
+
+[node name="MayinMelih" type="CSGCombiner3D" parent="." unique_id=1005678622]
+transform = Transform3D(0.56, 0, 0, 0, 0.56, 0, 0, 0, 0.56, -46.659973, 0, -1.9653072)
+autosmooth = true
+use_collision = true
+
+[node name="head" type="CSGCombiner3D" parent="MayinMelih" unique_id=379398852]
+transform = Transform3D(0.8847265, 0.46611014, 0, -0.4661102, 0.8847264, 0, 0, 0, 1, 0.70030856, 6.9737835, -9.8218155)
+
+[node name="bant" type="CSGBox3D" parent="MayinMelih/head" unique_id=1716013663]
+transform = Transform3D(0.99999994, 0, 0, 0, 0.99999994, 0, 0, 0, 1, 0, 0, 0)
+size = Vector3(0.36437988, 0.001, 0.29867554)
+material = SubResource("StandardMaterial3D_w7sca")
+
+[node name="gulensurat" type="CSGBox3D" parent="MayinMelih/head" unique_id=1139404033]
+transform = Transform3D(0.68790495, 0.005572652, -0.72577935, 0.72575545, 0.005879311, 0.6879275, 0.008100661, -0.9999671, 2.4270026e-08, 0.68202996, -0.4690733, 0.047175407)
+size = Vector3(0.0018920898, 1.3125, 1.3759766)
+material = SubResource("StandardMaterial3D_7u4a5")
+
+[node name="kelle" type="CSGSphere3D" parent="MayinMelih/head" unique_id=1228739456]
+transform = Transform3D(0.88472664, -0.46611026, 0, 0.46611026, 0.88472664, 0, 0, 0, 1, -0.25204897, -1.0240364, 0.04831505)
+radius = 1.0362726
+rings = 20
+material = SubResource("StandardMaterial3D_bvq72")
+
+[node name="govde" type="CSGCylinder3D" parent="MayinMelih" unique_id=1545358190]
+transform = Transform3D(0.9999999, 0, 0, 0, 0.9999999, 0, 0, 0, 1, 0, 4.230363, -9.656786)
+height = 2.3742676
+sides = 20
+material = SubResource("StandardMaterial3D_bvq72")
+
+[node name="sagbacak" type="CSGCylinder3D" parent="MayinMelih" unique_id=161419831]
+transform = Transform3D(0.9999998, 0, 0, 0, 0.99204457, 0.12588823, 0, -0.12588821, 0.9920447, 0, 1.606577, -9.466797)
+height = 2.9819336
+sides = 20
+material = SubResource("StandardMaterial3D_bvq72")
+
+[node name="sagkol" type="CSGCylinder3D" parent="MayinMelih" unique_id=1667410097]
+transform = Transform3D(0.7599999, 0, 0, 0, -3.322066e-08, -0.76000017, 0, 0.7600001, -3.3220662e-08, 0, 5.0003858, -8.157237)
+height = 2.9819336
+sides = 20
+material = SubResource("StandardMaterial3D_bvq72")
+
+[node name="solkol" type="CSGCylinder3D" parent="MayinMelih" unique_id=2116673593]
+transform = Transform3D(0.75999993, 0, 0, 0, -3.3220648e-08, -0.76, 0, 0.7599998, -3.3220655e-08, 0, 5.0200925, -11.219304)
+height = 2.9819336
+sides = 20
+material = SubResource("StandardMaterial3D_bvq72")
+
+[node name="solbacak" type="CSGCylinder3D" parent="MayinMelih" unique_id=1188177137]
+transform = Transform3D(0.99999994, 0, 0, 0, 0.9876335, -0.156777, 0, 0.15677693, 0.98763394, 0, 1.606577, -9.890139)
+height = 2.9819336
+sides = 20
+material = SubResource("StandardMaterial3D_bvq72")
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="MayinMelih" unique_id=875225098]
+libraries/ = SubResource("AnimationLibrary_tuemg")
+
+[node name="MonsterSpots" type="Node3D" parent="." unique_id=1684472817]
+
+[node name="Spot_<oda>" type="Marker3D" parent="MonsterSpots" unique_id=1147393700]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -23.557404, 0, -13.629576)
+metadata/pose = "pose_sit"
+
+[node name="Door_Window" type="Marker3D" parent="MonsterSpots" unique_id=1501520764]
+
+[node name="Spot_DoorKnock" type="Marker3D" parent="MonsterSpots" unique_id=1243266071]
+
+[node name="Spot_Inside1" type="Marker3D" parent="MonsterSpots" unique_id=721410008]
+
+[node name="Spot_Inside2" type="Marker3D" parent="MonsterSpots" unique_id=1328135461]
+
+[node name="Spot_JumpscareOffice" type="Marker3D" parent="MonsterSpots" unique_id=985222822]
+
+[node name="Spot_JumpscareDesk" type="Marker3D" parent="MonsterSpots" unique_id=1538229904]
+
+[node name="DoorSystem" type="Node3D" parent="." unique_id=2121680623]
+
+[node name="Stage0" type="Node3D" parent="DoorSystem" unique_id=2138635568]
+
+[node name="Stage1, Stage2" type="Node3D" parent="DoorSystem" unique_id=1637070310]
+
+[node name="DoorBody" type="RigidBody3D" parent="DoorSystem" unique_id=1373839700]
+freeze = true
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="DoorSystem/DoorBody" unique_id=1018218402]
+
+[node name="Stage3" type="Node3D" parent="DoorSystem/DoorBody/CollisionShape3D" unique_id=2058096970]
+
+[node name="HideHitbox" type="Area3D" parent="." unique_id=736626524]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="HideHitbox" unique_id=2106840160]
+
+[node name="HideView" type="Camera3D" parent="." unique_id=1944184539]
+
+[node name="LureSound" type="AudioStreamPlayer3D" parent="." unique_id=163726123]
+
+[node name="KnockSound" type="AudioStreamPlayer3D" parent="." unique_id=259635760]
+
+[node name="DoorBreakSound" type="AudioStreamPlayer3D" parent="." unique_id=533089889]
+
+[node name="JumpscareSound" type="AudioStreamPlayer3D" parent="." unique_id=1621689450]

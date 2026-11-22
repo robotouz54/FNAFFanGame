@@ -8,3 +8,16 @@ CAM,CAM,CAM
 EXIT,EXIT,ÇIK
 YOU,YOU,SEN
 PENDING,Pending...,Bağlanıyor...
+CAM_1_NAME,"C:\Users\PC\Documents\SecureGuard\Feeds\cam01_fire_escape.sdp","C:\Users\PC\Documents\SecureGuard\Feeds\cam01_yangin_merdiven.sdp"
+CAM_2_NAME,"C:\Users\PC\Documents\SecureGuard\Feeds\cam02_storage.sdp","C:\Users\PC\Documents\SecureGuard\Feeds\cam02_depo.sdp"
+CAM_3_NAME,"C:\Users\PC\Documents\SecureGuard\Feeds\cam03_north_hall.sdp","C:\Users\PC\Documents\SecureGuard\Feeds\cam03_kuzey_koridor.sdp"
+CAM_4_NAME,"C:\Users\PC\Documents\SecureGuard\Feeds\cam04_janitor_closet.sdp","C:\Users\PC\Documents\SecureGuard\Feeds\cam04_hademe_oda.sdp"
+CAM_5_NAME,"C:\Users\PC\Documents\SecureGuard\Feeds\cam05_backstage.sdp","C:\Users\PC\Documents\SecureGuard\Feeds\cam05_sahne_arka.sdp"
+CAM_6A_NAME,"C:\Users\PC\Documents\SecureGuard\Feeds\cam06a_front_auditorium.sdp","C:\Users\PC\Documents\SecureGuard\Feeds\cam06a_konferans_onu.sdp"
+CAM_6B_NAME,"C:\Users\PC\Documents\SecureGuard\Feeds\cam07_coliseum.sdp","C:\Users\PC\Documents\SecureGuard\Feeds\cam07_coliseum.sdp"
+CAM_6C_NAME,"C:\Users\PC\Documents\SecureGuard\Feeds\cam08_east_hall.sdp","C:\Users\PC\Documents\SecureGuard\Feeds\cam08_bati_koridor.sdp"
+CAM_7_NAME,"C:\Users\PC\Documents\SecureGuard\Feeds\cam09_south_hall.sdp","C:\Users\PC\Documents\SecureGuard\Feeds\cam09_guney_koridor.sdp"
+CAM_8_NAME,"C:\Users\PC\Documents\SecureGuard\Feeds\cam10_tea_room.sdp","C:\Users\PC\Documents\SecureGuard\Feeds\cam10_cay_ocagi.sdp"
+CAM_9_NAME,"C:\Users\PC\Documents\SecureGuard\Feeds\cam11_common_room.sdp","C:\Users\PC\Documents\SecureGuard\Feeds\cam11_dinlenme_odasi.sdp"
+CAM_10_NAME,"C:\Users\PC\Documents\SecureGuard\Feeds\cam06b_auditorium_enterance.sdp","C:\Users\PC\Documents\SecureGuard\Feeds\cam06b_konferans_giris.sdp"
+CAM_11_NAME,"C:\Users\PC\Documents\SecureGuard\Feeds\cam06c_auditorium.sdp","C:\Users\PC\Documents\SecureGuard\Feeds\cam06c_konferans.sdp"

@@ -120,3 +120,43 @@ offset_bottom = 40.0
 mouse_filter = 2
 
 [node name="SnapTimer" type="Timer" parent="CameraSystemUI/Root" unique_id=1864713635]
+
+[node name="Hud" type="CanvasLayer" parent="." unique_id=1838088238]
+layer = 20
+
+[node name="Control" type="Control" parent="Hud" unique_id=183415561]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="NightLabel" type="Label" parent="Hud/Control" unique_id=1082230180]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 23.0
+text = "NIGHT_LABEL"
+
+[node name="ClockLabel" type="Label" parent="Hud/Control" unique_id=1962309040]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 23.0
+text = "CLOCK_LABEL"
+
+[node name="EndScreen" type="ColorRect" parent="Hud/Control" unique_id=139567497]
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="EndLabel" type="Label" parent="Hud/Control/EndScreen" unique_id=1651354826]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 23.0
+
+[node name="GameManager" type="Node" parent="." unique_id=1009371791]

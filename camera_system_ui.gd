@@ -17,7 +17,7 @@ const STATIC_DIR_CANDIDATES: PackedStringArray = [
 ]
 
 @export_group("Görsel")
-## İsteğe bağlı: Windows 95 tarzı .ttf/.otf font dosyası (boşsa sistem fontu kullanılır)
+## İsteğe bağlı: özel .ttf/.otf font dosyası (boşsa sistem fontu kullanılır)
 @export var win95_font: FontFile
 ## Harita görseli (boş bırakılırsa res://png/camera_map.png kullanılır)
 @export var camera_map_texture: Texture2D = CAMERA_MAP_TEX
@@ -32,7 +32,9 @@ const STATIC_DIR_CANDIDATES: PackedStringArray = [
 ## Kamera değiştirme butonlarının boyutu (genişlik, yükseklik)
 @export var cam_button_size: Vector2 = Vector2(44.0, 26.0)
 ## Frame (harita) içinde YOU etiketi merkez konumu (0.0 - 1.0 arası oran)
-@export var you_map_anchor: Vector2 = Vector2(0.45, 0.58)
+@export var you_map_anchor: Vector2 = Vector2(0.45, 0.62)
+## Frame (harita) içinde büyüyüp küçülen karenin merkez konumu (0.0 - 1.0 arası oran)
+@export var you_square_map_anchor: Vector2 = Vector2(0.45, 0.58)
 ## YOU etiketi için çeviri anahtarı (text alanına yazılır, çeviri sistemi otomatik çevirir)
 @export var you_translation_key: String = "YOU"
 ## Kamera geçiş ekranı etiketi için çeviri anahtarı (text alanına yazılır, çeviri sistemi otomatik çevirir)
@@ -58,26 +60,43 @@ const STATIC_DIR_CANDIDATES: PackedStringArray = [
 ## Açıksa buton ve etiketleri kod yerleştirir
 @export var auto_layout: bool = true
 
+@export_group("Kamera Çeviri Anahtarları")
+@export var cam1_translation_key: String = "CAM_1_NAME"
+@export var cam2_translation_key: String = "CAM_2_NAME"
+@export var cam3_translation_key: String = "CAM_3_NAME"
+@export var cam4_translation_key: String = "CAM_4_NAME"
+@export var cam5_translation_key: String = "CAM_5_NAME"
+@export var cam6_translation_key: String = "CAM_6A_NAME"
+@export var cam7_translation_key: String = "CAM_6B_NAME"
+@export var cam8_translation_key: String = "CAM_6C_NAME"
+@export var cam9_translation_key: String = "CAM_7_NAME"
+@export var cam10_translation_key: String = "CAM_8_NAME"
+@export var cam11_translation_key: String = "CAM_9_NAME"
+@export var cam12_translation_key: String = "CAM_10_NAME"
+@export var cam13_translation_key: String = "CAM_11_NAME"
+
 @export_group("Kamera Konumları")
-@export var cam1_map_anchor: Vector2 = Vector2(0.26, 0.30)
-@export var cam2_map_anchor: Vector2 = Vector2(0.51, 0.07)
-@export var cam3_map_anchor: Vector2 = Vector2(0.52, 0.19)
-@export var cam4_map_anchor: Vector2 = Vector2(0.41, 0.30)
-@export var cam5_map_anchor: Vector2 = Vector2(0.61, 0.34)
-@export var cam6_map_anchor: Vector2 = Vector2(0.73, 0.31)
-@export var cam7_map_anchor: Vector2 = Vector2(0.11, 0.41)
-@export var cam8_map_anchor: Vector2 = Vector2(0.35, 0.48)
-@export var cam9_map_anchor: Vector2 = Vector2(0.41, 0.61)
-@export var cam10_map_anchor: Vector2 = Vector2(0.34, 0.74)
-@export var cam11_map_anchor: Vector2 = Vector2(0.54, 0.78)
-@export var cam12_map_anchor: Vector2 = Vector2(0.73, 0.71)
-@export var cam13_map_anchor: Vector2 = Vector2(0.86, 0.71)
+@export var cam1_map_anchor: Vector2 = Vector2(0.28, 0.30)
+@export var cam2_map_anchor: Vector2 = Vector2(0.49, 0.22)
+@export var cam3_map_anchor: Vector2 = Vector2(0.51, 0.32)
+@export var cam4_map_anchor: Vector2 = Vector2(0.43, 0.41)
+@export var cam5_map_anchor: Vector2 = Vector2(0.57, 0.44)
+@export var cam6_map_anchor: Vector2 = Vector2(0.68, 0.42)
+@export var cam7_map_anchor: Vector2 = Vector2(0.13, 0.51)
+@export var cam8_map_anchor: Vector2 = Vector2(0.33, 0.57)
+@export var cam9_map_anchor: Vector2 = Vector2(0.41, 0.68)
+@export var cam10_map_anchor: Vector2 = Vector2(0.35, 0.78)
+@export var cam11_map_anchor: Vector2 = Vector2(0.47, 0.78)
+@export var cam12_map_anchor: Vector2 = Vector2(0.68, 0.74)
+@export var cam13_map_anchor: Vector2 = Vector2(0.82, 0.74)
 
 @export_group("Güvenlik Kamerası")
 ## Kameranın sağa-sola sallanma açısı (± derece)
 @export var sway_deg: float = 8.0
-## Bir gidiş-gelişin süresi (saniye)
-@export var sway_period: float = 10.0
+## Bir uçtan diğer uca tek yön dönüş süresi (saniye — artırdıkça daha yavaş döner)
+@export var sway_move_time: float = 6.0
+## Sağa veya sola döndükten sonra uçta bekleme süresi (saniye)
+@export var sway_pause_time: float = 4.0
 
 @export_group("Geçişler")
 @export var zoom_time: float = 0.35
@@ -102,11 +121,14 @@ const STATIC_DIR_CANDIDATES: PackedStringArray = [
 @onready var snap_timer: Timer = $Root/SnapTimer
 
 var _cam_buttons: Array[Button] = []
+var _hovered_cam_idx: int = -1
 var _thin_scanline: Control
 var _third_scanline: Control
 var _pending_overlay: ColorRect
 var _pending_label: Label
 var _you_label: Label
+var _you_square: ColorRect
+var _you_square_large: bool = true
 var _switching_cam: bool = false
 var _state: State = State.IDLE
 var _player_cam: PlayerCamera
@@ -140,6 +162,7 @@ func _ready() -> void:
 
 	_ensure_extra_scanlines()
 	_ensure_you_label()
+	_ensure_you_square()
 	_ensure_pending_overlay()
 
 	snap_timer.wait_time = 1.0
@@ -155,6 +178,33 @@ func _ready() -> void:
 		_clamp_current_cam()
 		if not _hitbox.clicked.is_connected(_on_monitor_clicked):
 			_hitbox.clicked.connect(_on_monitor_clicked)
+
+
+func _get_cam_translation_keys() -> Array[String]:
+	return [
+		cam1_translation_key,
+		cam2_translation_key,
+		cam3_translation_key,
+		cam4_translation_key,
+		cam5_translation_key,
+		cam6_translation_key,
+		cam7_translation_key,
+		cam8_translation_key,
+		cam9_translation_key,
+		cam10_translation_key,
+		cam11_translation_key,
+		cam12_translation_key,
+		cam13_translation_key
+	]
+
+
+func _get_cam_translation_key(index: int) -> String:
+	var keys := _get_cam_translation_keys()
+	if index >= 0 and index < keys.size():
+		var k: String = keys[index].strip_edges()
+		if not k.is_empty():
+			return k
+	return "CAM_%s" % _get_cam_code(index).to_upper()
 
 
 func _get_cam_anchors() -> Array[Vector2]:
@@ -175,11 +225,24 @@ func _get_cam_anchors() -> Array[Vector2]:
 	]
 
 
+func _get_cam_code(index: int) -> String:
+	match index:
+		5:
+			return "6a"
+		11:
+			return "6b"
+		12:
+			return "6c"
+		_:
+			return str(index + 1)
+
+
+func _get_cam_button_text(index: int) -> String:
+	return "CAM\n%s" % _get_cam_code(index)
+
+
 func _clamp_current_cam() -> void:
-	if _cam_points.is_empty():
-		_current_cam = 0
-		return
-	_current_cam = clampi(_current_cam, 0, _cam_points.size() - 1)
+	_current_cam = clampi(_current_cam, 0, CAM_COUNT - 1)
 
 
 func _load_static_frames_if_empty() -> void:
@@ -276,10 +339,28 @@ func _ensure_you_label() -> void:
 	_you_label.visible = true
 
 
+func _ensure_you_square() -> void:
+	if not _you_square or not is_instance_valid(_you_square):
+		_you_square = ColorRect.new()
+		_you_square.name = "YouSquare"
+		_you_square.color = Color(1.0, 1.0, 1.0, 1.0)
+		_you_square.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		root_ctrl.add_child(_you_square)
+	_you_square.visible = true
+
+
+func _layout_you_square() -> void:
+	if not _you_square or not is_instance_valid(_you_square):
+		return
+	var sq_size_px: float = 10.0 if _you_square_large else 6.0
+	var sq_size := Vector2(sq_size_px, sq_size_px)
+	_place_control_on_map(_you_square, you_square_map_anchor, sq_size)
+
+
 func _order_overlay_on_top() -> void:
 	if not overlay or not is_instance_valid(overlay) or overlay.get_parent() != root_ctrl:
 		return
-	var below_overlay: Array[Control] = [frame_rect, _you_label, cam_label, btn_exit]
+	var below_overlay: Array[Control] = [frame_rect, _you_label, _you_square, cam_label, btn_exit]
 	for b: Button in _cam_buttons:
 		if b and is_instance_valid(b):
 			below_overlay.append(b)
@@ -330,7 +411,7 @@ func _order_pending_behind_hud() -> void:
 		return
 	if _pending_overlay.get_parent() != root_ctrl:
 		return
-	var hud_nodes: Array[Control] = [frame_rect, _you_label, cam_label, btn_exit]
+	var hud_nodes: Array[Control] = [frame_rect, _you_label, _you_square, cam_label, btn_exit]
 	for b: Button in _cam_buttons:
 		if b and is_instance_valid(b):
 			hud_nodes.append(b)
@@ -412,6 +493,7 @@ func _force_layout() -> void:
 
 	_ensure_extra_scanlines()
 	_ensure_you_label()
+	_ensure_you_square()
 	_ensure_pending_overlay()
 
 	_pending_overlay.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
@@ -457,19 +539,36 @@ func _find_world_nodes() -> bool:
 	_hitbox = tree_root.find_child("MonitorHitbox", true, false) as GlowHitbox
 	_zoom_view = tree_root.find_child("MonitorZoomView", true, false) as Camera3D
 	_cam_points.clear()
+	_cam_points.resize(CAM_COUNT)
+	var any_cam_found: bool = false
 	for i in range(1, CAM_COUNT + 1):
 		var cam_name: String = "SecCam%d" % i
 		var c := tree_root.find_child(cam_name, true, false) as Camera3D
 		if c:
-			_cam_points.append(c)
+			_cam_points[i - 1] = c
+			any_cam_found = true
+		else:
+			push_warning("Kamera sistemi: %s düğümü sahnede bulunamadı." % cam_name)
 
-	if not _player_cam or not _hitbox or not _zoom_view or _cam_points.is_empty():
+	if not _player_cam or not _hitbox or not _zoom_view or not any_cam_found:
 		push_error("Kamera sistemi: gerekli düğümler bulunamadı (Camera3D, MonitorHitbox, MonitorZoomView, SecCam1..SecCam%d)." % CAM_COUNT)
 		return false
 	return true
 
 
-func _build_win95_font() -> Font:
+func _build_cam_btn_font() -> Font:
+	if win95_font:
+		return win95_font
+	var cam_font := SystemFont.new()
+	cam_font.font_names = PackedStringArray(["Fixedsys", "Terminal", "Lucida Console", "Consolas", "Courier New"])
+	cam_font.font_weight = 700
+	cam_font.font_stretch = 110
+	cam_font.antialiasing = TextServer.FONT_ANTIALIASING_NONE
+	cam_font.subpixel_positioning = TextServer.SUBPIXEL_POSITIONING_DISABLED
+	return cam_font
+
+
+func _build_pending_font() -> Font:
 	if win95_font:
 		return win95_font
 	var sys_font := SystemFont.new()
@@ -479,43 +578,66 @@ func _build_win95_font() -> Font:
 	return sys_font
 
 
+func _build_exit_wide_font() -> Font:
+	if win95_font:
+		return win95_font
+	var wide_font := SystemFont.new()
+	wide_font.font_names = PackedStringArray(["Fixedsys", "Terminal", "Lucida Console", "Consolas", "Courier New"])
+	wide_font.font_weight = 700
+	wide_font.font_stretch = 150
+	wide_font.antialiasing = TextServer.FONT_ANTIALIASING_NONE
+	wide_font.subpixel_positioning = TextServer.SUBPIXEL_POSITIONING_DISABLED
+	return wide_font
+
+
 func _apply_win95_font() -> void:
-	var f := _build_win95_font()
-	cam_label.add_theme_font_override("font", f)
-	cam_label.add_theme_font_size_override("font_size", 36)
+	var cam_btn_f := _build_cam_btn_font()
+	var initial_f := _build_pending_font()
+	var exit_f := _build_exit_wide_font()
+
+	cam_label.add_theme_font_override("font", initial_f)
+	cam_label.add_theme_font_size_override("font_size", 22)
 	cam_label.add_theme_color_override("font_color", Color(1.0, 1.0, 1.0, 1.0))
-	cam_label.add_theme_color_override("font_shadow_color", Color(0.0, 0.0, 0.0, 1.0))
-	cam_label.add_theme_constant_override("shadow_offset_x", 1)
-	cam_label.add_theme_constant_override("shadow_offset_y", 1)
 
 	if _you_label and is_instance_valid(_you_label):
 		_you_label.text = you_translation_key
-		_you_label.add_theme_font_override("font", f)
-		_you_label.add_theme_font_size_override("font_size", 18)
+		_you_label.add_theme_font_override("font", initial_f)
+		_you_label.add_theme_font_size_override("font_size", 16)
 		_you_label.add_theme_color_override("font_color", Color(1.0, 1.0, 1.0, 1.0))
-		_you_label.add_theme_color_override("font_shadow_color", Color(0.0, 0.0, 0.0, 1.0))
-		_you_label.add_theme_constant_override("shadow_offset_x", 1)
-		_you_label.add_theme_constant_override("shadow_offset_y", 1)
 
+	var cam_text_white := Color(1.0, 1.0, 1.0, 1.0)
+	var cam_shadow_black := Color(0.0, 0.0, 0.0, 1.0)
 	for b: Button in _cam_buttons:
-		b.add_theme_font_override("font", f)
+		b.add_theme_font_override("font", cam_btn_f)
 		b.add_theme_font_size_override("font_size", 11)
-		b.add_theme_color_override("font_color", Color(0.0, 0.0, 0.0, 1.0))
-		b.add_theme_color_override("font_hover_color", Color(0.0, 0.0, 0.0, 1.0))
-		b.add_theme_color_override("font_pressed_color", Color(0.0, 0.0, 0.0, 1.0))
-		b.add_theme_color_override("font_hover_pressed_color", Color(0.0, 0.0, 0.0, 1.0))
+		b.add_theme_constant_override("line_spacing", -1)
+		b.add_theme_constant_override("spacing_glyph", 0)
+		b.add_theme_constant_override("outline_size", 0)
+		b.add_theme_color_override("font_color", cam_text_white)
+		b.add_theme_color_override("font_hover_color", cam_text_white)
+		b.add_theme_color_override("font_pressed_color", cam_text_white)
+		b.add_theme_color_override("font_hover_pressed_color", cam_text_white)
+		b.add_theme_color_override("font_shadow_color", cam_shadow_black)
+		b.add_theme_constant_override("shadow_offset_x", 1)
+		b.add_theme_constant_override("shadow_offset_y", 1)
 
-	var exit_red := Color(0.482, 0.122, 0.122, 1.0)
-	btn_exit.add_theme_font_override("font", f)
-	btn_exit.add_theme_font_size_override("font_size", 24)
+	var exit_red := Color(0.75, 0.14, 0.14, 1.0)
+	btn_exit.add_theme_font_override("font", exit_f)
+	btn_exit.add_theme_font_size_override("font_size", 20)
+	btn_exit.add_theme_constant_override("spacing_glyph", 3)
 	btn_exit.add_theme_color_override("font_color", exit_red)
 	btn_exit.add_theme_color_override("font_hover_color", exit_red)
 	btn_exit.add_theme_color_override("font_pressed_color", exit_red)
 	btn_exit.add_theme_color_override("font_hover_pressed_color", exit_red)
+	btn_exit.add_theme_color_override("font_shadow_color", Color(0.0, 0.0, 0.0, 1.0))
+	btn_exit.add_theme_constant_override("shadow_offset_x", 1)
+	btn_exit.add_theme_constant_override("shadow_offset_y", 1)
+	btn_exit.add_theme_color_override("font_outline_color", Color(0.0, 0.0, 0.0, 1.0))
+	btn_exit.add_theme_constant_override("outline_size", 1)
 
 	if _pending_label and is_instance_valid(_pending_label):
 		_pending_label.text = pending_translation_key
-		_pending_label.add_theme_font_override("font", f)
+		_pending_label.add_theme_font_override("font", initial_f)
 		_pending_label.add_theme_font_size_override("font_size", 36)
 		_pending_label.add_theme_color_override("font_color", Color(1.0, 1.0, 1.0, 1.0))
 
@@ -532,7 +654,11 @@ func _setup_buttons() -> void:
 
 	for i in range(_cam_buttons.size()):
 		var b: Button = _cam_buttons[i]
-		b.text = "C%d" % (i + 1)
+		b.text = _get_cam_button_text(i)
+		b.clip_contents = false
+		b.text_overrun_behavior = TextServer.OVERRUN_NO_TRIMMING
+		b.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		b.alignment = HORIZONTAL_ALIGNMENT_CENTER
 		b.custom_minimum_size = cam_button_size
 
 	btn_exit.text = "EXIT"
@@ -548,22 +674,49 @@ func _setup_buttons() -> void:
 		b.toggle_mode = true
 		b.button_group = group
 		b.pressed.connect(_select_cam.bind(i))
-
-	var all_btns: Array[Button] = []
-	all_btns.append_array(_cam_buttons)
-	all_btns.append(btn_exit)
-
-	for b: Button in all_btns:
-		var pressed_style := _make_style(BTN_PRESSED)
-		b.add_theme_stylebox_override("normal", _make_style(BTN_NORMAL))
-		b.add_theme_stylebox_override("hover", _make_style(BTN_HOVER))
-		b.add_theme_stylebox_override("pressed", pressed_style)
-		b.add_theme_stylebox_override("hover_pressed", pressed_style)
+		b.mouse_entered.connect(_on_cam_btn_hover_changed.bind(i, true))
+		b.mouse_exited.connect(_on_cam_btn_hover_changed.bind(i, false))
+		var normal_style := _make_cam_style(BTN_NORMAL)
+		b.add_theme_stylebox_override("normal", normal_style)
+		b.add_theme_stylebox_override("hover", _make_cam_style(BTN_HOVER))
+		b.add_theme_stylebox_override("pressed", normal_style)
+		b.add_theme_stylebox_override("hover_pressed", normal_style)
 		b.add_theme_stylebox_override("focus", StyleBoxEmpty.new())
 		b.focus_mode = Control.FOCUS_NONE
 		b.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
 
+	var exit_pressed_style := _make_style(BTN_PRESSED)
+	btn_exit.add_theme_stylebox_override("normal", _make_style(BTN_NORMAL))
+	btn_exit.add_theme_stylebox_override("hover", _make_style(BTN_HOVER))
+	btn_exit.add_theme_stylebox_override("pressed", exit_pressed_style)
+	btn_exit.add_theme_stylebox_override("hover_pressed", exit_pressed_style)
+	btn_exit.add_theme_stylebox_override("focus", StyleBoxEmpty.new())
+	btn_exit.focus_mode = Control.FOCUS_NONE
+	btn_exit.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
+
 	btn_exit.pressed.connect(_on_exit_pressed)
+	_update_cam_button_opacities()
+
+
+func _on_cam_btn_hover_changed(index: int, entered: bool) -> void:
+	if entered:
+		_hovered_cam_idx = index
+	elif _hovered_cam_idx == index:
+		_hovered_cam_idx = -1
+	_update_cam_button_opacities()
+
+
+func _update_cam_button_opacities() -> void:
+	for i in range(_cam_buttons.size()):
+		var b: Button = _cam_buttons[i]
+		if not b or not is_instance_valid(b):
+			continue
+		var alpha: float = 0.5
+		if i == _current_cam:
+			alpha = 1.0
+		elif i == _hovered_cam_idx:
+			alpha = 0.75
+		b.modulate.a = alpha
 
 
 func _make_style(tex: Texture2D) -> StyleBoxTexture:
@@ -576,13 +729,24 @@ func _make_style(tex: Texture2D) -> StyleBoxTexture:
 	return sb
 
 
+func _make_cam_style(tex: Texture2D) -> StyleBoxTexture:
+	var sb := _make_style(tex)
+	sb.content_margin_left = 2.0
+	sb.content_margin_top = 0.0
+	sb.content_margin_right = 2.0
+	sb.content_margin_bottom = 0.0
+	return sb
+
+
 func _layout_ui() -> void:
 	var margin: float = 24.0
 
 	cam_label.visible = true
-	cam_label.add_theme_font_size_override("font_size", 36)
+	cam_label.modulate = Color(1.0, 1.0, 1.0, 1.0)
+	cam_label.text_overrun_behavior = TextServer.OVERRUN_NO_TRIMMING
+	cam_label.add_theme_font_size_override("font_size", 22)
 	cam_label.set_anchors_and_offsets_preset(Control.PRESET_TOP_LEFT, Control.PRESET_MODE_KEEP_SIZE)
-	var lbl_size: Vector2 = cam_label.get_combined_minimum_size()
+	var lbl_size: Vector2 = cam_label.get_combined_minimum_size().max(Vector2(120.0, 28.0))
 	cam_label.offset_left = margin
 	cam_label.offset_top = margin
 	cam_label.offset_right = margin + lbl_size.x
@@ -598,6 +762,7 @@ func _layout_ui() -> void:
 		var you_size: Vector2 = _you_label.get_combined_minimum_size().max(Vector2(56.0, 24.0))
 		_place_control_on_map(_you_label, you_map_anchor, you_size)
 
+	_layout_you_square()
 	_layout_pending_label()
 
 	var exit_size: Vector2 = btn_exit.get_combined_minimum_size()
@@ -685,6 +850,8 @@ func _close_ui() -> void:
 # ---------- Saniyede bir çalışan kısım (1 FPS) ----------
 
 func _tick() -> void:
+	_you_square_large = not _you_square_large
+	_layout_you_square()
 	_update_static()
 	if not visible and _state != State.ACTIVE:
 		return
@@ -692,13 +859,37 @@ func _tick() -> void:
 	_render_cam()
 
 
+func _get_sway_angle_rad() -> float:
+	var move_t: float = maxf(sway_move_time, 0.05)
+	var pause_t: float = maxf(sway_pause_time, 0.0)
+	var cycle_len: float = (move_t + pause_t) * 2.0
+	var elapsed: float = fmod(Time.get_ticks_msec() / 1000.0, cycle_len)
+
+	var factor: float = -1.0
+	if elapsed < move_t:
+		var p: float = smoothstep(0.0, 1.0, elapsed / move_t)
+		factor = lerpf(-1.0, 1.0, p)
+	elif elapsed < move_t + pause_t:
+		factor = 1.0
+	elif elapsed < (move_t * 2.0) + pause_t:
+		var p: float = smoothstep(0.0, 1.0, (elapsed - move_t - pause_t) / move_t)
+		factor = lerpf(1.0, -1.0, p)
+	else:
+		factor = -1.0
+
+	return factor * deg_to_rad(sway_deg)
+
+
 func _render_cam() -> void:
 	if _cam_points.is_empty():
 		return
 	_clamp_current_cam()
+	if _current_cam < 0 or _current_cam >= _cam_points.size():
+		return
 	var point := _cam_points[_current_cam]
-	var t: float = Time.get_ticks_msec() / 1000.0
-	var angle: float = sin(t * TAU / sway_period) * deg_to_rad(sway_deg)
+	if not point or not is_instance_valid(point):
+		return
+	var angle: float = _get_sway_angle_rad()
 	var xf := point.global_transform
 	cam_camera.global_transform = Transform3D(xf.basis * Basis(Vector3.UP, angle), xf.origin)
 	cam_camera.fov = point.fov
@@ -743,11 +934,12 @@ func _randomize_scanlines() -> void:
 
 
 func _apply_scanline() -> void:
-	scanline.position.y = _scan_y
+	if scanline and is_instance_valid(scanline):
+		scanline.position.y = _scan_y
 	if _thin_scanline and is_instance_valid(_thin_scanline):
 		_thin_scanline.position.y = _thin_scan_y
 	if _third_scanline and is_instance_valid(_third_scanline):
-		_third_scanline.position.y = _third_scanline.position.y if false else _third_scan_y
+		_third_scanline.position.y = _third_scan_y
 
 
 # ---------- Kamera seçimi ----------
@@ -778,11 +970,17 @@ func _select_cam(index: int) -> void:
 func _sync_buttons() -> void:
 	for i in range(_cam_buttons.size()):
 		_cam_buttons[i].set_pressed_no_signal(i == _current_cam)
+	_update_cam_button_opacities()
 
 
 func _refresh_label() -> void:
-	cam_label.text = "CAM %d" % (_current_cam + 1)
+	cam_label.text = _get_cam_translation_key(_current_cam)
 	cam_label.visible = true
+	if auto_layout:
+		var margin: float = 24.0
+		var lbl_size: Vector2 = cam_label.get_combined_minimum_size().max(Vector2(120.0, 28.0))
+		cam_label.offset_right = margin + lbl_size.x
+		cam_label.offset_bottom = margin + lbl_size.y
 
 
 # ---------- Yardımcılar ----------
