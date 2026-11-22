@@ -1,0 +1,81 @@
+[gd_scene format=3 uid="uid://be53ihdr00kpe"]
+
+[ext_resource type="Script" uid="uid://swo0k7itytdx" path="res://main_menu.gd" id="1_06t4h"]
+
+[node name="MainMenu" type="Control" unique_id=2129139462]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_06t4h")
+
+[node name="Background" type="ColorRect" parent="." unique_id=1707113994]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 1)
+
+[node name="MenuPage" type="CenterContainer" parent="." unique_id=979865592]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="VBox" type="VBoxContainer" parent="MenuPage" unique_id=2114893193]
+layout_mode = 2
+
+[node name="TitleLabel" type="Label" parent="MenuPage/VBox" unique_id=1259813726]
+layout_mode = 2
+theme_override_font_sizes/font_size = 80
+text = "MENU_READY"
+
+[node name="Buttons" type="HBoxContainer" parent="MenuPage/VBox" unique_id=1751495261]
+layout_mode = 2
+
+[node name="BtnNo" type="Button" parent="MenuPage/VBox/Buttons" unique_id=1345999077]
+layout_mode = 2
+text = "MENU_NO"
+
+[node name="BtnYes" type="Button" parent="MenuPage/VBox/Buttons" unique_id=2001437657]
+layout_mode = 2
+text = "MENU_YES"
+
+[node name="LoadingPage" type="CenterContainer" parent="." unique_id=1210781871]
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="VBox" type="VBoxContainer" parent="LoadingPage" unique_id=1530392076]
+layout_mode = 2
+
+[node name="LoadingLabel" type="Label" parent="LoadingPage/VBox" unique_id=1570882105]
+layout_mode = 2
+text = "LOADING"
+
+[node name="PercentLabel" type="Label" parent="LoadingPage/VBox" unique_id=1901220095]
+layout_mode = 2
+text = "LOADING"
+
+[node name="LoadProgress" type="ProgressBar" parent="LoadingPage/VBox" unique_id=1059275690]
+layout_mode = 2
+show_percentage = false
+
+[node name="LangButton" type="TextureButton" parent="." unique_id=1954964899]
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -40.0
+offset_bottom = 40.0
+grow_horizontal = 0

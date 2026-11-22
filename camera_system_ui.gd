@@ -8,6 +8,7 @@ const BTN_NORMAL = preload("res://png/btn_normal.png")
 const BTN_HOVER = preload("res://png/btn_hover.png")
 const BTN_PRESSED = preload("res://png/btn_pressed.png")
 const CAMERA_MAP_TEX: Texture2D = preload("res://png/camera_map.png")
+const CAM_COUNT: int = 13
 const STATIC_DIR_CANDIDATES: PackedStringArray = [
 	"res://textures",
 	"res://static",
@@ -21,11 +22,21 @@ const STATIC_DIR_CANDIDATES: PackedStringArray = [
 ## Harita görseli (boş bırakılırsa res://png/camera_map.png kullanılır)
 @export var camera_map_texture: Texture2D = CAMERA_MAP_TEX
 ## Haritanın ekrandaki boyutu (piksel)
-@export var map_size_px: Vector2 = Vector2(360.0, 360.0)
-## Haritanın sağ kenardan boşluğu (piksel)
+@export var map_size_px: Vector2 = Vector2(480.0, 480.0)
+## Harita merkezinin ekran içindeki konumu (0.0 - 1.0 arası oran; (0.5, 0.5) tam orta)
+@export var map_anchor: Vector2 = Vector2(0.80, 0.50)
+## Haritanın sağ kenardan boşluğu (piksel) [eski uyumluluk / yedek]
 @export var map_margin_px: float = 24.0
-## Haritanın alt kenardan yukarı kayma mesafesi (EXIT butonuyla çakışmaması için)
-@export var map_bottom_offset_px: float = 84.0
+## Haritanın alt kenardan yukarı kayma mesafesi (EXIT butonuyla çakışmaması için) [eski uyumluluk / yedek]
+@export var map_bottom_offset_px: float = 96.0
+## Kamera değiştirme butonlarının boyutu (genişlik, yükseklik)
+@export var cam_button_size: Vector2 = Vector2(44.0, 26.0)
+## Frame (harita) içinde YOU etiketi merkez konumu (0.0 - 1.0 arası oran)
+@export var you_map_anchor: Vector2 = Vector2(0.45, 0.58)
+## YOU etiketi için çeviri anahtarı (text alanına yazılır, çeviri sistemi otomatik çevirir)
+@export var you_translation_key: String = "YOU"
+## Kamera geçiş ekranı etiketi için çeviri anahtarı (text alanına yazılır, çeviri sistemi otomatik çevirir)
+@export var pending_translation_key: String = "PENDING"
 ## static_01 ... static_09 dosyalarını buraya ekle (boş bırakılırsa kod otomatik yükler)
 @export var static_frames: Array[Texture2D]
 @export_range(0.0, 1.0) var static_alpha: float = 0.06
@@ -43,9 +54,24 @@ const STATIC_DIR_CANDIDATES: PackedStringArray = [
 @export var third_scanline_height: float = 80.0
 ## El imlecinin tıklama noktası (parmak ucu)
 @export var hand_hotspot: Vector2 = Vector2.ZERO
-@export var button_margin: int = 6
+@export var button_margin: int = 4
 ## Açıksa buton ve etiketleri kod yerleştirir
 @export var auto_layout: bool = true
+
+@export_group("Kamera Konumları")
+@export var cam1_map_anchor: Vector2 = Vector2(0.26, 0.30)
+@export var cam2_map_anchor: Vector2 = Vector2(0.51, 0.07)
+@export var cam3_map_anchor: Vector2 = Vector2(0.52, 0.19)
+@export var cam4_map_anchor: Vector2 = Vector2(0.41, 0.30)
+@export var cam5_map_anchor: Vector2 = Vector2(0.61, 0.34)
+@export var cam6_map_anchor: Vector2 = Vector2(0.73, 0.31)
+@export var cam7_map_anchor: Vector2 = Vector2(0.11, 0.41)
+@export var cam8_map_anchor: Vector2 = Vector2(0.35, 0.48)
+@export var cam9_map_anchor: Vector2 = Vector2(0.41, 0.61)
+@export var cam10_map_anchor: Vector2 = Vector2(0.34, 0.74)
+@export var cam11_map_anchor: Vector2 = Vector2(0.54, 0.78)
+@export var cam12_map_anchor: Vector2 = Vector2(0.73, 0.71)
+@export var cam13_map_anchor: Vector2 = Vector2(0.86, 0.71)
 
 @export_group("Güvenlik Kamerası")
 ## Kameranın sağa-sola sallanma açısı (± derece)
@@ -75,10 +101,12 @@ const STATIC_DIR_CANDIDATES: PackedStringArray = [
 @onready var overlay: ColorRect = $Root/ScreenOverlay
 @onready var snap_timer: Timer = $Root/SnapTimer
 
+var _cam_buttons: Array[Button] = []
 var _thin_scanline: Control
 var _third_scanline: Control
 var _pending_overlay: ColorRect
 var _pending_label: Label
+var _you_label: Label
 var _switching_cam: bool = false
 var _state: State = State.IDLE
 var _player_cam: PlayerCamera
@@ -111,6 +139,7 @@ func _ready() -> void:
 	static_noise.modulate = Color(1.0, 1.0, 1.0, static_alpha)
 
 	_ensure_extra_scanlines()
+	_ensure_you_label()
 	_ensure_pending_overlay()
 
 	snap_timer.wait_time = 1.0
@@ -126,6 +155,24 @@ func _ready() -> void:
 		_clamp_current_cam()
 		if not _hitbox.clicked.is_connected(_on_monitor_clicked):
 			_hitbox.clicked.connect(_on_monitor_clicked)
+
+
+func _get_cam_anchors() -> Array[Vector2]:
+	return [
+		cam1_map_anchor,
+		cam2_map_anchor,
+		cam3_map_anchor,
+		cam4_map_anchor,
+		cam5_map_anchor,
+		cam6_map_anchor,
+		cam7_map_anchor,
+		cam8_map_anchor,
+		cam9_map_anchor,
+		cam10_map_anchor,
+		cam11_map_anchor,
+		cam12_map_anchor,
+		cam13_map_anchor
+	]
 
 
 func _clamp_current_cam() -> void:
@@ -217,6 +264,46 @@ func _ensure_extra_scanlines() -> void:
 		root_ctrl.move_child(_third_scanline, base_idx + 2)
 
 
+func _ensure_you_label() -> void:
+	if not _you_label or not is_instance_valid(_you_label):
+		_you_label = Label.new()
+		_you_label.name = "YouLabel"
+		_you_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		_you_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+		_you_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		root_ctrl.add_child(_you_label)
+	_you_label.text = you_translation_key
+	_you_label.visible = true
+
+
+func _order_overlay_on_top() -> void:
+	if not overlay or not is_instance_valid(overlay) or overlay.get_parent() != root_ctrl:
+		return
+	var below_overlay: Array[Control] = [frame_rect, _you_label, cam_label, btn_exit]
+	for b: Button in _cam_buttons:
+		if b and is_instance_valid(b):
+			below_overlay.append(b)
+	for ctrl: Control in below_overlay:
+		if ctrl and is_instance_valid(ctrl) and ctrl.get_parent() == root_ctrl:
+			if ctrl.get_index() >= overlay.get_index():
+				root_ctrl.move_child(ctrl, maxi(overlay.get_index() - 1, 0))
+
+
+func _layout_pending_label() -> void:
+	if not _pending_label or not is_instance_valid(_pending_label):
+		return
+	var margin: float = 24.0
+	_pending_label.text = pending_translation_key
+	_pending_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
+	_pending_label.vertical_alignment = VERTICAL_ALIGNMENT_BOTTOM
+	_pending_label.set_anchors_and_offsets_preset(Control.PRESET_BOTTOM_LEFT, Control.PRESET_MODE_KEEP_SIZE)
+	var p_size: Vector2 = _pending_label.get_combined_minimum_size().max(Vector2(120.0, 40.0))
+	_pending_label.offset_left = margin
+	_pending_label.offset_right = margin + p_size.x
+	_pending_label.offset_bottom = -margin
+	_pending_label.offset_top = -margin - p_size.y
+
+
 func _ensure_pending_overlay() -> void:
 	if not _pending_overlay or not is_instance_valid(_pending_overlay):
 		_pending_overlay = ColorRect.new()
@@ -228,12 +315,13 @@ func _ensure_pending_overlay() -> void:
 
 		_pending_label = Label.new()
 		_pending_label.name = "PendingLabel"
-		_pending_label.text = "Pending..."
-		_pending_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-		_pending_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+		_pending_label.text = pending_translation_key
 		_pending_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		_pending_overlay.add_child(_pending_label)
+	elif _pending_label and is_instance_valid(_pending_label):
+		_pending_label.text = pending_translation_key
 
+	_layout_pending_label()
 	_order_pending_behind_hud()
 
 
@@ -242,7 +330,10 @@ func _order_pending_behind_hud() -> void:
 		return
 	if _pending_overlay.get_parent() != root_ctrl:
 		return
-	var hud_nodes: Array[Control] = [frame_rect, cam_label, btn_cam1, btn_cam2, btn_exit]
+	var hud_nodes: Array[Control] = [frame_rect, _you_label, cam_label, btn_exit]
+	for b: Button in _cam_buttons:
+		if b and is_instance_valid(b):
+			hud_nodes.append(b)
 	var first_hud_idx: int = root_ctrl.get_child_count()
 	for hud_node: Control in hud_nodes:
 		if hud_node and hud_node.get_parent() == root_ctrl:
@@ -254,6 +345,27 @@ func _order_pending_behind_hud() -> void:
 	for hud_node: Control in hud_nodes:
 		if hud_node and hud_node.get_parent() == root_ctrl and hud_node.get_index() < _pending_overlay.get_index():
 			root_ctrl.move_child(hud_node, _pending_overlay.get_index() + 1)
+
+
+func _get_root_viewport_size() -> Vector2:
+	var root_size: Vector2 = root_ctrl.size
+	if root_size.x <= 1.0 or root_size.y <= 1.0:
+		root_size = get_viewport().get_visible_rect().size
+	return root_size
+
+
+func _get_map_rect_in_root() -> Rect2:
+	var root_size: Vector2 = _get_root_viewport_size()
+	var clamped_anchor := Vector2(
+		clampf(map_anchor.x, 0.0, 1.0),
+		clampf(map_anchor.y, 0.0, 1.0)
+	)
+	var center_pos := Vector2(
+		root_size.x * clamped_anchor.x,
+		root_size.y * clamped_anchor.y
+	)
+	var top_left: Vector2 = center_pos - (map_size_px * 0.5)
+	return Rect2(top_left, map_size_px)
 
 
 func _setup_map_frame() -> void:
@@ -268,11 +380,28 @@ func _setup_map_frame() -> void:
 	frame_rect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 	frame_rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
 
-	frame_rect.set_anchors_and_offsets_preset(Control.PRESET_BOTTOM_RIGHT, Control.PRESET_MODE_KEEP_SIZE)
-	frame_rect.offset_right = -map_margin_px
-	frame_rect.offset_bottom = -map_bottom_offset_px
-	frame_rect.offset_left = -map_margin_px - map_size_px.x
-	frame_rect.offset_top = -map_bottom_offset_px - map_size_px.y
+	var map_rect: Rect2 = _get_map_rect_in_root()
+	frame_rect.set_anchors_and_offsets_preset(Control.PRESET_TOP_LEFT, Control.PRESET_MODE_KEEP_SIZE)
+	frame_rect.offset_left = map_rect.position.x
+	frame_rect.offset_top = map_rect.position.y
+	frame_rect.offset_right = map_rect.position.x + map_rect.size.x
+	frame_rect.offset_bottom = map_rect.position.y + map_rect.size.y
+
+
+func _place_control_on_map(ctrl: Control, map_uv: Vector2, ctrl_size: Vector2) -> void:
+	if not ctrl or not is_instance_valid(ctrl):
+		return
+	var map_rect: Rect2 = _get_map_rect_in_root()
+	var center_pos: Vector2 = map_rect.position + Vector2(
+		map_rect.size.x * map_uv.x,
+		map_rect.size.y * map_uv.y
+	)
+	var top_left: Vector2 = center_pos - (ctrl_size * 0.5)
+	ctrl.set_anchors_and_offsets_preset(Control.PRESET_TOP_LEFT, Control.PRESET_MODE_KEEP_SIZE)
+	ctrl.offset_left = top_left.x
+	ctrl.offset_top = top_left.y
+	ctrl.offset_right = top_left.x + ctrl_size.x
+	ctrl.offset_bottom = top_left.y + ctrl_size.y
 
 
 func _force_layout() -> void:
@@ -282,10 +411,11 @@ func _force_layout() -> void:
 	static_noise.modulate.a = static_alpha
 
 	_ensure_extra_scanlines()
+	_ensure_you_label()
 	_ensure_pending_overlay()
 
 	_pending_overlay.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	_pending_label.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	_layout_pending_label()
 
 	scanline.custom_minimum_size = Vector2(0.0, scanline_height)
 	scanline.size.y = scanline_height
@@ -301,11 +431,13 @@ func _force_layout() -> void:
 
 	_setup_buttons()
 	_apply_win95_font()
+	_layout_pending_label()
 	_refresh_label()
 	if auto_layout:
 		_layout_ui()
 	_setup_map_frame()
 	_order_pending_behind_hud()
+	_order_overlay_on_top()
 
 
 func _exit_tree() -> void:
@@ -325,13 +457,14 @@ func _find_world_nodes() -> bool:
 	_hitbox = tree_root.find_child("MonitorHitbox", true, false) as GlowHitbox
 	_zoom_view = tree_root.find_child("MonitorZoomView", true, false) as Camera3D
 	_cam_points.clear()
-	for cam_name: String in ["SecCam1", "SecCam2"]:
+	for i in range(1, CAM_COUNT + 1):
+		var cam_name: String = "SecCam%d" % i
 		var c := tree_root.find_child(cam_name, true, false) as Camera3D
 		if c:
 			_cam_points.append(c)
 
-	if not _player_cam or not _hitbox or not _zoom_view or _cam_points.size() < 2:
-		push_error("Kamera sistemi: gerekli düğümler bulunamadı (Camera3D, MonitorHitbox, MonitorZoomView, SecCam1, SecCam2). Adları kontrol et.")
+	if not _player_cam or not _hitbox or not _zoom_view or _cam_points.is_empty():
+		push_error("Kamera sistemi: gerekli düğümler bulunamadı (Camera3D, MonitorHitbox, MonitorZoomView, SecCam1..SecCam%d)." % CAM_COUNT)
 		return false
 	return true
 
@@ -355,9 +488,18 @@ func _apply_win95_font() -> void:
 	cam_label.add_theme_constant_override("shadow_offset_x", 1)
 	cam_label.add_theme_constant_override("shadow_offset_y", 1)
 
-	for b: Button in [btn_cam1, btn_cam2]:
+	if _you_label and is_instance_valid(_you_label):
+		_you_label.text = you_translation_key
+		_you_label.add_theme_font_override("font", f)
+		_you_label.add_theme_font_size_override("font_size", 18)
+		_you_label.add_theme_color_override("font_color", Color(1.0, 1.0, 1.0, 1.0))
+		_you_label.add_theme_color_override("font_shadow_color", Color(0.0, 0.0, 0.0, 1.0))
+		_you_label.add_theme_constant_override("shadow_offset_x", 1)
+		_you_label.add_theme_constant_override("shadow_offset_y", 1)
+
+	for b: Button in _cam_buttons:
 		b.add_theme_font_override("font", f)
-		b.add_theme_font_size_override("font_size", 24)
+		b.add_theme_font_size_override("font_size", 11)
 		b.add_theme_color_override("font_color", Color(0.0, 0.0, 0.0, 1.0))
 		b.add_theme_color_override("font_hover_color", Color(0.0, 0.0, 0.0, 1.0))
 		b.add_theme_color_override("font_pressed_color", Color(0.0, 0.0, 0.0, 1.0))
@@ -372,26 +514,46 @@ func _apply_win95_font() -> void:
 	btn_exit.add_theme_color_override("font_hover_pressed_color", exit_red)
 
 	if _pending_label and is_instance_valid(_pending_label):
+		_pending_label.text = pending_translation_key
 		_pending_label.add_theme_font_override("font", f)
 		_pending_label.add_theme_font_size_override("font_size", 36)
 		_pending_label.add_theme_color_override("font_color", Color(1.0, 1.0, 1.0, 1.0))
 
 
 func _setup_buttons() -> void:
-	btn_cam1.text = "CAM 1"
-	btn_cam2.text = "CAM 2"
+	if _cam_buttons.is_empty():
+		_cam_buttons.append(btn_cam1)
+		_cam_buttons.append(btn_cam2)
+		for i in range(3, CAM_COUNT + 1):
+			var extra_btn := Button.new()
+			extra_btn.name = "BtnCam%d" % i
+			root_ctrl.add_child(extra_btn)
+			_cam_buttons.append(extra_btn)
+
+	for i in range(_cam_buttons.size()):
+		var b: Button = _cam_buttons[i]
+		b.text = "C%d" % (i + 1)
+		b.custom_minimum_size = cam_button_size
+
 	btn_exit.text = "EXIT"
+	btn_exit.custom_minimum_size = Vector2(144, 48)
 
 	if _buttons_initialized:
 		return
 	_buttons_initialized = true
 
 	var group := ButtonGroup.new()
-	for b: Button in [btn_cam1, btn_cam2]:
+	for i in range(_cam_buttons.size()):
+		var b: Button = _cam_buttons[i]
 		b.toggle_mode = true
 		b.button_group = group
+		b.pressed.connect(_select_cam.bind(i))
 
-	for b: Button in [btn_cam1, btn_cam2, btn_exit]:
+	var all_btns: Array[Button] = []
+	all_btns.append_array(_cam_buttons)
+	all_btns.append(btn_exit)
+
+	for b: Button in all_btns:
 		var pressed_style := _make_style(BTN_PRESSED)
 		b.add_theme_stylebox_override("normal", _make_style(BTN_NORMAL))
 		b.add_theme_stylebox_override("hover", _make_style(BTN_HOVER))
@@ -400,10 +562,7 @@ func _setup_buttons() -> void:
 		b.add_theme_stylebox_override("focus", StyleBoxEmpty.new())
 		b.focus_mode = Control.FOCUS_NONE
 		b.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
-		b.custom_minimum_size = Vector2(144, 48)
 
-	btn_cam1.pressed.connect(_select_cam.bind(0))
-	btn_cam2.pressed.connect(_select_cam.bind(1))
 	btn_exit.pressed.connect(_on_exit_pressed)
 
 
@@ -429,20 +588,17 @@ func _layout_ui() -> void:
 	cam_label.offset_right = margin + lbl_size.x
 	cam_label.offset_bottom = margin + lbl_size.y
 
-	var c1_size: Vector2 = btn_cam1.get_combined_minimum_size()
-	btn_cam1.set_anchors_and_offsets_preset(Control.PRESET_BOTTOM_LEFT, Control.PRESET_MODE_KEEP_SIZE)
-	btn_cam1.offset_left = margin
-	btn_cam1.offset_right = margin + c1_size.x
-	btn_cam1.offset_bottom = -margin
-	btn_cam1.offset_top = -margin - c1_size.y
+	_setup_map_frame()
+	var anchors := _get_cam_anchors()
+	for i in range(mini(_cam_buttons.size(), anchors.size())):
+		_place_control_on_map(_cam_buttons[i], anchors[i], cam_button_size)
 
-	var c2_size: Vector2 = btn_cam2.get_combined_minimum_size()
-	var c2_left: float = margin + c1_size.x + 12.0
-	btn_cam2.set_anchors_and_offsets_preset(Control.PRESET_BOTTOM_LEFT, Control.PRESET_MODE_KEEP_SIZE)
-	btn_cam2.offset_left = c2_left
-	btn_cam2.offset_right = c2_left + c2_size.x
-	btn_cam2.offset_bottom = -margin
-	btn_cam2.offset_top = -margin - c2_size.y
+	if _you_label and is_instance_valid(_you_label):
+		_you_label.text = you_translation_key
+		var you_size: Vector2 = _you_label.get_combined_minimum_size().max(Vector2(56.0, 24.0))
+		_place_control_on_map(_you_label, you_map_anchor, you_size)
+
+	_layout_pending_label()
 
 	var exit_size: Vector2 = btn_exit.get_combined_minimum_size()
 	btn_exit.set_anchors_and_offsets_preset(Control.PRESET_BOTTOM_RIGHT, Control.PRESET_MODE_KEEP_SIZE)
@@ -573,13 +729,9 @@ func _step_scanline() -> void:
 
 	_third_scan_y += root_ctrl.size.y * third_scanline_step
 	if _third_scan_y > root_ctrl.size.y:
-		_third_scan_y = -_third_scan_line_y_reset()
+		_third_scan_y = -_third_scanline.size.y
 
 	_apply_scanline()
-
-
-func _third_scan_line_y_reset() -> float:
-	return _third_scanline.size.y
 
 
 func _randomize_scanlines() -> void:
@@ -595,7 +747,7 @@ func _apply_scanline() -> void:
 	if _thin_scanline and is_instance_valid(_thin_scanline):
 		_thin_scanline.position.y = _thin_scan_y
 	if _third_scanline and is_instance_valid(_third_scanline):
-		_third_scanline.position.y = _third_scan_y
+		_third_scanline.position.y = _third_scanline.position.y if false else _third_scan_y
 
 
 # ---------- Kamera seçimi ----------
@@ -624,8 +776,8 @@ func _select_cam(index: int) -> void:
 
 
 func _sync_buttons() -> void:
-	btn_cam1.set_pressed_no_signal(_current_cam == 0)
-	btn_cam2.set_pressed_no_signal(_current_cam == 1)
+	for i in range(_cam_buttons.size()):
+		_cam_buttons[i].set_pressed_no_signal(i == _current_cam)
 
 
 func _refresh_label() -> void:

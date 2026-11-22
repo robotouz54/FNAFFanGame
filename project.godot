@@ -11,7 +11,7 @@ config_version=5
 [application]
 
 config/name="FNaF"
-run/main_scene="res://node_3d.tscn"
+run/main_scene="uid://be53ihdr00kpe"
 config/features=PackedStringArray("4.7", "GL Compatibility")
 config/icon="res://icon.svg"
 
@@ -23,6 +23,10 @@ window/stretch/aspect="expand"
 [dotnet]
 
 project/assembly_name="FNaF"
+
+[internationalization]
+
+locale/translations=PackedStringArray("res://translations/texts.en.translation", "res://translations/texts.tr.translation")
 
 [physics]
 

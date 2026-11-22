@@ -1,0 +1,10 @@
+keys,en,tr
+MENU_READY,r u ready?,hazır mısın?
+MENU_YES,yes,evet
+MENU_NO,no,hayır
+LOADING,"loading...","yükleniyor..."
+LOADING_PERCENT,%d%%,%%%d
+CAM,CAM,CAM
+EXIT,EXIT,ÇIK
+YOU,YOU,SEN
+PENDING,Pending...,Bağlanıyor...

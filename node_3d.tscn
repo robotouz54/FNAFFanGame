@@ -539,6 +539,7 @@ material = SubResource("StandardMaterial3D_bvq72")
 libraries/ = SubResource("AnimationLibrary_tuemg")
 
 [node name="Pivot" type="Node3D" parent="." unique_id=1885355889]
+visible = false
 
 [node name="CharacterBody3D" type="CharacterBody3D" parent="Pivot" unique_id=703755988 node_paths=PackedStringArray("debug_camera")]
 transform = Transform3D(0.010493638, 0, 0.9999449, 0, 1, 0, -0.9999449, 0, 0.010493638, -1.5870726, 0, 1.3782055)
@@ -853,15 +854,15 @@ size = Vector3(1.3671265, 0.19559133, 7.3277426)
 material = SubResource("StandardMaterial3D_a0tk4")
 
 [node name="duvar26" type="CSGBox3D" parent="Map/duvarlar" unique_id=1091077497]
-transform = Transform3D(-4.371139e-08, -1, 0, 1, -4.371139e-08, 0, 0, 0, 1.2402859, -17.747923, 6.4788094, -16.617989)
+transform = Transform3D(-4.371139e-08, -1, 0, 1, -4.371139e-08, 0, 0, 0, 1.2402859, -17.747923, 6.6077003, -16.617989)
 use_collision = true
-size = Vector3(1.3671265, 0.19559133, 7.3277426)
+size = Vector3(1.1093445, 0.19559133, 7.3277426)
 material = SubResource("StandardMaterial3D_a0tk4")
 
 [node name="duvar27" type="CSGBox3D" parent="Map/duvarlar" unique_id=2055654071]
-transform = Transform3D(1.9106855e-15, 4.371139e-08, 1.2402859, 1, -4.371139e-08, 0, 4.371139e-08, 1, -5.4214617e-08, -21.286118, 6.4788094, -12.104662)
+transform = Transform3D(1.9106855e-15, 4.371139e-08, 1.2402859, 1, -4.371139e-08, 0, 4.371139e-08, 1, -5.4214617e-08, -21.286118, 6.4788094, -12.347512)
 use_collision = true
-size = Vector3(1.3671265, 0.19559133, 5.7493205)
+size = Vector3(1.3671265, 0.68129176, 5.7493205)
 material = SubResource("StandardMaterial3D_a0tk4")
 
 [node name="duvar28" type="CSGBox3D" parent="Map/duvarlar" unique_id=2094697315]
@@ -1092,14 +1093,14 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -12.142797, 4.431162, 7.41974
 light_color = Color(1, 0.8509804, 0.627451, 1)
 light_energy = 1.44
 shadow_enabled = true
-omni_range = 12.661
+omni_range = 8.953
 
 [node name="omniisik5" type="OmniLight3D" parent="Map/isiklar" unique_id=840218386]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -20.92971, 4.431162, 7.4197483)
 light_color = Color(1, 0.8509804, 0.627451, 1)
-light_energy = 1.44
+light_energy = 0.94
 shadow_enabled = true
-omni_range = 12.661
+omni_range = 6.903
 
 [node name="omniisik15" type="OmniLight3D" parent="Map/isiklar" unique_id=64249473]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -23.735199, 5.440593, 18.738712)
@@ -1141,14 +1142,14 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -20.92971, 4.431162, -0.05527
 light_color = Color(1, 0.8509804, 0.627451, 1)
 light_energy = 1.44
 shadow_enabled = true
-omni_range = 12.661
+omni_range = 8.952
 
 [node name="omniisik7" type="OmniLight3D" parent="Map/isiklar" unique_id=774717579]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -29.611153, 3.4435658, -8.676792)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -29.611153, 4.882606, -12.109097)
 light_color = Color(1, 0.8509804, 0.627451, 1)
-light_energy = 7.752
+light_energy = 2.918
 shadow_enabled = true
-omni_range = 292.185
+omni_range = 12.913
 
 [node name="omniisik8" type="OmniLight3D" parent="Map/isiklar" unique_id=1696121795]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -20.92971, 4.431162, -10.343012)
@@ -1160,42 +1161,42 @@ omni_range = 7.106
 [node name="omniisik9" type="OmniLight3D" parent="Map/isiklar" unique_id=34665984]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -18.480844, 3.8179736, -16.544064)
 light_color = Color(1, 0.8509804, 0.627451, 1)
-light_energy = 16.0
+light_energy = 2.0
 light_indirect_energy = 10.131
 light_volumetric_fog_energy = 10.532
 light_size = 0.285
 light_specular = 0.0
 shadow_enabled = true
-omni_range = 15.758
+omni_range = 11.143
 
 [node name="omniisik10" type="OmniLight3D" parent="Map/isiklar" unique_id=1812956020]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3.6820555, 4.789704, -31.050001)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5.067036, 9.315786, -31.050001)
 light_color = Color(1, 0.8509804, 0.627451, 1)
-light_energy = 16.0
+light_energy = 2.667
 light_indirect_energy = 16.0
 light_volumetric_fog_energy = 16.0
 light_size = 1.0
 light_specular = 0.0
 shadow_enabled = true
-omni_range = 84.654
+omni_range = 100.672
 
 [node name="omniisik14" type="OmniLight3D" parent="Map/isiklar" unique_id=1825617479]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.86074066, 6.716882, 24.057232)
 light_color = Color(1, 0.8509804, 0.627451, 1)
-light_energy = 16.0
+light_energy = 2.333
 light_indirect_energy = 16.0
 light_volumetric_fog_energy = 16.0
 light_size = 1.0
 light_specular = 0.0
 shadow_enabled = true
-omni_range = 84.654
+omni_range = 50.334
 
 [node name="omniisik11" type="OmniLight3D" parent="Map/isiklar" unique_id=1419780662]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -13.631045, 2.5269423, -0.05527067)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -9.737678, 2.5269423, -0.05527067)
 light_color = Color(1, 0.8509804, 0.627451, 1)
-light_energy = 0.773
+light_energy = 1.44
 shadow_enabled = true
-omni_range = 7.106
+omni_range = 95.607
 
 [node name="zemin" type="CSGBox3D" parent="Map" unique_id=212858273]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -7.5132637, -0.47908115, 7.5015125)
@@ -1207,12 +1208,56 @@ metadata/_edit_lock_ = true
 [node name="SecCams" type="Node3D" parent="." unique_id=608243583]
 
 [node name="SecCam1" type="Camera3D" parent="SecCams" unique_id=1055014313]
-transform = Transform3D(-0.6974997, 0.4594258, -0.5499292, -0.060136717, 0.72719455, 0.6837922, 0.71405727, 0.5100157, -0.4795896, -0.26430798, 4.486634, 4.6913395)
-fov = 60.3
+transform = Transform3D(-0.71899754, -0.50673693, 0.47566825, -0.060136676, 0.7271946, 0.6837921, -0.6924061, 0.46303976, -0.5533246, -25.304117, 4.457327, 4.8841257)
+fov = 60.0
 
 [node name="SecCam2" type="Camera3D" parent="SecCams" unique_id=1965074175]
-transform = Transform3D(0.322244, -0.63421047, 0.7028058, -0.06013671, 0.72719455, 0.6837922, -0.94474465, -0.26261234, 0.19619472, -7.5046406, 4.486634, 10.091228)
-fov = 60.3
+transform = Transform3D(0.76162344, 0.47622758, -0.43947357, -0.06013672, 0.72719455, 0.68379223, 0.6452235, -0.49436367, 0.5824871, -33.682545, 5.496907, -3.305607)
+fov = 60.0
+
+[node name="SecCam3" type="Camera3D" parent="SecCams" unique_id=347558549]
+transform = Transform3D(-0.9142774, 0.17329067, -0.36615184, -0.09383865, 0.78869325, 0.6075833, 0.39407003, 0.58985883, -0.70482296, -23.976715, 5.686845, -12.178114)
+fov = 60.0
+
+[node name="SecCam4" type="Camera3D" parent="SecCams" unique_id=608544732]
+transform = Transform3D(0.70714545, 0.48238593, -0.5169614, -0.09383866, 0.78869325, 0.6075832, 0.7008135, -0.38113874, 0.60298735, -17.410778, 4.7425976, 4.0723763)
+fov = 60.0
+
+[node name="SecCam5" type="Camera3D" parent="SecCams" unique_id=1339965579]
+transform = Transform3D(0.6527823, -0.3028609, 0.69437045, 0.015472248, 0.92174494, 0.38748834, -0.75738746, -0.24220206, 0.6063847, -12.020701, 5.792547, -13.211949)
+fov = 60.0
+
+[node name="SecCam6" type="Camera3D" parent="SecCams" unique_id=452097050]
+transform = Transform3D(0.8627708, 0.18356004, -0.4710969, 0.015472261, 0.9217448, 0.38748828, 0.50535846, -0.3416025, 0.7924144, -12.020701, 3.744802, -21.257076)
+fov = 60.0
+
+[node name="SecCam7" type="Camera3D" parent="SecCams" unique_id=1104415342]
+transform = Transform3D(0.7343539, 0.3567477, -0.5774561, 0.032501396, 0.8312861, 0.5548939, 0.6779883, -0.42625663, 0.59886336, -12.425804, 8.722439, 32.82672)
+fov = 60.0
+
+[node name="SecCam8" type="Camera3D" parent="SecCams" unique_id=745197343]
+transform = Transform3D(0.4498616, -0.42909804, 0.7832621, 0.035564948, 0.8849281, 0.46436778, -0.89239, -0.18104452, 0.413356, -2.6332176, 5.792942, 11.561461)
+fov = 60.0
+
+[node name="SecCam9" type="Camera3D" parent="SecCams" unique_id=824902290]
+transform = Transform3D(0.8950991, 0.1784414, -0.4086028, 0.035564914, 0.88492817, 0.4643677, 0.44444653, -0.43018705, 0.7857521, 3.7407537, 5.6588454, 3.8876114)
+fov = 60.0
+
+[node name="SecCam10" type="Camera3D" parent="SecCams" unique_id=1250584717]
+transform = Transform3D(0.8178325, 0.2668527, -0.5098428, 0.054593727, 0.8460045, 0.53037345, 0.57286096, -0.46159077, 0.6773215, 10.816506, 5.6588454, 12.030477)
+fov = 60.0
+
+[node name="SecCam11" type="Camera3D" parent="SecCams" unique_id=2117875709]
+transform = Transform3D(0.81783247, 0.2668528, -0.50984293, 0.009635627, 0.8795056, 0.4757912, 0.5753758, -0.39403015, 0.7167168, 11.980493, 5.940019, -2.661901)
+fov = 60.0
+
+[node name="SecCam12" type="Camera3D" parent="SecCams" unique_id=204935900]
+transform = Transform3D(-0.9299229, -0.22001559, 0.29468045, -0.07697189, 0.8999924, 0.42905596, -0.3596092, 0.37630683, -0.8538586, 10.921991, 5.940019, -26.265669)
+fov = 60.0
+
+[node name="SecCam13" type="Camera3D" parent="SecCams" unique_id=806887645]
+transform = Transform3D(-0.17378843, -0.43463582, 0.8836794, 0.05626872, 0.8914856, 0.4495413, -0.98317415, 0.1278486, -0.13047346, 10.996109, 9.029026, -35.450356)
+fov = 60.0
 
 [node name="SecurityRoom" type="Node3D" parent="." unique_id=1822807806]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5.664241, -0.47908115, 3.909802)
@@ -1724,6 +1769,6 @@ fov = 90.0
 script = ExtResource("1_a202f")
 
 [node name="MonitorZoomView" type="Camera3D" parent="SecurityRoom/ODA" unique_id=489071963]
-transform = Transform3D(-0.14999725, -0.06769371, 0.9863663, 0.007513197, 0.9975465, 0.06960353, -0.9886579, 0.017851103, -0.14912063, -3.0610847, 0.7123406, 1.0972598)
+transform = Transform3D(-0.14999725, -0.06769371, 0.9863663, 0.007513197, 0.9975465, 0.06960353, -0.9886579, 0.017851103, -0.14912063, -3.5531511, 0.7123406, 1.0972598)
 fov = 90.0
 script = ExtResource("1_a202f")
