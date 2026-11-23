@@ -15,9 +15,15 @@ CAM_4_NAME,"C:\Users\PC\Documents\SecureGuard\Feeds\cam04_janitor_closet.sdp","C
 CAM_5_NAME,"C:\Users\PC\Documents\SecureGuard\Feeds\cam05_backstage.sdp","C:\Users\PC\Documents\SecureGuard\Feeds\cam05_sahne_arka.sdp"
 CAM_6A_NAME,"C:\Users\PC\Documents\SecureGuard\Feeds\cam06a_front_auditorium.sdp","C:\Users\PC\Documents\SecureGuard\Feeds\cam06a_konferans_onu.sdp"
 CAM_6B_NAME,"C:\Users\PC\Documents\SecureGuard\Feeds\cam07_coliseum.sdp","C:\Users\PC\Documents\SecureGuard\Feeds\cam07_coliseum.sdp"
-CAM_6C_NAME,"C:\Users\PC\Documents\SecureGuard\Feeds\cam08_east_hall.sdp","C:\Users\PC\Documents\SecureGuard\Feeds\cam08_bati_koridor.sdp"
+CAM_6C_NAME,"C:\Users\PC\Documents\SecureGuard\Feeds\cam08_west_hall.sdp","C:\Users\PC\Documents\SecureGuard\Feeds\cam08_bati_koridor.sdp"
 CAM_7_NAME,"C:\Users\PC\Documents\SecureGuard\Feeds\cam09_south_hall.sdp","C:\Users\PC\Documents\SecureGuard\Feeds\cam09_guney_koridor.sdp"
 CAM_8_NAME,"C:\Users\PC\Documents\SecureGuard\Feeds\cam10_tea_room.sdp","C:\Users\PC\Documents\SecureGuard\Feeds\cam10_cay_ocagi.sdp"
 CAM_9_NAME,"C:\Users\PC\Documents\SecureGuard\Feeds\cam11_common_room.sdp","C:\Users\PC\Documents\SecureGuard\Feeds\cam11_dinlenme_odasi.sdp"
 CAM_10_NAME,"C:\Users\PC\Documents\SecureGuard\Feeds\cam06b_auditorium_enterance.sdp","C:\Users\PC\Documents\SecureGuard\Feeds\cam06b_konferans_giris.sdp"
 CAM_11_NAME,"C:\Users\PC\Documents\SecureGuard\Feeds\cam06c_auditorium.sdp","C:\Users\PC\Documents\SecureGuard\Feeds\cam06c_konferans.sdp"
+NIGHT_LABEL,night %d,gece %d
+CLOCK_LABEL,%d AM,saat %d
+WIN_TEXT,6 AM,SAAT 6
+GAME_OVER,GAME OVER,OYUN BİTTİ
+LOST_SIGNAL,Lost Signal,Bağlantı Kesildi
+PLAY_AUDIO,Play Audio,Ses Çal

@@ -3,6 +3,7 @@ extends Area3D
 
 ## Fare bu hitbox'a sol tıklayınca yayılır
 signal clicked
+signal hover_changed(is_hovering: bool)
 
 ## "ekran" kutusu
 @export var screen: CSGPrimitive3D
@@ -70,7 +71,10 @@ func set_in_use(value: bool) -> void:
 
 
 func _process(_delta: float) -> void:
+	var was_over := _over
 	_over = _is_mouse_over_hitbox()
+	if _over != was_over:
+		hover_changed.emit(_over)
 	_refresh_glow()
 	_refresh_cursor()
 
@@ -123,8 +127,11 @@ func _is_mouse_over_hitbox() -> bool:
 		var local := container.get_local_mouse_position()
 		if not Rect2(Vector2.ZERO, container.size).has_point(local):
 			return false
-		var shrink := float(container.stretch_shrink) if container.stretch else 1.0
-		mouse_pos = local / shrink
+		if container.stretch and container.size.x > 0.0 and container.size.y > 0.0:
+			var viewport_size := vp.get_visible_rect().size
+			mouse_pos = local * viewport_size / container.size
+		else:
+			mouse_pos = local / maxf(float(container.stretch_shrink), 1.0)
 	else:
 		mouse_pos = vp.get_mouse_position()
 

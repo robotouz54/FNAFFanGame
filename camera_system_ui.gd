@@ -1,3 +1,4 @@
+class_name CameraSystemUI
 extends CanvasLayer
 
 enum State { IDLE, ZOOMING_IN, OPENING, ACTIVE, CLOSING, ZOOMING_OUT }
@@ -8,6 +9,7 @@ const BTN_NORMAL = preload("res://png/btn_normal.png")
 const BTN_HOVER = preload("res://png/btn_hover.png")
 const BTN_PRESSED = preload("res://png/btn_pressed.png")
 const CAMERA_MAP_TEX: Texture2D = preload("res://png/camera_map.png")
+const AUDIO_WAVE_EFFECT_SCRIPT = preload("res://audio_wave_effect.gd")
 const CAM_COUNT: int = 13
 const STATIC_DIR_CANDIDATES: PackedStringArray = [
 	"res://textures",
@@ -15,6 +17,9 @@ const STATIC_DIR_CANDIDATES: PackedStringArray = [
 	"res://png",
 	"res://"
 ]
+signal lure_requested(cam_index: int)
+signal opened
+signal closed
 
 @export_group("Görsel")
 ## İsteğe bağlı: özel .ttf/.otf font dosyası (boşsa sistem fontu kullanılır)
@@ -107,6 +112,19 @@ const STATIC_DIR_CANDIDATES: PackedStringArray = [
 ## Alfa 0 bırakırsan monitör ekranının rengi kullanılır
 @export var overlay_color_override: Color = Color(0, 0, 0, 0)
 
+@export_group("Canavar Sistemi")
+@export var play_sound_translation_key: String = "PLAY_AUDIO"
+@export var lost_signal_translation_key: String = "LOST_SIGNAL"
+## Play Sound butonunun bekleme süresi (saniye)
+@export var play_sound_cooldown: float = 10.0
+## LOST SIGNAL yazısının ekranda kalma süresi
+@export var lost_signal_time: float = 2.5
+## LOST SIGNAL'dan sonra PENDING'in kalma süresi
+@export var pending_after_lost_time: float = 1.45
+@export var play_sound_button_size: Vector2 = Vector2(220.0, 48.0)
+@export_range(0.0, 0.2) var office_static_alpha: float = 0.05
+@export var office_static_fade_time: float = 0.5
+
 @onready var root_ctrl: Control = $Root
 @onready var cam_viewport: SubViewport = $Root/CamViewContainer/CamViewport
 @onready var cam_camera: Camera3D = $Root/CamViewContainer/CamViewport/CamCamera
@@ -132,6 +150,7 @@ var _you_square_large: bool = true
 var _switching_cam: bool = false
 var _state: State = State.IDLE
 var _player_cam: PlayerCamera
+var _mouse_mode_before_cams: int = Input.MOUSE_MODE_VISIBLE
 var _hitbox: GlowHitbox
 var _zoom_view: Camera3D
 var _cam_points: Array[Camera3D] = []
@@ -142,9 +161,31 @@ var _third_scan_y: float = 0.0
 var _last_static: int = -1
 var _buttons_initialized: bool = false
 var _base_cam_quat: Quaternion = Quaternion.IDENTITY
+var _btn_play_sound: Button
+var _audio_wave_effect: Control
+var _lost_signal_audio: AudioStreamPlayer3D
+var _after_lost_audio: AudioStreamPlayer3D
+var _camera_select_audio: AudioStreamPlayer3D
+var _monitor_glow_audio: AudioStreamPlayer3D
+var _monitor_open_audio: AudioStreamPlayer3D
+var _click_audio: AudioStreamPlayer3D
+var _monitor_glow_tween: Tween
+var _monitor_open_fade_tween: Tween
+var _play_cooldown_left: float = 0.0
+var _cam_locks: Dictionary = {}
+var _close_requested: bool = false
+var _office_static_layer: CanvasLayer
+var _office_static_noise: TextureRect
+var _office_static_left: float = 0.0
+var _office_static_frame_left: float = 0.0
+var _office_static_last: int = -1
+var _office_static_active: bool = false
+var _office_static_tween: Tween
 
 
 func _ready() -> void:
+	for stale_layer in get_tree().root.find_children("OfficeStaticEffect", "CanvasLayer", true, false):
+		stale_layer.queue_free()
 	visible = false
 	cam_viewport.render_target_update_mode = SubViewport.UPDATE_DISABLED
 
@@ -173,12 +214,21 @@ func _ready() -> void:
 
 	_force_layout()
 	_update_static()
+	_apply_win95_font()
+	_layout_pending_label()
+	_refresh_label()
+	if auto_layout:
+		_layout_ui()
+	_setup_map_frame()
+	_order_pending_behind_hud()
+	_order_overlay_on_top()
+	_layout_play_sound_button()
 
 	if _find_world_nodes():
+		_start_monitor_glow()
 		_clamp_current_cam()
 		if not _hitbox.clicked.is_connected(_on_monitor_clicked):
 			_hitbox.clicked.connect(_on_monitor_clicked)
-
 
 func _get_cam_translation_keys() -> Array[String]:
 	return [
@@ -291,6 +341,10 @@ func _scan_dir_for_statics(dir_path: String, found_paths: Dictionary) -> void:
 
 
 func _process(delta: float) -> void:
+	_process_office_static(delta)
+	if _play_cooldown_left > 0.0:
+		_play_cooldown_left = maxf(_play_cooldown_left - delta, 0.0)
+		_update_play_sound_button()
 	if not _player_cam or not is_instance_valid(_player_cam):
 		return
 	if _state == State.ZOOMING_IN and _zoom_view and is_instance_valid(_zoom_view):
@@ -364,6 +418,8 @@ func _order_overlay_on_top() -> void:
 	for b: Button in _cam_buttons:
 		if b and is_instance_valid(b):
 			below_overlay.append(b)
+	if _btn_play_sound and is_instance_valid(_btn_play_sound):
+		below_overlay.append(_btn_play_sound)
 	for ctrl: Control in below_overlay:
 		if ctrl and is_instance_valid(ctrl) and ctrl.get_parent() == root_ctrl:
 			if ctrl.get_index() >= overlay.get_index():
@@ -415,6 +471,8 @@ func _order_pending_behind_hud() -> void:
 	for b: Button in _cam_buttons:
 		if b and is_instance_valid(b):
 			hud_nodes.append(b)
+	if _btn_play_sound and is_instance_valid(_btn_play_sound):
+		hud_nodes.append(_btn_play_sound)
 	var first_hud_idx: int = root_ctrl.get_child_count()
 	for hud_node: Control in hud_nodes:
 		if hud_node and hud_node.get_parent() == root_ctrl:
@@ -512,6 +570,7 @@ func _force_layout() -> void:
 	_third_scanline.set_anchors_and_offsets_preset(Control.PRESET_TOP_WIDE)
 
 	_setup_buttons()
+	_ensure_play_sound_button()
 	_apply_win95_font()
 	_layout_pending_label()
 	_refresh_label()
@@ -520,11 +579,15 @@ func _force_layout() -> void:
 	_setup_map_frame()
 	_order_pending_behind_hud()
 	_order_overlay_on_top()
+	_layout_play_sound_button()
 
 
 func _exit_tree() -> void:
 	_set_cursor(false)
-
+	_office_static_active = false
+	_office_static_left = 0.0
+	if _office_static_layer and is_instance_valid(_office_static_layer):
+		_office_static_layer.queue_free()
 
 func _unhandled_input(event: InputEvent) -> void:
 	if event.is_action_pressed("ui_cancel") and _state == State.ACTIVE and not _switching_cam:
@@ -538,6 +601,24 @@ func _find_world_nodes() -> bool:
 	_player_cam = tree_root.find_child("Camera3D", true, false) as PlayerCamera
 	_hitbox = tree_root.find_child("MonitorHitbox", true, false) as GlowHitbox
 	_zoom_view = tree_root.find_child("MonitorZoomView", true, false) as Camera3D
+	_lost_signal_audio = tree_root.find_child("LostSignal", true, false) as AudioStreamPlayer3D
+	_after_lost_audio = tree_root.find_child("AfterLost", true, false) as AudioStreamPlayer3D
+	_camera_select_audio = tree_root.find_child("CameraSelect", true, false) as AudioStreamPlayer3D
+	_monitor_glow_audio = tree_root.find_child("MonitorGlow", true, false) as AudioStreamPlayer3D
+	_monitor_open_audio = tree_root.find_child("MonitorOpens", true, false) as AudioStreamPlayer3D
+	_click_audio = tree_root.find_child("Click", true, false) as AudioStreamPlayer3D
+	for player: AudioStreamPlayer3D in [_lost_signal_audio, _after_lost_audio, _camera_select_audio, _monitor_glow_audio, _monitor_open_audio, _click_audio]:
+		if player:
+			player.max_distance = 100.0
+			player.unit_size = 20.0
+			player.volume_db = -4.0
+	# Keep these effects quieter than the shared default above.
+	if _after_lost_audio:
+		_after_lost_audio.volume_db = -16.0
+	if _monitor_open_audio:
+		_monitor_open_audio.volume_db = -24.0
+	if _hitbox and not _hitbox.hover_changed.is_connected(_on_monitor_hover_changed):
+		_hitbox.hover_changed.connect(_on_monitor_hover_changed)
 	_cam_points.clear()
 	_cam_points.resize(CAM_COUNT)
 	var any_cam_found: bool = false
@@ -776,11 +857,16 @@ func _layout_ui() -> void:
 # ---------- Açılış ----------
 
 func _on_monitor_clicked() -> void:
+	if are_cams_locked():
+		return
 	if _state != State.IDLE:
 		return
+	_mouse_mode_before_cams = Input.mouse_mode
+	Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
 	_base_cam_quat = _player_cam.global_transform.basis.get_rotation_quaternion().normalized()
 	_state = State.ZOOMING_IN
 	_hitbox.set_in_use(true)
+	_play_monitor_open_audio()
 	_player_cam.zoom_to(_zoom_view.global_transform, _zoom_view.fov, zoom_time)
 	await _player_cam.zoom_finished
 	await _open_ui()
@@ -814,6 +900,10 @@ func _open_ui() -> void:
 		_pending_overlay.visible = false
 
 	_state = State.ACTIVE
+	opened.emit()
+	if _close_requested:
+		_close_requested = false
+		_close_ui()
 
 
 # ---------- Kapanış ----------
@@ -821,11 +911,13 @@ func _open_ui() -> void:
 func _on_exit_pressed() -> void:
 	if _state != State.ACTIVE or _switching_cam:
 		return
+	_play_audio(_click_audio)
 	_close_ui()
 
 
 func _close_ui() -> void:
 	_state = State.CLOSING
+	_close_requested = false
 	if _pending_overlay and is_instance_valid(_pending_overlay):
 		_pending_overlay.visible = false
 	overlay.color = _get_overlay_color()
@@ -842,9 +934,11 @@ func _close_ui() -> void:
 	_state = State.ZOOMING_OUT
 	_player_cam.return_to_base(zoom_time)
 	await _player_cam.return_finished
+	Input.set_mouse_mode(_mouse_mode_before_cams)
 
 	_hitbox.set_in_use(false)
 	_state = State.IDLE
+	closed.emit()
 
 
 # ---------- Saniyede bir çalışan kısım (1 FPS) ----------
@@ -896,6 +990,71 @@ func _render_cam() -> void:
 	cam_viewport.render_target_update_mode = SubViewport.UPDATE_ONCE
 
 
+func play_office_static(duration: float = -1.0) -> void:
+	_load_static_frames_if_empty()
+	if static_frames.is_empty():
+		return
+	if not _office_static_layer or not is_instance_valid(_office_static_layer):
+		_office_static_layer = CanvasLayer.new()
+		_office_static_layer.name = "OfficeStaticEffect"
+		_office_static_layer.layer = 90
+		var scene_root := get_tree().current_scene
+		if scene_root == null:
+			scene_root = get_tree().root
+		scene_root.add_child(_office_static_layer)
+		_office_static_noise = TextureRect.new()
+		_office_static_noise.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+		_office_static_noise.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		_office_static_noise.stretch_mode = TextureRect.STRETCH_TILE
+		_office_static_noise.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		_office_static_layer.add_child(_office_static_noise)
+
+	_office_static_left = duration
+	_office_static_frame_left = 0.0
+	_office_static_active = true
+	_office_static_layer.visible = true
+	_office_static_noise.modulate.a = 0.0
+	if _office_static_tween:
+		_office_static_tween.kill()
+	_office_static_tween = create_tween()
+	_office_static_tween.tween_property(_office_static_noise, "modulate:a", office_static_alpha, maxf(office_static_fade_time, 0.01))
+	_process_office_static(0.0)
+
+func stop_office_static() -> void:
+	if not _office_static_active:
+		return
+	_office_static_active = false
+	if _office_static_tween:
+		_office_static_tween.kill()
+	if not _office_static_noise or not is_instance_valid(_office_static_noise):
+		return
+	_office_static_tween = create_tween()
+	_office_static_tween.tween_property(_office_static_noise, "modulate:a", 0.0, maxf(office_static_fade_time, 0.01))
+	_office_static_tween.finished.connect(func() -> void:
+		if not _office_static_active and _office_static_layer and is_instance_valid(_office_static_layer):
+			_office_static_layer.visible = false
+	)
+
+func _process_office_static(delta: float) -> void:
+	if not _office_static_noise or not is_instance_valid(_office_static_noise):
+		return
+	if not _office_static_active:
+		return
+	if _office_static_left > 0.0:
+		_office_static_left = maxf(_office_static_left - delta, 0.0)
+		if _office_static_left <= 0.0:
+			stop_office_static()
+			return
+	_office_static_frame_left -= delta
+	if _office_static_frame_left <= 0.0 and not static_frames.is_empty():
+		var idx := randi() % static_frames.size()
+		while static_frames.size() > 1 and idx == _office_static_last:
+			idx = randi() % static_frames.size()
+		_office_static_last = idx
+		_office_static_noise.texture = static_frames[idx]
+		_office_static_frame_left = 0.045
+
+
 func _update_static() -> void:
 	_load_static_frames_if_empty()
 	var n: int = static_frames.size()
@@ -934,8 +1093,7 @@ func _randomize_scanlines() -> void:
 
 
 func _apply_scanline() -> void:
-	if scanline and is_instance_valid(scanline):
-		scanline.position.y = _scan_y
+	scanline.position.y = _scan_y
 	if _thin_scanline and is_instance_valid(_thin_scanline):
 		_thin_scanline.position.y = _thin_scan_y
 	if _third_scanline and is_instance_valid(_third_scanline):
@@ -947,6 +1105,7 @@ func _apply_scanline() -> void:
 func _select_cam(index: int) -> void:
 	if _state != State.ACTIVE or index == _current_cam or _switching_cam:
 		return
+	_play_audio(_camera_select_audio)
 	_switching_cam = true
 	_current_cam = index
 	_clamp_current_cam()
@@ -1000,3 +1159,192 @@ func _set_cursor(on: bool) -> void:
 	else:
 		Input.set_custom_mouse_cursor(null, Input.CURSOR_ARROW)
 		Input.set_custom_mouse_cursor(null, Input.CURSOR_POINTING_HAND)
+
+
+# ---------- Canavar sistemi ----------
+
+func lock_cams(reason: String) -> void:
+	_cam_locks[reason] = true
+
+
+func unlock_cams(reason: String) -> void:
+	_cam_locks.erase(reason)
+
+
+func are_cams_locked() -> bool:
+	return not _cam_locks.is_empty()
+
+
+func is_camera_feed_active() -> bool:
+	return _state == State.ACTIVE
+
+
+func is_open() -> bool:
+	return _state != State.IDLE
+
+
+## Kamera sistemini mümkün olan en kısa sürede kapatır
+func force_close() -> void:
+	if _state == State.ACTIVE:
+		_switching_cam = false
+		_close_ui()
+	elif _state == State.ZOOMING_IN or _state == State.OPENING:
+		_close_requested = true
+
+
+func _ensure_play_sound_button() -> void:
+	if _btn_play_sound and is_instance_valid(_btn_play_sound):
+		_ensure_audio_wave_effect()
+		return
+	_btn_play_sound = Button.new()
+	_btn_play_sound.name = "BtnPlaySound"
+	_btn_play_sound.text = play_sound_translation_key
+	_btn_play_sound.custom_minimum_size = play_sound_button_size
+	_btn_play_sound.focus_mode = Control.FOCUS_NONE
+	_btn_play_sound.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
+
+	var pressed_style := _make_style(BTN_PRESSED)
+	_btn_play_sound.add_theme_stylebox_override("normal", _make_style(BTN_NORMAL))
+	_btn_play_sound.add_theme_stylebox_override("hover", _make_style(BTN_HOVER))
+	_btn_play_sound.add_theme_stylebox_override("pressed", pressed_style)
+	_btn_play_sound.add_theme_stylebox_override("hover_pressed", pressed_style)
+	_btn_play_sound.add_theme_stylebox_override("disabled", _make_style(BTN_PRESSED))
+	_btn_play_sound.add_theme_stylebox_override("focus", StyleBoxEmpty.new())
+
+	_btn_play_sound.add_theme_font_override("font", _build_exit_wide_font())
+	_btn_play_sound.add_theme_font_size_override("font_size", 20)
+	_btn_play_sound.add_theme_constant_override("spacing_glyph", 3)
+	_btn_play_sound.add_theme_color_override("font_shadow_color", Color.BLACK)
+	_btn_play_sound.add_theme_constant_override("shadow_offset_x", 1)
+	_btn_play_sound.add_theme_constant_override("shadow_offset_y", 1)
+	_btn_play_sound.add_theme_color_override("font_outline_color", Color.BLACK)
+	_btn_play_sound.add_theme_constant_override("outline_size", 1)
+	for color_name: String in ["font_color", "font_hover_color", "font_pressed_color", "font_hover_pressed_color"]:
+		_btn_play_sound.add_theme_color_override(color_name, Color.WHITE)
+	_btn_play_sound.add_theme_color_override("font_disabled_color", Color(1.0, 1.0, 1.0, 0.45))
+
+	_btn_play_sound.pressed.connect(_on_play_sound_pressed)
+	root_ctrl.add_child(_btn_play_sound)
+	_ensure_audio_wave_effect()
+	_update_play_sound_button()
+
+
+func _ensure_audio_wave_effect() -> void:
+	if _audio_wave_effect and is_instance_valid(_audio_wave_effect):
+		return
+	_audio_wave_effect = Control.new()
+	_audio_wave_effect.name = "AudioWaveEffect"
+	_audio_wave_effect.set_script(AUDIO_WAVE_EFFECT_SCRIPT)
+	_audio_wave_effect.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_audio_wave_effect.z_index = 20
+	root_ctrl.add_child(_audio_wave_effect)
+	_audio_wave_effect.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+
+
+func _layout_play_sound_button() -> void:
+	if not _btn_play_sound or not is_instance_valid(_btn_play_sound):
+		return
+	var margin: float = 24.0
+	var s: Vector2 = _btn_play_sound.get_combined_minimum_size().max(play_sound_button_size)
+	_btn_play_sound.set_anchors_and_offsets_preset(Control.PRESET_CENTER_BOTTOM, Control.PRESET_MODE_KEEP_SIZE)
+	_btn_play_sound.offset_left = -s.x * 0.5
+	_btn_play_sound.offset_right = s.x * 0.5
+	_btn_play_sound.offset_bottom = -margin
+	_btn_play_sound.offset_top = -margin - s.y
+
+
+func _update_play_sound_button() -> void:
+	if not _btn_play_sound or not is_instance_valid(_btn_play_sound):
+		return
+	var cooling: bool = _play_cooldown_left > 0.0
+	_btn_play_sound.disabled = cooling
+	_btn_play_sound.modulate.a = 0.6 if cooling else 1.0
+
+
+func _on_play_sound_pressed() -> void:
+	if _state != State.ACTIVE or _switching_cam or _play_cooldown_left > 0.0:
+		return
+	_ensure_audio_wave_effect()
+	var wave_origin := _btn_play_sound.position + Vector2(_btn_play_sound.size.x * 0.5, 0.0)
+	_audio_wave_effect.call("play_wave", wave_origin)
+	_play_cooldown_left = play_sound_cooldown
+	_update_play_sound_button()
+	lure_requested.emit(_current_cam)
+
+
+## Canavar yer değiştirirken çağrılır: kameralar açıksa LOST SIGNAL → PENDING gösterir.
+## move_callable, ekran tamamen kapalıyken çalıştırılır.
+func play_lost_signal(move_callable: Callable) -> void:
+	# Kamera değiştirme gibi başka bir geçiş sürüyorsa bitmesini bekle
+	while _switching_cam and _state == State.ACTIVE:
+		await get_tree().process_frame
+
+	if _state != State.ACTIVE:
+		await move_callable.call()
+		return
+
+	_switching_cam = true
+	_ensure_pending_overlay()
+	_pending_label.text = lost_signal_translation_key
+	_pending_overlay.visible = true
+	_play_audio(_lost_signal_audio)
+	await get_tree().process_frame
+	# Hareketi LOST SIGNAL altında başlat; Lost Signal ve Pending süreleri
+	# hareket süresinden bağımsız olarak diğer oda geçişleriyle aynı kalır.
+	move_callable.call()
+
+	await get_tree().create_timer(lost_signal_time).timeout
+	if _pending_label and is_instance_valid(_pending_label):
+		_pending_label.text = pending_translation_key
+	_play_audio(_after_lost_audio)
+	await get_tree().create_timer(pending_after_lost_time).timeout
+
+	if _state == State.ACTIVE:
+		_update_static()
+		_randomize_scanlines()
+		_render_cam()
+	if _pending_overlay and is_instance_valid(_pending_overlay):
+		_pending_overlay.visible = false
+	_switching_cam = false
+
+
+func _start_monitor_glow() -> void:
+	if not _monitor_glow_audio or not is_instance_valid(_monitor_glow_audio):
+		return
+	_monitor_glow_audio.volume_db = -80.0
+	if not _monitor_glow_audio.playing:
+		_monitor_glow_audio.play()
+
+
+func _on_monitor_hover_changed(is_hovering: bool) -> void:
+	if not _monitor_glow_audio or not is_instance_valid(_monitor_glow_audio):
+		return
+	if _monitor_glow_tween and _monitor_glow_tween.is_valid():
+		_monitor_glow_tween.kill()
+	if not _monitor_glow_audio.playing:
+		_monitor_glow_audio.play()
+	_monitor_glow_tween = create_tween()
+	_monitor_glow_tween.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+	var target_db := -24.0 if is_hovering else -80.0
+	_monitor_glow_tween.tween_property(_monitor_glow_audio, "volume_db", target_db, 0.55)
+
+
+func _play_audio(player: AudioStreamPlayer3D) -> void:
+	if not player or not is_instance_valid(player) or player.stream == null:
+		return
+	player.stop()
+	player.play()
+
+
+func _play_monitor_open_audio() -> void:
+	if not _monitor_open_audio or not is_instance_valid(_monitor_open_audio) or _monitor_open_audio.stream == null:
+		return
+	if _monitor_open_fade_tween and _monitor_open_fade_tween.is_valid():
+		_monitor_open_fade_tween.kill()
+	_monitor_open_audio.stop()
+	_monitor_open_audio.volume_db = -24.0
+	_monitor_open_audio.play()
+	_monitor_open_fade_tween = create_tween()
+	_monitor_open_fade_tween.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+	_monitor_open_fade_tween.tween_interval(0.6)
+	_monitor_open_fade_tween.tween_property(_monitor_open_audio, "volume_db", -80.0, 2.0)

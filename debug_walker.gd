@@ -1,3 +1,4 @@
+class_name DebugWalker
 extends CharacterBody3D
 
 const DEBUG_CODE: Array[Key] = [KEY_D, KEY_E, KEY_B, KEY_U, KEY_G]
@@ -16,6 +17,8 @@ const DEBUG_CODE: Array[Key] = [KEY_D, KEY_E, KEY_B, KEY_U, KEY_G]
 @export var mouse_sensitivity: float = 0.012
 @export var debug_camera: Camera3D
 @export var flashlight: SpotLight3D
+var debug_audio_listener: AudioListener3D
+var player_audio_listener: AudioListener3D
 
 @export_group("Head Bob & Zıplama Hissi")
 @export var bob_enabled: bool = true
@@ -42,6 +45,8 @@ var _was_on_floor: bool = false
 
 
 func _ready() -> void:
+	debug_audio_listener = find_child("DebugAudioListener", true, false) as AudioListener3D
+	player_audio_listener = get_tree().root.find_child("OfficeAudioListener", true, false) as AudioListener3D
 	if not debug_camera:
 		debug_camera = find_child("DebugCamera3D", true, false) as Camera3D
 	if not flashlight:
@@ -58,14 +63,16 @@ func _ready() -> void:
 
 
 func _unhandled_input(event: InputEvent) -> void:
+	if event is InputEventKey and event.pressed and not event.echo:
+		if _process_debug_code(event.keycode):
+			return
+		if not _debug_mode:
+			return
+		if event.keycode == KEY_F:
+			_toggle_flashlight()
+
 	if not _debug_mode:
-		if event is InputEventKey and event.pressed and not event.echo:
-			_process_debug_code(event.keycode)
 		return
-
-	if event is InputEventKey and event.pressed and not event.echo and event.keycode == KEY_F:
-		_toggle_flashlight()
-
 	if event is InputEventMouseMotion and Input.get_mouse_mode() == Input.MOUSE_MODE_CAPTURED:
 		rotate_y(-event.relative.x * mouse_sensitivity)
 		if debug_camera:
@@ -73,21 +80,27 @@ func _unhandled_input(event: InputEvent) -> void:
 			debug_camera.rotation.x = clampf(debug_camera.rotation.x, deg_to_rad(-85.0), deg_to_rad(85.0))
 
 
-func _process_debug_code(keycode: Key) -> void:
+func _process_debug_code(keycode: Key) -> bool:
 	if keycode == DEBUG_CODE[_debug_code_index]:
 		_debug_code_index += 1
 		if _debug_code_index >= DEBUG_CODE.size():
 			_debug_code_index = 0
-			_enter_debug_mode_permanently()
+			if _debug_mode:
+				_exit_debug_mode()
+			else:
+				_enter_debug_mode_permanently()
+			return true
 	else:
 		# Araya başka tuş girerse sıfırla; basılan tuş 'D' ise ilk harf olarak kabul et
 		_debug_code_index = 1 if keycode == DEBUG_CODE[0] else 0
-
+	return false
 
 func _enter_debug_mode_permanently() -> void:
 	_debug_mode = true
 	set_physics_process(true)
 	Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
+	if debug_audio_listener:
+		debug_audio_listener.make_current()
 
 	if not debug_camera:
 		debug_camera = find_child("DebugCamera3D", true, false) as Camera3D
@@ -104,6 +117,44 @@ func _enter_debug_mode_permanently() -> void:
 
 	_was_on_floor = is_on_floor()
 
+
+func is_debug_mode_enabled() -> bool:
+	return _debug_mode
+
+
+func set_debug_camera_active(active: bool) -> void:
+	if not _debug_mode:
+		return
+	var player_camera := get_tree().root.find_child("Camera3D", true, false) as Camera3D
+	if active:
+		if debug_camera:
+			debug_camera.make_current()
+		if debug_audio_listener:
+			debug_audio_listener.make_current()
+		Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
+	else:
+		if player_camera:
+			player_camera.make_current()
+		if player_audio_listener:
+			player_audio_listener.make_current()
+		Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
+
+func _exit_debug_mode() -> void:
+	_debug_mode = false
+	_debug_code_index = 0
+	set_physics_process(false)
+	velocity = Vector3.ZERO
+	if debug_camera:
+		debug_camera.current = false
+	if flashlight:
+		flashlight.visible = false
+
+	var player_camera := get_tree().root.find_child("Camera3D", true, false) as Camera3D
+	if player_camera:
+		player_camera.make_current()
+	if player_audio_listener:
+		player_audio_listener.make_current()
+	Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
 
 func _toggle_flashlight() -> void:
 	if not flashlight:

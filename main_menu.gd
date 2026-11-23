@@ -50,6 +50,8 @@ const BTN_PRESSED = preload("res://png/btn_pressed.png")
 @onready var load_progress: ProgressBar = $LoadingPage/VBox/LoadProgress
 @onready var percent_label: Label = $LoadingPage/VBox/PercentLabel
 @onready var lang_button: TextureButton = $LangButton
+@onready var hover_audio: AudioStreamPlayer2D = $SFX/Hover
+@onready var click_audio: AudioStreamPlayer2D = $SFX/Click
 
 var _lang: String = "en"
 var _loading: bool = false
@@ -100,9 +102,14 @@ func _ready() -> void:
 	_update_flag()
 	_update_percent_label()
 
+	btn_yes.pressed.connect(_play_click_audio)
 	btn_yes.pressed.connect(_on_yes_pressed)
 	btn_no.pressed.connect(_on_no_pressed)
+	lang_button.pressed.connect(_play_click_audio)
 	lang_button.pressed.connect(_toggle_language)
+	for button: Button in [btn_yes, btn_no]:
+		button.mouse_entered.connect(_play_hover_audio)
+	lang_button.mouse_entered.connect(_play_hover_audio)
 
 	set_process(false)
 
@@ -277,7 +284,24 @@ func _update_percent_label() -> void:
 # ---------- Butonlar ----------
 
 func _on_no_pressed() -> void:
+	_play_click_audio()
+	await click_audio.finished
 	get_tree().quit()
+
+
+func _play_hover_audio() -> void:
+	_play_ui_audio(hover_audio)
+
+
+func _play_click_audio() -> void:
+	_play_ui_audio(click_audio)
+
+
+func _play_ui_audio(player: AudioStreamPlayer2D) -> void:
+	if player.stream == null:
+		return
+	player.stop()
+	player.play()
 
 
 func _on_yes_pressed() -> void:

@@ -1,6 +1,9 @@
 [gd_scene format=3 uid="uid://be53ihdr00kpe"]
 
 [ext_resource type="Script" uid="uid://swo0k7itytdx" path="res://main_menu.gd" id="1_06t4h"]
+[ext_resource type="AudioStream" uid="uid://cu3dv6t2adyii" path="res://audio/buttonhover.wav" id="2_fu7sn"]
+[ext_resource type="AudioStream" uid="uid://cg112v32aaxfg" path="res://audio/buttonclick.mp3" id="3_jix8l"]
+[ext_resource type="AudioStream" uid="uid://bvrjrxvrkryuq" path="res://audio/mainmenumusic.ogg" id="4_jix8l"]
 
 [node name="MainMenu" type="Control" unique_id=2129139462]
 layout_mode = 3
@@ -79,3 +82,15 @@ anchor_right = 1.0
 offset_left = -40.0
 offset_bottom = 40.0
 grow_horizontal = 0
+
+[node name="SFX" type="Node" parent="." unique_id=1483926711]
+
+[node name="Hover" type="AudioStreamPlayer2D" parent="SFX" unique_id=1776057642]
+stream = ExtResource("2_fu7sn")
+
+[node name="Click" type="AudioStreamPlayer2D" parent="SFX" unique_id=152260827]
+stream = ExtResource("3_jix8l")
+
+[node name="Music" type="AudioStreamPlayer2D" parent="SFX" unique_id=959556782]
+stream = ExtResource("4_jix8l")
+autoplay = true

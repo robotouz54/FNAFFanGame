@@ -15,9 +15,29 @@ signal return_finished
 @export var max_turn_deg: float = 45.0
 @export_range(0.02, 0.4) var edge_enter: float = 0.10
 @export_range(0.02, 0.5) var edge_exit: float = 0.18
-@export var turn_time: float = 1.6
-@export var return_time: float = 1.6
+@export var turn_time: float = 0.8
+@export var return_time: float = 0.8
+@export var hidden_turn_time: float = 0.8
 @export var confine_mouse: bool = false
+@export_group("Saklanma Sallantısı")
+@export var hidden_sway_speed: float = 0.4
+@export var hidden_sway_yaw_deg: float = 0.35
+@export var hidden_sway_pitch_deg: float = 0.12
+@export var hidden_sway_roll_deg: float = 0.1
+@export var hidden_sway_position: float = 0.004
+@export var hidden_fear_sway_speed: float = 3.2
+@export var hidden_fear_yaw_deg: float = 4.0
+@export var hidden_fear_pitch_deg: float = 1.8
+@export var hidden_fear_roll_deg: float = 1.4
+@export var hidden_fear_position: float = 0.035
+
+@export_group("Aşağı Bakma")
+@export var look_down_enabled: bool = true
+## Fare alt kenara gelince kameranın aşağı bakacağı açı (derece)
+@export var look_down_deg: float = 15.0
+@export_range(0.02, 0.5) var edge_enter_y: float = 0.40
+@export_range(0.02, 0.6) var edge_exit_y: float = 0.44
+@export var look_down_time: float = 0.5
 
 var _base_rotation: Vector3
 var _base_position: Vector3
@@ -29,8 +49,21 @@ var _zone: int = 0          # -1 = sol, 0 = orta, 1 = sağ
 var _pan_yaw: float = 0.0   # radyan
 var _pan_tween: Tween
 
-# Zoom durumu
-var _locked: bool = false
+var _pitch_zone: int = 0    # 0 = normal, 1 = aşağı
+var _pan_pitch: float = 0.0
+var _pitch_tween: Tween
+
+var _shake_amount: float = 0.0
+var _shake_tween: Tween
+var _base_h_offset: float = 0.0
+var _base_v_offset: float = 0.0
+
+var _locked: bool = false   # zoom / saklanma sırasında
+var _hidden_look_enabled: bool = false
+var _hidden_ambient_sway_enabled: bool = true
+var _hidden_base_global_rotation: Vector3
+var _hidden_base_global_position: Vector3
+var _frozen: bool = false   # jumpscare sırasında
 var _move_tween: Tween
 var _move_start: Transform3D
 var _move_target: Transform3D
@@ -42,6 +75,8 @@ func _ready() -> void:
 	_base_rotation = rotation
 	_base_position = position
 	_base_fov = fov
+	_base_h_offset = h_offset
+	_base_v_offset = v_offset
 	_noise.seed = randi()
 	_noise.noise_type = FastNoiseLite.TYPE_SIMPLEX_SMOOTH
 	_noise.frequency = 1.0
@@ -50,10 +85,36 @@ func _ready() -> void:
 
 
 func _process(delta: float) -> void:
+	_update_shake_offsets()
+	if _frozen:
+		return
 	if _locked:
-		return  # zoom sırasında sallanma ve kaydırma kapalı
+		if _hidden_look_enabled:
+			_update_zone(_get_mouse_ratio().x)
+			var afraid := not _hidden_ambient_sway_enabled
+			var sway_speed := hidden_fear_sway_speed if afraid else hidden_sway_speed
+			var yaw_amount := hidden_fear_yaw_deg if afraid else hidden_sway_yaw_deg
+			var pitch_amount := hidden_fear_pitch_deg if afraid else hidden_sway_pitch_deg
+			var roll_amount := hidden_fear_roll_deg if afraid else hidden_sway_roll_deg
+			var position_amount_hidden := hidden_fear_position if afraid else hidden_sway_position
+			_t += delta * sway_speed
+			var hidden_sway := Vector3(
+				deg_to_rad(_noise.get_noise_1d(_t + 200.0) * pitch_amount),
+				deg_to_rad(_noise.get_noise_1d(_t + 100.0) * yaw_amount),
+				deg_to_rad(_noise.get_noise_1d(_t + 300.0) * roll_amount)
+			)
+			var local_sway := Vector3(
+				_noise.get_noise_1d(_t + 400.0) * position_amount_hidden,
+				_noise.get_noise_1d(_t + 500.0) * position_amount_hidden * 0.45,
+				0.0
+			)
+			global_position = _hidden_base_global_position + Basis.from_euler(_hidden_base_global_rotation) * local_sway
+			global_rotation = _hidden_base_global_rotation + hidden_sway + Vector3(0.0, _pan_yaw, 0.0)
+		return
 
-	_update_zone()
+	var ratio := _get_mouse_ratio()
+	_update_zone(ratio.x)
+	_update_pitch_zone(ratio.y)
 
 	_t += delta * speed
 	var pitch := _noise.get_noise_1d(_t) * pitch_deg
@@ -61,7 +122,7 @@ func _process(delta: float) -> void:
 	var roll := _noise.get_noise_1d(_t + 200.0) * roll_deg
 
 	rotation = _base_rotation + Vector3(
-		deg_to_rad(pitch),
+		deg_to_rad(pitch) + _pan_pitch,
 		deg_to_rad(yaw) + _pan_yaw,
 		deg_to_rad(roll)
 	)
@@ -71,26 +132,90 @@ func _process(delta: float) -> void:
 		_noise.get_noise_1d(_t + 400.0),
 		0.0
 	) * position_amount
+
 	position = _base_position + offset
 
 
-# ---------- Zoom ----------
+# ---------- Dışarıdan kullanım ----------
 
-## Kamerayı verilen global konuma/FOV'a yumuşakça götürür.
+## Kamerayı verilen global konuma/FOV'a yumuşakça götürür (monitör zoom'u, saklanma)
 func zoom_to(target: Transform3D, target_fov: float, duration: float) -> void:
 	_locked = true
+	_hidden_base_global_rotation = target.basis.get_euler()
 	if _pan_tween:
 		_pan_tween.kill()
+	if _pitch_tween:
+		_pitch_tween.kill()
 	_start_move(target, target_fov, duration, _on_zoom_done)
 
 
-## Kamerayı ilk (orta) konumuna geri götürür.
+## Kamerayı ilk (orta) konumuna geri götürür
 func return_to_base(duration: float) -> void:
+	_hidden_look_enabled = false
 	var parent := get_parent_node_3d()
 	var parent_xf := parent.global_transform if parent else Transform3D.IDENTITY
 	var base_local := Transform3D(Basis.from_euler(_base_rotation), _base_position)
 	_start_move(parent_xf * base_local, _base_fov, duration, _on_return_done)
 
+
+## Saklanırken fareyi ekranın kenarına götürerek sağa/sola bakmayı sağlar.
+func set_hidden_look_enabled(value: bool) -> void:
+	_hidden_look_enabled = value
+	if _pan_tween:
+		_pan_tween.kill()
+	_zone = 0
+	_pan_yaw = 0.0
+	if value:
+		_hidden_base_global_rotation = global_rotation
+		_hidden_base_global_position = global_position
+
+
+## Saklanma kamerasındaki hafif nefes/sallanma hareketini açıp kapatır.
+func set_hidden_ambient_sway_enabled(value: bool) -> void:
+	_hidden_ambient_sway_enabled = value
+	if not value and _hidden_look_enabled:
+		global_position = _hidden_base_global_position
+
+
+## Kontrolleri dondurur (jumpscare)
+func set_frozen(value: bool) -> void:
+	_frozen = value
+
+
+func is_busy() -> bool:
+	return _locked or _frozen
+
+
+## Kamerayı anında ilk konumuna alır
+func snap_to_base() -> void:
+	for tw: Tween in [_pan_tween, _pitch_tween, _move_tween]:
+		if tw:
+			tw.kill()
+	_zone = 0
+	_pitch_zone = 0
+	_pan_yaw = 0.0
+	_pan_pitch = 0.0
+	rotation = _base_rotation
+	position = _base_position
+	fov = _base_fov
+
+
+## Kısa süreli kamera sarsıntısı
+func shake(amount: float, duration: float) -> void:
+	if _shake_tween:
+		_shake_tween.kill()
+	_shake_amount = amount
+	_shake_tween = create_tween()
+	_shake_tween.tween_property(self, "_shake_amount", 0.0, duration)
+
+
+func _update_shake_offsets() -> void:
+	var amount := maxf(_shake_amount, 0.0)
+	h_offset = _base_h_offset + randf_range(-amount, amount)
+	v_offset = _base_v_offset + randf_range(-amount, amount)
+
+
+# ---------- Hareket ----------
 
 func _start_move(target: Transform3D, target_fov: float, duration: float, on_done: Callable) -> void:
 	if _move_tween:
@@ -111,21 +236,25 @@ func _apply_move(w: float) -> void:
 
 
 func _on_zoom_done() -> void:
+	global_transform = _move_target
+	fov = _move_target_fov
+	_hidden_base_global_rotation = global_rotation
 	zoom_finished.emit()
 
 
 func _on_return_done() -> void:
 	_locked = false
 	_zone = 0
+	_pitch_zone = 0
 	_pan_yaw = 0.0
+	_pan_pitch = 0.0
 	fov = _base_fov
 	return_finished.emit()
 
 
 # ---------- Kenar kaydırma ----------
 
-func _update_zone() -> void:
-	var x := _get_mouse_x_ratio()
+func _update_zone(x: float) -> void:
 	var new_zone := _zone
 
 	match _zone:
@@ -146,12 +275,28 @@ func _update_zone() -> void:
 		_turn_to(-float(_zone) * deg_to_rad(max_turn_deg))
 
 
+func _update_pitch_zone(y: float) -> void:
+	var new_zone := _pitch_zone
+	if not look_down_enabled:
+		new_zone = 0
+	elif _pitch_zone == 0:
+		if y > 1.0 - edge_enter_y:
+			new_zone = 1
+	else:
+		if y < 1.0 - edge_exit_y:
+			new_zone = 0
+
+	if new_zone != _pitch_zone:
+		_pitch_zone = new_zone
+		_pitch_to(-float(_pitch_zone) * deg_to_rad(look_down_deg))
+
+
 func _turn_to(target: float) -> void:
 	if _pan_tween:
 		_pan_tween.kill()
 
 	var max_rad := maxf(absf(deg_to_rad(max_turn_deg)), 0.0001)
-	var base_time := return_time if is_zero_approx(target) else turn_time
+	var base_time := hidden_turn_time if _hidden_look_enabled else (return_time if is_zero_approx(target) else turn_time)
 	var duration := base_time * absf(target - _pan_yaw) / max_rad
 
 	_pan_tween = create_tween()
@@ -159,12 +304,29 @@ func _turn_to(target: float) -> void:
 	_pan_tween.tween_property(self, "_pan_yaw", target, duration)
 
 
-func _get_mouse_x_ratio() -> float:
+func _pitch_to(target: float) -> void:
+	if _pitch_tween:
+		_pitch_tween.kill()
+
+	var max_rad := maxf(deg_to_rad(look_down_deg), 0.0001)
+	var duration := look_down_time * absf(target - _pan_pitch) / max_rad
+
+	_pitch_tween = create_tween()
+	_pitch_tween.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+	_pitch_tween.tween_property(self, "_pan_pitch", target, duration)
+
+
+## Fare konumu: (0,0) sol üst, (1,1) sağ alt
+func _get_mouse_ratio() -> Vector2:
 	var vp := get_viewport()
 	var container: SubViewportContainer = null
 	if vp is SubViewport:
 		container = vp.get_parent() as SubViewportContainer
 
-	if container and container.size.x > 0.0:
-		return container.get_local_mouse_position().x / container.size.x
-	return vp.get_mouse_position().x / vp.get_visible_rect().size.x
+	if container and container.size.x > 0.0 and container.size.y > 0.0:
+		var p := container.get_local_mouse_position()
+		return Vector2(p.x / container.size.x, p.y / container.size.y)
+
+	var size := vp.get_visible_rect().size
+	var m := vp.get_mouse_position()
+	return Vector2(m.x / maxf(size.x, 1.0), m.y / maxf(size.y, 1.0))
