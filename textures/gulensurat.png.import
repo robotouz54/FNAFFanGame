@@ -4,15 +4,16 @@ importer="texture"
 type="CompressedTexture2D"
 uid="uid://w17u3y0tugpm"
 path.s3tc="res://.godot/imported/gulensurat.png-241a38f4c111a345c41d510587c1fd89.s3tc.ctex"
+path.etc2="res://.godot/imported/gulensurat.png-241a38f4c111a345c41d510587c1fd89.etc2.ctex"
 metadata={
-"imported_formats": ["s3tc_bptc"],
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
 }
 
 [deps]
 
 source_file="res://textures/gulensurat.png"
-dest_files=["res://.godot/imported/gulensurat.png-241a38f4c111a345c41d510587c1fd89.s3tc.ctex"]
+dest_files=["res://.godot/imported/gulensurat.png-241a38f4c111a345c41d510587c1fd89.s3tc.ctex", "res://.godot/imported/gulensurat.png-241a38f4c111a345c41d510587c1fd89.etc2.ctex"]
 
 [params]
 

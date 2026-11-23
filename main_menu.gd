@@ -114,6 +114,33 @@ func _ready() -> void:
 	set_process(false)
 
 
+## Android'de dokunmayı doğrudan görünür kontrol alanına eşler.
+## Normal fare/klavye GUI akışını değiştirmez.
+func _input(event: InputEvent) -> void:
+	var touch := event as InputEventScreenTouch
+	if touch == null or not touch.pressed:
+		return
+	if menu_page.visible:
+		if _screen_touch_hits(btn_yes, touch.position):
+			_play_click_audio()
+			_on_yes_pressed()
+			get_viewport().set_input_as_handled()
+		elif _screen_touch_hits(btn_no, touch.position):
+			_on_no_pressed()
+			get_viewport().set_input_as_handled()
+		elif lang_button.visible and _screen_touch_hits(lang_button, touch.position):
+			_play_click_audio()
+			_toggle_language()
+			get_viewport().set_input_as_handled()
+
+
+func _screen_touch_hits(control: Control, viewport_position: Vector2) -> bool:
+	if not control or not is_instance_valid(control) or not control.is_visible_in_tree() or control.size == Vector2.ZERO:
+		return false
+	var local_position := control.get_global_transform_with_canvas().affine_inverse() * viewport_position
+	return Rect2(Vector2.ZERO, control.size).has_point(local_position)
+
+
 # ---------- Çeviri ve görsel hazırlığı ----------
 
 ## Proje ayarlarına eklenmemişse çeviri dosyalarını koddan yükler
@@ -320,8 +347,9 @@ func _on_yes_pressed() -> void:
 
 	var err := ResourceLoader.load_threaded_request(GAME_SCENE, "", true)
 	if err != OK:
-		push_error("Yükleme başlatılamadı: " + GAME_SCENE)
-		_cancel_loading()
+		push_warning("Arka plan yüklemesi başlatılamadı; doğrudan yükleme deneniyor: " + GAME_SCENE)
+		set_process(false)
+		call_deferred("_fallback_load_game_scene")
 		return
 	set_process(true)
 
@@ -347,8 +375,9 @@ func _process(delta: float) -> void:
 			ResourceLoader.THREAD_LOAD_LOADED:
 				_load_done = true
 			_:
-				push_error("Sahne yüklenemedi: " + GAME_SCENE)
-				_cancel_loading()
+				push_warning("Arka plan yüklemesi başarısız; doğrudan yükleme deneniyor: " + GAME_SCENE)
+				set_process(false)
+				call_deferred("_fallback_load_game_scene")
 				return
 
 	# Çubuk gerçek ilerlemeyi takip eder, sadece sıçramaları yumuşatır
@@ -365,7 +394,16 @@ func _finish() -> void:
 	await get_tree().create_timer(finish_delay).timeout
 	var packed := ResourceLoader.load_threaded_get(GAME_SCENE) as PackedScene
 	if packed == null:
-		push_error("Sahne alınamadı: " + GAME_SCENE)
-		_cancel_loading()
+		push_warning("Arka plan yüklemesi sahneyi vermedi; doğrudan yükleme deneniyor: " + GAME_SCENE)
+		_fallback_load_game_scene()
 		return
 	get_tree().change_scene_to_packed(packed)
+
+
+func _fallback_load_game_scene() -> void:
+	var packed := load(GAME_SCENE) as PackedScene
+	if packed:
+		get_tree().change_scene_to_packed(packed)
+		return
+	push_error("Oyun sahnesi yüklenemedi: " + GAME_SCENE)
+	_cancel_loading()
