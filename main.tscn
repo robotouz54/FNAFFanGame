@@ -5,6 +5,7 @@
 [ext_resource type="Texture2D" uid="uid://cpg4aabrod7pk" path="res://png/camera_map.png" id="3_h2yge"]
 [ext_resource type="Script" uid="uid://dc7k85nthyw2w" path="res://game_manager.gd" id="4_1bvp3"]
 [ext_resource type="Script" uid="uid://dbusbcqu3wkjk" path="res://monster_ai.gd" id="5_lquwl"]
+[ext_resource type="Script" uid="uid://c2oyg5vucht0y" path="res://laptop_terminal.gd" id="6_laptop"]
 
 [node name="Main" type="Control" unique_id=350637478]
 layout_mode = 3
@@ -165,5 +166,8 @@ offset_bottom = 23.0
 [node name="GameManager" type="Node" parent="." unique_id=1009371791]
 script = ExtResource("4_1bvp3")
 
-[node name="MonsterAI" type="Node" parent="." unique_id=1088171248]
+[node name="OuzAI" type="Node" parent="." unique_id=350414965]
 script = ExtResource("5_lquwl")
+
+[node name="LaptopTerminal" type="Node" parent="." unique_id=1749726202]
+script = ExtResource("6_laptop")

@@ -75,6 +75,22 @@ func _process(_delta: float) -> void:
 		hide_under_desk()
 
 
+func _input(event: InputEvent) -> void:
+	var touch := event as InputEventScreenTouch
+	if touch == null or not touch.pressed or _busy:
+		return
+	if is_hidden:
+		if get_signal_connection_list("unhide_clicked").is_empty():
+			unhide()
+		else:
+			unhide_clicked.emit()
+		get_viewport().set_input_as_handled()
+		return
+	if _can_hide() and _is_screen_point_over_hitbox(touch.position):
+		hide_under_desk()
+		get_viewport().set_input_as_handled()
+
+
 func _can_hide() -> bool:
 	if _cam_system and _cam_system.is_open():
 		return false
@@ -156,6 +172,29 @@ func _is_mouse_over_hitbox() -> bool:
 	else:
 		mouse_pos = vp.get_mouse_position()
 
+	return _ray_hits_hide_hitbox(mouse_pos, cam)
+
+
+func _is_screen_point_over_hitbox(screen_position: Vector2) -> bool:
+	var vp := get_viewport()
+	if vp == null:
+		return false
+	var cam := vp.get_camera_3d()
+	if cam == null:
+		return false
+	if _ray_hits_hide_hitbox(screen_position, cam):
+		return true
+	if vp is SubViewport:
+		var container := vp.get_parent() as SubViewportContainer
+		if container and container.size.x > 0.0 and container.size.y > 0.0:
+			var local := container.get_global_transform_with_canvas().affine_inverse() * screen_position
+			if Rect2(Vector2.ZERO, container.size).has_point(local):
+				var mapped := local * vp.get_visible_rect().size / container.size
+				return _ray_hits_hide_hitbox(mapped, cam)
+	return false
+
+
+func _ray_hits_hide_hitbox(mouse_pos: Vector2, cam: Camera3D) -> bool:
 	var from := cam.project_ray_origin(mouse_pos)
 	var to := from + cam.project_ray_normal(mouse_pos) * 100.0
 	var query := PhysicsRayQueryParameters3D.create(from, to)

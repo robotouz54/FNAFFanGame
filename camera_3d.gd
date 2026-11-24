@@ -327,6 +327,6 @@ func _get_mouse_ratio() -> Vector2:
 		var p := container.get_local_mouse_position()
 		return Vector2(p.x / container.size.x, p.y / container.size.y)
 
-	var size := vp.get_visible_rect().size
+	var viewport_size := vp.get_visible_rect().size
 	var m := vp.get_mouse_position()
-	return Vector2(m.x / maxf(size.x, 1.0), m.y / maxf(size.y, 1.0))
+	return Vector2(m.x / maxf(viewport_size.x, 1.0), m.y / maxf(viewport_size.y, 1.0))

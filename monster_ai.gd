@@ -2,6 +2,10 @@ extends Node
 
 const FIRST_KNOCK_SOUND: AudioStream = preload("res://audio/knockfirst.wav")
 const JUMPSCARE_SOUND: AudioStream = preload("res://audio/jumpscare.wav")
+const OUZ_MODULE_SCRIPT: Script = preload("res://ouz_ai.gd")
+
+var mayinmelih_enabled: bool = true
+var ouz_enabled: bool = true
 
 
 enum State { SLEEP, ROAM, DOOR, INSIDE, JUMPSCARE, DONE }
@@ -45,11 +49,11 @@ const LINKS: Dictionary = {
 @export var retreat_min_distance: int = 3
 
 @export_group("Zamanlama")
-@export var wake_delay_min: float = 40.0
-@export var wake_delay_max: float = 70.0
+@export var wake_delay_min: float = 10.0
+@export var wake_delay_max: float = 20.0
 @export var move_interval_min: float = 18.0
 @export var move_interval_max: float = 35.0
-@export_range(1.0, 8.0, 0.25) var roam_speed_multiplier: float = 4.0
+@export_range(1.0, 8.0, 0.25) var roam_speed_multiplier: float = 3.0
 ## Play Sound'tan sonra canavarın gelme gecikmesi
 @export var lure_delay_min: float = 5.0
 @export var lure_delay_max: float = 10.0
@@ -126,6 +130,20 @@ var _woosh_sound: AudioStreamPlayer3D
 
 
 func _ready() -> void:
+	var scene_root := get_tree().root
+	var mayinmelih_model := scene_root.find_child("MayinMelih", true, false) as Node3D
+	var ouz_model := scene_root.find_child("Ouz", true, false) as Node3D
+	if mayinmelih_model:
+		mayinmelih_model.visible = mayinmelih_enabled
+	if ouz_model:
+		ouz_model.visible = ouz_enabled
+	if ouz_enabled:
+		var ouz_module := OUZ_MODULE_SCRIPT.new() as Node
+		ouz_module.name = "OuzModule"
+		add_child(ouz_module)
+	if not mayinmelih_enabled:
+		set_process(false)
+		return
 	if not _find_nodes():
 		set_process(false)
 		return
@@ -191,6 +209,9 @@ func _find_nodes() -> bool:
 		sound.max_distance = 100.0
 		sound.unit_size = 20.0
 		sound.volume_db = 0.0
+	for lure_player: AudioStreamPlayer3D in _lure_sounds:
+		lure_player.volume_db = 6.0
+		lure_player.attenuation_model = AudioStreamPlayer3D.ATTENUATION_DISABLED
 	if _scare_sound:
 		_scare_sound.volume_db = jumpscare_volume_db
 	if not _monster or not _anim or not _door or not _hide or not _player_cam:
@@ -259,7 +280,16 @@ func _process(delta: float) -> void:
 
 func _wake_up() -> void:
 	_state = State.ROAM
-	_set_pose(roam_pose)
+	_busy = true
+	if _cam_system:
+		var transition_finished: Signal = _cam_system.lost_signal_finished
+		_cam_system.play_lost_signal(Callable(self, "_set_pose").bind(roam_pose))
+		await transition_finished
+	else:
+		_set_pose(roam_pose)
+	if _state != State.ROAM:
+		return
+	_busy = false
 	_schedule_next_move()
 
 
@@ -299,7 +329,9 @@ func _do_room_move(room: String) -> void:
 		# DoorWindow'dan lure edilen koridora yürürken kamera geçişini de gizle.
 		if _cam_system:
 			var signal_covers_walk := _cam_system.is_camera_feed_active()
-			await _cam_system.play_lost_signal(Callable(self, "_walk_to_lured_room").bind(spot, room, signal_covers_walk))
+			var transition_finished: Signal = _cam_system.lost_signal_finished
+			_cam_system.play_lost_signal(Callable(self, "_walk_to_lured_room").bind(spot, room, signal_covers_walk))
+			await transition_finished
 		else:
 			await _walk_to_lured_room(spot, room, false)
 	else:
@@ -309,6 +341,12 @@ func _do_room_move(room: String) -> void:
 
 func _walk_to_lured_room(spot: Node3D, room: String, _signal_covers_walk: bool) -> void:
 	# Bu rota kısa olduğundan mevcut yürüyüş süresi Lost Signal süresinin içinde tamamlanır.
+	if room == "southhall":
+		var pre_southhall := _spot("Spot_preSouthhall")
+		if pre_southhall:
+			await _walk_to_spot(pre_southhall, inside_walk_time, roam_pose)
+			if _state == State.DONE or _state == State.JUMPSCARE:
+				return
 	await _walk_to_spot(spot, inside_walk_time, roam_pose)
 	if spot and _state == State.ROAM:
 		_room = room
@@ -347,7 +385,9 @@ func _relocate(spot: Node3D, pose: String, room_name: String) -> void:
 		_room = room_name
 		_place_at(spot, pose)
 	if _cam_system:
-		await _cam_system.play_lost_signal(apply)
+			var transition_finished: Signal = _cam_system.lost_signal_finished
+			_cam_system.play_lost_signal(apply)
+			await transition_finished
 	else:
 		apply.call()
 
@@ -357,7 +397,8 @@ func _on_lure_requested(cam_index: int) -> void:
 	if cam_index < 0 or cam_index >= CAM_ROOMS.size():
 		return
 	var target: String = CAM_ROOMS[cam_index]
-	_play_lure_sound(target)
+	if not ouz_enabled:
+		_play_lure_sound(target)
 
 	if target == _room:
 		return
@@ -414,7 +455,9 @@ func _start_door_attack() -> void:
 		return
 	if _cam_system:
 		var signal_covers_walk := _cam_system.is_camera_feed_active()
-		await _cam_system.play_lost_signal(Callable(self, "_walk_to_door_window").bind(signal_covers_walk))
+		var transition_finished: Signal = _cam_system.lost_signal_finished
+		_cam_system.play_lost_signal(Callable(self, "_walk_to_door_window").bind(signal_covers_walk))
+		await transition_finished
 	else:
 		await _walk_to_door_window()
 	if not _alive():
@@ -433,8 +476,8 @@ func _walk_to_door_window(signal_covers_walk: bool = false) -> void:
 		var pre_southhall := _spot("Spot_preSouthhall")
 		if pre_southhall:
 			var pre_distance := _monster.global_position.distance_to(pre_southhall.global_position)
-			var door_window := _spot("Spot_DoorWindow")
-			var door_distance := pre_southhall.global_position.distance_to(door_window.global_position) if door_window else 0.0
+			var door_window_marker := _spot("Spot_DoorWindow")
+			var door_distance := pre_southhall.global_position.distance_to(door_window_marker.global_position) if door_window_marker else 0.0
 			var pre_approach_time := maxf(enter_office_walk_time, pre_distance / 2.5)
 			if signal_covers_walk:
 				var total_distance := maxf(pre_distance + door_distance, 0.001)
@@ -650,8 +693,11 @@ func _jumpscare(spot_name: String) -> void:
 	_state = State.JUMPSCARE
 	_busy = true
 	_lure_room = ""
+	var was_watching_cameras := _cam_system != null and _cam_system.is_open()
 	if _cam_system:
 		_cam_system.lock_cams("jumpscare")
+		if was_watching_cameras:
+			_cam_system.interrupt_for_jumpscare()
 
 	var player_is_hidden := _hide.is_concealed()
 	_jumpscare_camera = _player_cam
@@ -661,7 +707,7 @@ func _jumpscare(spot_name: String) -> void:
 		and _scare_cam.get_viewport() == _player_cam.get_viewport()
 	)
 	if scare_cam_is_usable:
-		if not player_is_hidden:
+		if not was_watching_cameras and not player_is_hidden:
 			_player_cam.snap_to_base()
 		_jumpscare_camera = _scare_cam
 		_jumpscare_camera.make_current()

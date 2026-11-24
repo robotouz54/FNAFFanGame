@@ -85,6 +85,15 @@ func _process(_delta: float) -> void:
 	_was_pressed = pressed
 
 
+func _input(event: InputEvent) -> void:
+	var touch := event as InputEventScreenTouch
+	if touch == null or not touch.pressed or _in_use:
+		return
+	if _is_screen_point_over_hitbox(touch.position):
+		clicked.emit()
+		get_viewport().set_input_as_handled()
+
+
 func _refresh_cursor() -> void:
 	var want_hand := _over and not _in_use
 	_set_hand_cursor(want_hand)
@@ -135,6 +144,29 @@ func _is_mouse_over_hitbox() -> bool:
 	else:
 		mouse_pos = vp.get_mouse_position()
 
+	return _ray_hits_hitbox(mouse_pos, cam)
+
+
+func _is_screen_point_over_hitbox(screen_position: Vector2) -> bool:
+	var vp := get_viewport()
+	if vp == null:
+		return false
+	var cam := vp.get_camera_3d()
+	if cam == null:
+		return false
+	if _ray_hits_hitbox(screen_position, cam):
+		return true
+	if vp is SubViewport:
+		var container := vp.get_parent() as SubViewportContainer
+		if container and container.size.x > 0.0 and container.size.y > 0.0:
+			var local := container.get_global_transform_with_canvas().affine_inverse() * screen_position
+			if Rect2(Vector2.ZERO, container.size).has_point(local):
+				var mapped := local * vp.get_visible_rect().size / container.size
+				return _ray_hits_hitbox(mapped, cam)
+	return false
+
+
+func _ray_hits_hitbox(mouse_pos: Vector2, cam: Camera3D) -> bool:
 	var from := cam.project_ray_origin(mouse_pos)
 	var to := from + cam.project_ray_normal(mouse_pos) * 100.0
 	var query := PhysicsRayQueryParameters3D.create(from, to)

@@ -34,6 +34,7 @@ var _top_right_panel: Control
 var _cam_ui: CameraSystemUI
 var _paused_by_escape: bool = false
 var _mouse_mode_before_pause: int = Input.MOUSE_MODE_VISIBLE
+var _aux_screen_open: bool = false
 
 
 func _ready() -> void:
@@ -55,7 +56,7 @@ func _input(event: InputEvent) -> void:
 		Input.set_mouse_mode(_mouse_mode_before_pause)
 		return
 
-	if _is_camera_open():
+	if _is_camera_open() or _aux_screen_open:
 		return
 
 	_mouse_mode_before_pause = Input.mouse_mode
@@ -88,6 +89,11 @@ func set_night(new_night: int) -> void:
 	night = maxi(new_night, 1)
 	_refresh_hud()
 	_layout_top_right()
+
+
+func set_aux_screen_open(value: bool) -> void:
+	_aux_screen_open = value
+	_sync_clock_visibility()
 
 
 ## Canavar yakalayınca çağrılacak
@@ -161,7 +167,7 @@ func _is_camera_open() -> bool:
 
 
 func _sync_clock_visibility() -> void:
-	_set_clock_visible(not _is_camera_open())
+	_set_clock_visible(not _is_camera_open() and not _aux_screen_open)
 
 
 func _set_clock_visible(show_clock: bool) -> void:

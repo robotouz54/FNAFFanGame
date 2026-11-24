@@ -171,8 +171,8 @@ func _trim_transparent(tex: Texture2D) -> Texture2D:
 
 # ---------- Görünüm ----------
 
-func _style_label(label: Label, size: int) -> void:
-	label.add_theme_font_size_override("font_size", size)
+func _style_label(label: Label, font_size: int) -> void:
+	label.add_theme_font_size_override("font_size", font_size)
 	label.add_theme_color_override("font_color", Color.WHITE)
 	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	if custom_font:
