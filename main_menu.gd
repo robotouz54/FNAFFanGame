@@ -9,7 +9,6 @@ const BTN_HOVER = preload("res://png/btn_hover.png")
 const BTN_PRESSED = preload("res://png/btn_pressed.png")
 
 @export_group("Yazı")
-## Boş bırakırsan Godot'un varsayılan fontu kullanılır
 @export var custom_font: Font
 @export var title_size: int = 112
 @export var button_size: int = 32
@@ -22,19 +21,12 @@ const BTN_PRESSED = preload("res://png/btn_pressed.png")
 @export var flag_size: Vector2 = Vector2(72, 48)
 
 @export_group("Yükleme")
-## Çubuğun kalınlığı (piksel)
 @export var bar_thickness: float = 6.0
-## Çubuğun boş kısmının rengi, alfayı 0 yaparsan görünmez olur
 @export var bar_track_color: Color = Color(1, 1, 1, 0.12)
-## Yüzde yazısının sağ kenara uzaklığı
 @export var percent_margin: float = 24.0
-## Yüzde yazısı ile çubuk arasındaki boşluk
 @export var percent_gap: float = 10.0
-## Ortadaki "LOADING" yazısı görünsün mü
 @export var show_loading_title: bool = true
-## Çubuğun saniyede en fazla kaç yüzde ilerleyeceği (ani sıçramaları yumuşatır)
 @export var bar_speed: float = 120.0
-## %100'e ulaştıktan sonra oyuna geçmeden önceki bekleme (saniye)
 @export var finish_delay: float = 0.3
 
 @onready var background: ColorRect = $Background
@@ -61,10 +53,10 @@ var _last_pct: int = -1
 var _progress: Array = []
 var _flag_en_tex: Texture2D
 var _flag_tr_tex: Texture2D
+var _last_lang_toggle_msec: int = 0
 
 
 func _ready() -> void:
-	# Yerleşimi koddan garantiye al
 	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	for c: Control in [background, menu_page, loading_page]:
 		c.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
@@ -73,7 +65,6 @@ func _ready() -> void:
 
 	menu_page.visible = true
 
-	# Metinler çeviri anahtarı olarak girilir, Godot seçili dile göre çevirir
 	title_label.text = "MENU_READY"
 	btn_yes.text = "MENU_YES"
 	btn_no.text = "MENU_NO"
@@ -96,54 +87,23 @@ func _ready() -> void:
 	buttons_row.alignment = BoxContainer.ALIGNMENT_CENTER
 	loading_vbox.add_theme_constant_override("separation", 24)
 
-	# Oyun her açılışta İngilizce başlar
 	_lang = "en"
 	TranslationServer.set_locale(_lang)
 	_update_flag()
 	_update_percent_label()
 
-	btn_yes.pressed.connect(_play_click_audio)
 	btn_yes.pressed.connect(_on_yes_pressed)
 	btn_no.pressed.connect(_on_no_pressed)
-	lang_button.pressed.connect(_play_click_audio)
-	lang_button.pressed.connect(_toggle_language)
-	for button: Button in [btn_yes, btn_no]:
-		button.mouse_entered.connect(_play_hover_audio)
-	lang_button.mouse_entered.connect(_play_hover_audio)
+	lang_button.pressed.connect(_on_lang_button_pressed)
+
+	if not OS.has_feature("mobile") and not OS.has_feature("android"):
+		for button: Button in [btn_yes, btn_no]:
+			button.mouse_entered.connect(_play_hover_audio)
+		lang_button.mouse_entered.connect(_play_hover_audio)
 
 	set_process(false)
 
 
-## Android'de dokunmayı doğrudan görünür kontrol alanına eşler.
-## Normal fare/klavye GUI akışını değiştirmez.
-func _input(event: InputEvent) -> void:
-	var touch := event as InputEventScreenTouch
-	if touch == null or not touch.pressed:
-		return
-	if menu_page.visible:
-		if _screen_touch_hits(btn_yes, touch.position):
-			_play_click_audio()
-			_on_yes_pressed()
-			get_viewport().set_input_as_handled()
-		elif _screen_touch_hits(btn_no, touch.position):
-			_on_no_pressed()
-			get_viewport().set_input_as_handled()
-		elif lang_button.visible and _screen_touch_hits(lang_button, touch.position):
-			_play_click_audio()
-			_toggle_language()
-			get_viewport().set_input_as_handled()
-
-
-func _screen_touch_hits(control: Control, viewport_position: Vector2) -> bool:
-	if not control or not is_instance_valid(control) or not control.is_visible_in_tree() or control.size == Vector2.ZERO:
-		return false
-	var local_position := control.get_global_transform_with_canvas().affine_inverse() * viewport_position
-	return Rect2(Vector2.ZERO, control.size).has_point(local_position)
-
-
-# ---------- Çeviri ve görsel hazırlığı ----------
-
-## Proje ayarlarına eklenmemişse çeviri dosyalarını koddan yükler
 func _ensure_translations() -> void:
 	if TranslationServer.get_loaded_locales().size() > 0:
 		return
@@ -155,7 +115,6 @@ func _ensure_translations() -> void:
 			push_error("Çeviri dosyası yüklenemedi: " + path)
 
 
-## Görselin çevresindeki şeffaf boşluğu kırpar
 func _trim_transparent(tex: Texture2D) -> Texture2D:
 	var img := tex.get_image()
 	if img == null:
@@ -168,8 +127,6 @@ func _trim_transparent(tex: Texture2D) -> Texture2D:
 	atlas.region = Rect2(used)
 	return atlas
 
-
-# ---------- Görünüm ----------
 
 func _style_label(label: Label, font_size: int) -> void:
 	label.add_theme_font_size_override("font_size", font_size)
@@ -199,6 +156,7 @@ func _style_buttons() -> void:
 		if custom_font:
 			b.add_theme_font_override("font", custom_font)
 		b.focus_mode = Control.FOCUS_NONE
+		b.action_mode = BaseButton.ACTION_MODE_BUTTON_RELEASE
 		b.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
 		b.custom_minimum_size = button_min_size
 
@@ -220,7 +178,6 @@ func _style_progress_bar() -> void:
 	load_progress.value = 0.0
 	load_progress.mouse_filter = Control.MOUSE_FILTER_IGNORE
 
-	# Çerçevesiz, ince beyaz çubuk
 	var bg := StyleBoxFlat.new()
 	bg.bg_color = bar_track_color
 	bg.set_content_margin_all(0.0)
@@ -233,16 +190,13 @@ func _style_progress_bar() -> void:
 	load_progress.add_theme_stylebox_override("fill", fill)
 
 
-## Çubuğu ve yüzdeyi VBox'tan çıkarıp ekranın altına bağlar
 func _layout_loading_bar() -> void:
 	load_progress.reparent(self, false)
 	percent_label.reparent(self, false)
 
-	# Çubuk: ekranın en altında, tam genişlikte
 	load_progress.custom_minimum_size = Vector2(0.0, bar_thickness)
 	load_progress.set_anchors_and_offsets_preset(Control.PRESET_BOTTOM_WIDE, Control.PRESET_MODE_MINSIZE, 0)
 
-	# Yüzde: çubuğun sağ üstünde
 	percent_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	percent_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 	percent_label.set_anchors_preset(Control.PRESET_BOTTOM_RIGHT)
@@ -265,9 +219,10 @@ func _style_flag() -> void:
 	lang_button.stretch_mode = TextureButton.STRETCH_SCALE
 	lang_button.custom_minimum_size = flag_size
 	lang_button.focus_mode = Control.FOCUS_NONE
+	lang_button.action_mode = BaseButton.ACTION_MODE_BUTTON_RELEASE
+	lang_button.mouse_filter = Control.MOUSE_FILTER_STOP
 	lang_button.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
 
-	# Sağ üst köşede sabit boyutlu kutu
 	lang_button.set_anchors_preset(Control.PRESET_TOP_RIGHT)
 	lang_button.offset_right = -24.0
 	lang_button.offset_left = -24.0 - flag_size.x
@@ -275,11 +230,19 @@ func _style_flag() -> void:
 	lang_button.offset_bottom = 24.0 + flag_size.y
 
 	lang_button.modulate = Color(0.85, 0.85, 0.85)
-	lang_button.mouse_entered.connect(func() -> void: lang_button.modulate = Color.WHITE)
-	lang_button.mouse_exited.connect(func() -> void: lang_button.modulate = Color(0.85, 0.85, 0.85))
+	if not OS.has_feature("mobile") and not OS.has_feature("android"):
+		lang_button.mouse_entered.connect(func() -> void: lang_button.modulate = Color.WHITE)
+		lang_button.mouse_exited.connect(func() -> void: lang_button.modulate = Color(0.85, 0.85, 0.85))
 
 
-# ---------- Dil ----------
+func _on_lang_button_pressed() -> void:
+	var now := Time.get_ticks_msec()
+	if now - _last_lang_toggle_msec < 120:
+		return
+	_last_lang_toggle_msec = now
+	_play_click_audio()
+	_toggle_language()
+
 
 func _toggle_language() -> void:
 	_lang = "tr" if _lang == "en" else "en"
@@ -297,7 +260,7 @@ func _percent_text(value: int) -> String:
 	var fmt := tr("LOADING_PERCENT")
 	if fmt.contains("%d"):
 		return fmt % value
-	return "%d%%" % value  # çeviri yoksa güvenli yedek
+	return "%d%%" % value
 
 
 func _update_percent_label() -> void:
@@ -307,8 +270,6 @@ func _update_percent_label() -> void:
 	_last_pct = pct
 	percent_label.text = _percent_text(pct)
 
-
-# ---------- Butonlar ----------
 
 func _on_no_pressed() -> void:
 	_play_click_audio()
@@ -334,6 +295,7 @@ func _play_ui_audio(player: AudioStreamPlayer2D) -> void:
 func _on_yes_pressed() -> void:
 	if _loading:
 		return
+	_play_click_audio()
 	_loading = true
 	_load_done = false
 	_shown = 0.0
@@ -362,8 +324,6 @@ func _cancel_loading() -> void:
 	lang_button.visible = true
 
 
-# ---------- Gerçek yükleme ----------
-
 func _process(delta: float) -> void:
 	var target := 100.0
 
@@ -380,7 +340,6 @@ func _process(delta: float) -> void:
 				call_deferred("_fallback_load_game_scene")
 				return
 
-	# Çubuk gerçek ilerlemeyi takip eder, sadece sıçramaları yumuşatır
 	_shown = move_toward(_shown, target, bar_speed * delta)
 	load_progress.value = _shown
 	_update_percent_label()

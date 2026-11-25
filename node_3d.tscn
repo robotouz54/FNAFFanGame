@@ -24,8 +24,11 @@
 [ext_resource type="AudioStream" uid="uid://dvadmvgcdvhq" path="res://audio/OuzWillKill.ogg" id="17_vmvb8"]
 [ext_resource type="AudioStream" uid="uid://b5y68cqe6m7sd" path="res://audio/door_break.wav" id="18_lggff"]
 [ext_resource type="AudioStream" uid="uid://dbgg58un2pu2u" path="res://audio/jumpscare.wav" id="19_s0gvp"]
+[ext_resource type="AudioStream" uid="uid://b0kaefv5f72nu" path="res://audio/ignitedbonnie.wav" id="21_3s0n5"]
 [ext_resource type="AudioStream" uid="uid://b7hdugllui1y2" path="res://audio/afterlost.wav" id="22_obt1j"]
+[ext_resource type="AudioStream" uid="uid://dg5es7oymvl7c" path="res://audio/transforming.wav" id="22_qpkl4"]
 [ext_resource type="AudioStream" uid="uid://by0hl0c73f3ks" path="res://audio/knockfirst.wav" id="22_s0gvp"]
+[ext_resource type="AudioStream" uid="uid://dytg4d6c2ayxj" path="res://audio/danger.wav" id="22_vmvb8"]
 [ext_resource type="AudioStream" uid="uid://b55r82vi1v5s7" path="res://audio/cameraselect.wav" id="23_2yde8"]
 [ext_resource type="AudioStream" uid="uid://ycp178x2nc4c" path="res://audio/lostsignal.wav" id="24_id0nj"]
 [ext_resource type="AudioStream" uid="uid://vq5k1yip4r23" path="res://audio/monitorglow.wav" id="25_1q667"]
@@ -2505,6 +2508,30 @@ tracks/16/keys = {
 "update": 0,
 "values": [Vector3(-1.1870956, 27.545649, 0.09806013)]
 }
+tracks/17/type = "value"
+tracks/17/imported = false
+tracks/17/enabled = true
+tracks/17/path = NodePath("OmniLight3D:rotation")
+tracks/17/interp = 1
+tracks/17/loop_wrap = true
+tracks/17/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector3(0, 0, 0.75110203)]
+}
+tracks/18/type = "value"
+tracks/18/imported = false
+tracks/18/enabled = true
+tracks/18/path = NodePath("OmniLight3D:light_color")
+tracks/18/interp = 1
+tracks/18/loop_wrap = true
+tracks/18/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Color(0.25684804, 0.9858884, 0.9999996, 1)]
+}
 
 [sub_resource type="Animation" id="Animation_vmvb8"]
 resource_name = "idle0"
@@ -2894,6 +2921,480 @@ tracks/16/keys = {
 "transitions": PackedFloat32Array(1),
 "update": 0,
 "values": [Vector3(-1.1870956, 2.5632443, 0.098059654)]
+}
+tracks/17/type = "value"
+tracks/17/imported = false
+tracks/17/enabled = true
+tracks/17/path = NodePath("OmniLight3D:light_color")
+tracks/17/interp = 1
+tracks/17/loop_wrap = true
+tracks/17/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Color(0, 0.6550805, 0.9787343, 1)]
+}
+
+[sub_resource type="Animation" id="Animation_g4s1x"]
+resource_name = "pose_jumpscare"
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("head:position")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector3(0.70030856, 6.9737835, -9.8218155)]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("head/kelle:position")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector3(-0.592659, -2.4667625, 10.178705)]
+}
+tracks/2/type = "value"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath("govde:position")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector3(-1.1071396, 3.0072017, 0.3970728)]
+}
+tracks/3/type = "value"
+tracks/3/imported = false
+tracks/3/enabled = true
+tracks/3/path = NodePath("sagbacak:position")
+tracks/3/interp = 1
+tracks/3/loop_wrap = true
+tracks/3/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector3(-1.5220337, 0.49107543, 0.59180164)]
+}
+tracks/4/type = "value"
+tracks/4/imported = false
+tracks/4/enabled = true
+tracks/4/path = NodePath("sagkol:position")
+tracks/4/interp = 1
+tracks/4/loop_wrap = true
+tracks/4/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector3(-1.0873337, 2.6978261, 1.0885386)]
+}
+tracks/5/type = "value"
+tracks/5/imported = false
+tracks/5/enabled = true
+tracks/5/path = NodePath("solkol:position")
+tracks/5/interp = 1
+tracks/5/loop_wrap = true
+tracks/5/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector3(-0.015090942, 3.8625095, -0.3341565)]
+}
+tracks/6/type = "value"
+tracks/6/imported = false
+tracks/6/enabled = true
+tracks/6/path = NodePath("solbacak:position")
+tracks/6/interp = 1
+tracks/6/loop_wrap = true
+tracks/6/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector3(-1.1407471, 0.6992173, 0.15479422)]
+}
+tracks/7/type = "value"
+tracks/7/imported = false
+tracks/7/enabled = true
+tracks/7/path = NodePath("head:rotation")
+tracks/7/interp = 1
+tracks/7/loop_wrap = true
+tracks/7/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector3(0, 0, -0.48488912)]
+}
+tracks/8/type = "value"
+tracks/8/imported = false
+tracks/8/enabled = true
+tracks/8/path = NodePath("head/kelle:rotation")
+tracks/8/interp = 1
+tracks/8/loop_wrap = true
+tracks/8/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector3(-1.199186e-07, -6.784427e-08, 0.5148568)]
+}
+tracks/9/type = "value"
+tracks/9/imported = false
+tracks/9/enabled = true
+tracks/9/path = NodePath("govde:rotation")
+tracks/9/interp = 1
+tracks/9/loop_wrap = true
+tracks/9/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector3(0, 0, -0.03757022)]
+}
+tracks/10/type = "value"
+tracks/10/imported = false
+tracks/10/enabled = true
+tracks/10/path = NodePath("sagbacak:rotation")
+tracks/10/interp = 1
+tracks/10/loop_wrap = true
+tracks/10/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector3(-0.14772907, -0.006078689, -0.16639368)]
+}
+tracks/11/type = "value"
+tracks/11/imported = false
+tracks/11/enabled = true
+tracks/11/path = NodePath("sagkol:rotation")
+tracks/11/interp = 1
+tracks/11/loop_wrap = true
+tracks/11/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector3(0.20324564, -3.060778, -3.058162)]
+}
+tracks/12/type = "value"
+tracks/12/imported = false
+tracks/12/enabled = true
+tracks/12/path = NodePath("solkol:rotation")
+tracks/12/interp = 1
+tracks/12/loop_wrap = true
+tracks/12/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector3(0.02849627, -0.04452372, 1.8370059)]
+}
+tracks/13/type = "value"
+tracks/13/imported = false
+tracks/13/enabled = true
+tracks/13/path = NodePath("solbacak:rotation")
+tracks/13/interp = 1
+tracks/13/loop_wrap = true
+tracks/13/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector3(0.12839578, -0.015582258, 0.03998941)]
+}
+tracks/14/type = "value"
+tracks/14/imported = false
+tracks/14/enabled = true
+tracks/14/path = NodePath("head/kelle:material")
+tracks/14/interp = 1
+tracks/14/loop_wrap = true
+tracks/14/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [SubResource("StandardMaterial3D_ype4i")]
+}
+tracks/15/type = "value"
+tracks/15/imported = false
+tracks/15/enabled = true
+tracks/15/path = NodePath("head/kelle:material:albedo_texture")
+tracks/15/interp = 1
+tracks/15/loop_wrap = true
+tracks/15/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [ExtResource("31_pb8dk")]
+}
+tracks/16/type = "value"
+tracks/16/imported = false
+tracks/16/enabled = true
+tracks/16/path = NodePath("OmniLight3D:position")
+tracks/16/interp = 1
+tracks/16/loop_wrap = true
+tracks/16/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector3(0.37695313, 4.971493, 0.2587266)]
+}
+tracks/17/type = "value"
+tracks/17/imported = false
+tracks/17/enabled = true
+tracks/17/path = NodePath("OmniLight3D:rotation")
+tracks/17/interp = 1
+tracks/17/loop_wrap = true
+tracks/17/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector3(0, 0, 0.31084567)]
+}
+tracks/18/type = "value"
+tracks/18/imported = false
+tracks/18/enabled = true
+tracks/18/path = NodePath("OmniLight3D:light_color")
+tracks/18/interp = 1
+tracks/18/loop_wrap = true
+tracks/18/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Color(0.926905, 2.092123e-05, 0.36289364, 1)]
+}
+
+[sub_resource type="Animation" id="Animation_pf4ct"]
+resource_name = "pose_kicking"
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("head:position")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector3(0.70030856, 6.9737835, -9.8218155)]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("head/kelle:position")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector3(-1.0099411, -3.1178932, 10.252548)]
+}
+tracks/2/type = "value"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath("govde:position")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector3(-1.1071396, 3.0072017, 0.3970728)]
+}
+tracks/3/type = "value"
+tracks/3/imported = false
+tracks/3/enabled = true
+tracks/3/path = NodePath("sagbacak:position")
+tracks/3/interp = 1
+tracks/3/loop_wrap = true
+tracks/3/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector3(0.5785141, 1.687485, 0.59180164)]
+}
+tracks/4/type = "value"
+tracks/4/imported = false
+tracks/4/enabled = true
+tracks/4/path = NodePath("sagkol:position")
+tracks/4/interp = 1
+tracks/4/loop_wrap = true
+tracks/4/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector3(-1.5008621, 2.490701, 1.1040707)]
+}
+tracks/5/type = "value"
+tracks/5/imported = false
+tracks/5/enabled = true
+tracks/5/path = NodePath("solkol:position")
+tracks/5/interp = 1
+tracks/5/loop_wrap = true
+tracks/5/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector3(-1.5576324, 2.5577872, -0.5940795)]
+}
+tracks/6/type = "value"
+tracks/6/imported = false
+tracks/6/enabled = true
+tracks/6/path = NodePath("solbacak:position")
+tracks/6/interp = 1
+tracks/6/loop_wrap = true
+tracks/6/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector3(-1.1019516, 0.6992173, 0.15479422)]
+}
+tracks/7/type = "value"
+tracks/7/imported = false
+tracks/7/enabled = true
+tracks/7/path = NodePath("head:rotation")
+tracks/7/interp = 1
+tracks/7/loop_wrap = true
+tracks/7/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector3(0, 0, -0.48488912)]
+}
+tracks/8/type = "value"
+tracks/8/imported = false
+tracks/8/enabled = true
+tracks/8/path = NodePath("head/kelle:rotation")
+tracks/8/interp = 1
+tracks/8/loop_wrap = true
+tracks/8/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector3(-7.957017e-08, -1.1248065e-07, 0.9551131)]
+}
+tracks/9/type = "value"
+tracks/9/imported = false
+tracks/9/enabled = true
+tracks/9/path = NodePath("govde:rotation")
+tracks/9/interp = 1
+tracks/9/loop_wrap = true
+tracks/9/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector3(0, 0, 0.38703024)]
+}
+tracks/10/type = "value"
+tracks/10/imported = false
+tracks/10/enabled = true
+tracks/10/path = NodePath("sagbacak:rotation")
+tracks/10/interp = 1
+tracks/10/loop_wrap = true
+tracks/10/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector3(0.013302487, -0.1472579, 1.4525669)]
+}
+tracks/11/type = "value"
+tracks/11/imported = false
+tracks/11/enabled = true
+tracks/11/path = NodePath("sagkol:rotation")
+tracks/11/interp = 1
+tracks/11/loop_wrap = true
+tracks/11/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector3(2.7860944, 0, 0)]
+}
+tracks/12/type = "value"
+tracks/12/imported = false
+tracks/12/enabled = true
+tracks/12/path = NodePath("solkol:rotation")
+tracks/12/interp = 1
+tracks/12/loop_wrap = true
+tracks/12/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector3(0.2551319, -0.05935864, -0.23126543)]
+}
+tracks/13/type = "value"
+tracks/13/imported = false
+tracks/13/enabled = true
+tracks/13/path = NodePath("solbacak:rotation")
+tracks/13/interp = 1
+tracks/13/loop_wrap = true
+tracks/13/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector3(0.1234373, -0.03870137, -0.1435936)]
+}
+tracks/14/type = "value"
+tracks/14/imported = false
+tracks/14/enabled = true
+tracks/14/path = NodePath("head/kelle:material")
+tracks/14/interp = 1
+tracks/14/loop_wrap = true
+tracks/14/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [SubResource("StandardMaterial3D_ype4i")]
+}
+tracks/15/type = "value"
+tracks/15/imported = false
+tracks/15/enabled = true
+tracks/15/path = NodePath("head/kelle:material:albedo_texture")
+tracks/15/interp = 1
+tracks/15/loop_wrap = true
+tracks/15/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [ExtResource("31_pb8dk")]
+}
+tracks/16/type = "value"
+tracks/16/imported = false
+tracks/16/enabled = true
+tracks/16/path = NodePath("OmniLight3D:position")
+tracks/16/interp = 1
+tracks/16/loop_wrap = true
+tracks/16/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector3(-0.38362885, 5.174714, 0.33256865)]
+}
+tracks/17/type = "value"
+tracks/17/imported = false
+tracks/17/enabled = true
+tracks/17/path = NodePath("OmniLight3D:rotation")
+tracks/17/interp = 1
+tracks/17/loop_wrap = true
+tracks/17/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector3(0, 0, 0.75110203)]
+}
+tracks/18/type = "value"
+tracks/18/imported = false
+tracks/18/enabled = true
+tracks/18/path = NodePath("OmniLight3D:light_color")
+tracks/18/interp = 1
+tracks/18/loop_wrap = true
+tracks/18/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Color(0.926905, 2.0936877e-05, 0.3628936, 1)]
 }
 
 [sub_resource type="Animation" id="Animation_3s0n5"]
@@ -3309,12 +3810,26 @@ tracks/16/keys = {
 "update": 0,
 "values": [Vector3(1.3244095, 4.9198403, 0.33256865)]
 }
+tracks/17/type = "value"
+tracks/17/imported = false
+tracks/17/enabled = true
+tracks/17/path = NodePath("OmniLight3D:light_color")
+tracks/17/interp = 1
+tracks/17/loop_wrap = true
+tracks/17/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Color(6.7383053e-06, 0.6827894, 0.95848614, 1)]
+}
 
 [sub_resource type="AnimationLibrary" id="AnimationLibrary_4i7mf"]
 _data = {
 &"RESET": SubResource("Animation_2mu51"),
 &"idle0": SubResource("Animation_vmvb8"),
 &"pose_awake_commonroom": SubResource("Animation_4i7mf"),
+&"pose_jumpscare": SubResource("Animation_g4s1x"),
+&"pose_kicking": SubResource("Animation_pf4ct"),
 &"pose_listening_commonroom": SubResource("Animation_3s0n5"),
 &"pose_stand_general": SubResource("Animation_qpkl4")
 }
@@ -3334,7 +3849,6 @@ size = Vector3(1.862854, 4.840025, 0.7932043)
 environment = SubResource("Environment_noarx")
 
 [node name="Pivot" type="Node3D" parent="." unique_id=1885355889]
-visible = false
 
 [node name="CharacterBody3D" type="CharacterBody3D" parent="Pivot" unique_id=703755988 node_paths=PackedStringArray("debug_camera")]
 transform = Transform3D(0.010493638, 0, 0.9999449, 0, 1, 0, -0.9999449, 0, 0.010493638, -1.5870726, 0, 1.3782055)
@@ -3343,7 +3857,7 @@ script = ExtResource("13_imku0")
 debug_camera = NodePath("DebugCamera3D")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="Pivot/CharacterBody3D" unique_id=983984743]
-transform = Transform3D(1.0000002, 0, -9.313226e-10, 0, 1, 0, 9.313226e-10, 0, 1.0000002, 0.028434277, 1.7614737, 2.7095249)
+transform = Transform3D(1.0000006, 0, -2.7939677e-09, 0, 1, 0, 2.7939677e-09, 0, 1.0000006, 0.028433919, 1.1776116, 2.7095249)
 shape = SubResource("CapsuleShape3D_plheh")
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="Pivot/CharacterBody3D/CollisionShape3D" unique_id=886457566]
@@ -3352,7 +3866,7 @@ mesh = SubResource("CapsuleMesh_plheh")
 surface_material_override/0 = SubResource("StandardMaterial3D_imku0")
 
 [node name="DebugCamera3D" type="Camera3D" parent="Pivot/CharacterBody3D" unique_id=1098025240]
-transform = Transform3D(1.0000001, 0, -9.313226e-10, 0, 1, 0, 9.313226e-10, 0, 1.0000001, 0, 3.5, 0)
+transform = Transform3D(1.0000001, 0, -7.450581e-09, 0, 1, 0, 6.519258e-09, 0, 1.0000001, 0.024326563, 2.7647862, 2.318099)
 fov = 100.0
 
 [node name="DebugAudioListener" type="AudioListener3D" parent="Pivot/CharacterBody3D/DebugCamera3D" unique_id=380748208]
@@ -3846,119 +4360,119 @@ material = SubResource("StandardMaterial3D_a0tk4")
 
 [node name="isiklar" type="Node3D" parent="Map" unique_id=93478874]
 
-[node name="omniisik" type="OmniLight3D" parent="Map/isiklar" unique_id=325307670]
+[node name="isiks1" type="OmniLight3D" parent="Map/isiklar" unique_id=325307670]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.12309027, 4.431162, 7.4197483)
 light_color = Color(1, 0.8509804, 0.627451, 1)
 light_energy = 1.44
 shadow_enabled = true
 omni_range = 12.661
 
-[node name="omniisik2" type="OmniLight3D" parent="Map/isiklar" unique_id=127188371]
+[node name="isiks2" type="OmniLight3D" parent="Map/isiklar" unique_id=127188371]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6.951149, 4.431162, 7.4197483)
 light_color = Color(1, 0.8509804, 0.627451, 1)
 light_energy = 1.44
 shadow_enabled = true
 omni_range = 12.661
 
-[node name="omniisik3" type="OmniLight3D" parent="Map/isiklar" unique_id=584238163]
+[node name="isiks3" type="OmniLight3D" parent="Map/isiklar" unique_id=584238163]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6.951149, 4.431162, -8.5137005)
 light_color = Color(1, 0.8509804, 0.627451, 1)
 light_energy = 1.44
 shadow_enabled = true
 omni_range = 12.661
 
-[node name="omniisik20" type="OmniLight3D" parent="Map/isiklar" unique_id=1278751145]
+[node name="isiks4" type="OmniLight3D" parent="Map/isiklar" unique_id=1278751145]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6.951149, 7.0813794, -16.27264)
 light_color = Color(1, 0.8509804, 0.627451, 1)
 light_energy = 1.44
 shadow_enabled = true
 omni_range = 12.661
 
-[node name="omniisik12" type="OmniLight3D" parent="Map/isiklar" unique_id=1116427488]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 16.721853, 4.7956905, -11.96277)
+[node name="isiks5" type="OmniLight3D" parent="Map/isiklar" unique_id=1116427488]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 18.164291, 4.7956905, -16.14187)
 light_color = Color(1, 0.8509804, 0.627451, 1)
 light_energy = 1.44
 shadow_enabled = true
 omni_range = 12.661
 
-[node name="omniisik13" type="OmniLight3D" parent="Map/isiklar" unique_id=1810482516]
+[node name="isiks6" type="OmniLight3D" parent="Map/isiklar" unique_id=1810482516]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 16.721853, 4.848805, 6.0376797)
 light_color = Color(1, 0.8509804, 0.627451, 1)
 light_energy = 1.44
 shadow_enabled = true
 omni_range = 12.661
 
-[node name="omniisik4" type="OmniLight3D" parent="Map/isiklar" unique_id=729505346]
+[node name="isiks7" type="OmniLight3D" parent="Map/isiklar" unique_id=729505346]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -12.142797, 4.431162, 7.4197483)
 light_color = Color(1, 0.8509804, 0.627451, 1)
 light_energy = 1.44
 shadow_enabled = true
 omni_range = 8.953
 
-[node name="omniisik5" type="OmniLight3D" parent="Map/isiklar" unique_id=840218386]
+[node name="isiks8" type="OmniLight3D" parent="Map/isiklar" unique_id=840218386]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -20.92971, 4.431162, 7.4197483)
 light_color = Color(1, 0.8509804, 0.627451, 1)
 light_energy = 0.94
 shadow_enabled = true
 omni_range = 6.903
 
-[node name="omniisik15" type="OmniLight3D" parent="Map/isiklar" unique_id=64249473]
+[node name="isiks9" type="OmniLight3D" parent="Map/isiklar" unique_id=64249473]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -23.735199, 5.440593, 18.738712)
 light_color = Color(1, 0.8509804, 0.627451, 1)
 light_energy = 1.44
 shadow_enabled = true
 omni_range = 12.661
 
-[node name="omniisik16" type="OmniLight3D" parent="Map/isiklar" unique_id=2107066747]
+[node name="isiks10" type="OmniLight3D" parent="Map/isiklar" unique_id=2107066747]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -15.543169, 4.431162, 18.738712)
 light_color = Color(1, 0.8509804, 0.627451, 1)
 light_energy = 1.44
 shadow_enabled = true
 omni_range = 12.661
 
-[node name="omniisik18" type="OmniLight3D" parent="Map/isiklar" unique_id=2031632703]
+[node name="isiks11" type="OmniLight3D" parent="Map/isiklar" unique_id=2031632703]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -29.485859, 4.431162, 0.54963064)
 light_color = Color(1, 0.8509804, 0.627451, 1)
 light_energy = 1.44
 shadow_enabled = true
 omni_range = 12.661
 
-[node name="omniisik19" type="OmniLight3D" parent="Map/isiklar" unique_id=1892778975]
+[node name="isiks12" type="OmniLight3D" parent="Map/isiklar" unique_id=1892778975]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -29.485859, 4.3573146, 8.017049)
 light_color = Color(1, 0.8509804, 0.627451, 1)
 light_energy = 1.44
 shadow_enabled = true
 omni_range = 12.661
 
-[node name="omniisik17" type="OmniLight3D" parent="Map/isiklar" unique_id=294164889]
+[node name="isiks13" type="OmniLight3D" parent="Map/isiklar" unique_id=294164889]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 13.198302, 4.431162, -15.177496)
 light_color = Color(1, 0.8509804, 0.627451, 1)
 light_energy = 1.44
 shadow_enabled = true
 omni_range = 12.661
 
-[node name="omniisik6" type="OmniLight3D" parent="Map/isiklar" unique_id=1240040110]
+[node name="isiks14" type="OmniLight3D" parent="Map/isiklar" unique_id=1240040110]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -20.92971, 4.431162, -0.05527067)
 light_color = Color(1, 0.8509804, 0.627451, 1)
 light_energy = 1.44
 shadow_enabled = true
 omni_range = 8.952
 
-[node name="omniisik7" type="OmniLight3D" parent="Map/isiklar" unique_id=774717579]
+[node name="isiks15" type="OmniLight3D" parent="Map/isiklar" unique_id=774717579]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -29.611153, 4.882606, -12.109097)
 light_color = Color(1, 0.8509804, 0.627451, 1)
 light_energy = 2.918
 shadow_enabled = true
 omni_range = 12.913
 
-[node name="omniisik8" type="OmniLight3D" parent="Map/isiklar" unique_id=1696121795]
+[node name="isiks16" type="OmniLight3D" parent="Map/isiklar" unique_id=1696121795]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -20.92971, 4.431162, -10.343012)
 light_color = Color(1, 0.8509804, 0.627451, 1)
 light_energy = 0.773
 shadow_enabled = true
 omni_range = 7.106
 
-[node name="omniisik9" type="OmniLight3D" parent="Map/isiklar" unique_id=34665984]
+[node name="isiks17" type="OmniLight3D" parent="Map/isiklar" unique_id=34665984]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -18.480844, 3.8179736, -16.544064)
 light_color = Color(1, 0.8509804, 0.627451, 1)
 light_energy = 2.0
@@ -3969,7 +4483,7 @@ light_specular = 0.0
 shadow_enabled = true
 omni_range = 11.143
 
-[node name="omniisik10" type="OmniLight3D" parent="Map/isiklar" unique_id=1812956020]
+[node name="isiks18" type="OmniLight3D" parent="Map/isiklar" unique_id=1812956020]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5.067036, 9.315786, -31.050001)
 light_color = Color(1, 0.8509804, 0.627451, 1)
 light_energy = 2.667
@@ -3980,7 +4494,7 @@ light_specular = 0.0
 shadow_enabled = true
 omni_range = 100.672
 
-[node name="omniisik14" type="OmniLight3D" parent="Map/isiklar" unique_id=1825617479]
+[node name="isiks19" type="OmniLight3D" parent="Map/isiklar" unique_id=1825617479]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.86074066, 6.716882, 24.057232)
 light_color = Color(1, 0.8509804, 0.627451, 1)
 light_energy = 2.333
@@ -3991,7 +4505,7 @@ light_specular = 0.0
 shadow_enabled = true
 omni_range = 50.334
 
-[node name="omniisik11" type="OmniLight3D" parent="Map/isiklar" unique_id=1419780662]
+[node name="isiks20" type="OmniLight3D" parent="Map/isiklar" unique_id=1419780662]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -9.737678, 2.5269423, -0.05527067)
 light_color = Color(1, 0.8509804, 0.627451, 1)
 light_energy = 1.44
@@ -4631,10 +5145,31 @@ stream = ExtResource("19_s0gvp")
 volume_db = 80.0
 max_db = 6.0
 
+[node name="OuzJumpscareSound" type="AudioStreamPlayer3D" parent="SFX" unique_id=911201215]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.2201982, 2.5033417, 0.9337956)
+stream = ExtResource("21_3s0n5")
+volume_db = 80.0
+max_db = 6.0
+
+[node name="Transforming" type="AudioStreamPlayer3D" parent="SFX" unique_id=66130167]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.2201982, 2.5033417, 0.9337956)
+stream = ExtResource("22_qpkl4")
+volume_db = 5.517
+max_db = 6.0
+pitch_scale = 0.6
+
 [node name="AfterLost" type="AudioStreamPlayer3D" parent="SFX" unique_id=1901863422]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.2201982, 2.5033417, 0.9337956)
 stream = ExtResource("22_obt1j")
-volume_db = -24.0
+volume_db = -80.0
+unit_size = 20.0
+max_db = 6.0
+max_distance = 100.0
+
+[node name="Danger" type="AudioStreamPlayer3D" parent="SFX" unique_id=1818700113]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.2201982, 2.5033417, 0.9337956)
+stream = ExtResource("22_vmvb8")
+volume_db = -80.0
 unit_size = 20.0
 max_db = 6.0
 max_distance = 100.0
@@ -4698,7 +5233,6 @@ fov = 90.0
 
 [node name="MayinMelih" type="CSGCombiner3D" parent="." unique_id=1005678622]
 transform = Transform3D(0.56, 0, 0, 0, 0.56, 0, 0, 0, 0.56, -46.659973, 0, -1.9653072)
-visible = false
 autosmooth = true
 use_collision = true
 
@@ -4763,52 +5297,52 @@ use_collision = true
 transform = Transform3D(0.8847264, 0.46611014, 0, -0.4661101, 0.8847264, 0, 0, 0, 0.99999994, 0.70030856, 6.9737835, -9.8218155)
 
 [node name="kelle" type="CSGSphere3D" parent="Ouz/head" unique_id=1784185016]
-transform = Transform3D(0.88472605, -0.4661091, -6.422051e-08, 0.46610957, 0.88472515, 1.2189744e-07, -7.1054214e-15, -1.3777974e-07, 0.9999983, 0.20205688, -1.7327805, 10.018042)
+transform = Transform3D(0.8847258, -0.46610916, -6.422051e-08, 0.46610945, 0.8847252, 1.2189744e-07, -7.1054197e-15, -1.3777975e-07, 0.9999983, 0.20205688, -1.7327805, 10.018042)
 radius = 1.0362726
 radial_segments = 20
 rings = 20
 material = SubResource("StandardMaterial3D_ype4i")
 
+[node name="OmniLight3D" type="OmniLight3D" parent="Ouz" unique_id=2083228913]
+transform = Transform3D(1.305245, -1.2186512, 0, 1.2186512, 1.305245, 0, 0, 0, 1.7857143, -1.1870956, 27.545649, 0.09806013)
+light_color = Color(0.25684804, 0.9858884, 0.9999996, 1)
+omni_range = 1.234
+omni_attenuation = 0.0
+
 [node name="govde" type="CSGCylinder3D" parent="Ouz" unique_id=504216842]
-transform = Transform3D(0.9999998, 0, 0, 0, 0.9999998, 0, 0, 0, 1, 0, 3.239227, 0.21355605)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3.239227, 0.21355605)
 material_override = SubResource("StandardMaterial3D_riyl1")
 height = 2.3742676
 sides = 20
 material = SubResource("StandardMaterial3D_pb8dk")
 
 [node name="sagbacak" type="CSGCylinder3D" parent="Ouz" unique_id=1354332965]
-transform = Transform3D(0.9999999, 0, 0, 0, 0.9920443, 0.12588817, 0, -0.12588818, 0.99204427, 0, 0.61544114, 0.40354514)
+transform = Transform3D(1.0000001, 0, 0, 0, 0.9920442, 0.12588818, 0, -0.12588817, 0.9920444, 0, 0.61544114, 0.40354514)
 material_override = SubResource("StandardMaterial3D_riyl1")
 height = 2.9819336
 sides = 20
 material = SubResource("StandardMaterial3D_pb8dk")
 
 [node name="sagkol" type="CSGCylinder3D" parent="Ouz" unique_id=371223509]
-transform = Transform3D(0.76000005, 0, 0, 0, -3.322064e-08, -0.76, 0, 0.75999963, -3.3220655e-08, 0, 4.0092497, 1.7131051)
+transform = Transform3D(0.7600001, 0, 0, 0, -3.3220633e-08, -0.76, 0, 0.7599995, -3.3220655e-08, 0, 4.0092497, 1.7131051)
 material_override = SubResource("StandardMaterial3D_riyl1")
 height = 2.9819336
 sides = 20
 material = SubResource("StandardMaterial3D_pb8dk")
 
 [node name="solkol" type="CSGCylinder3D" parent="Ouz" unique_id=1104701562]
-transform = Transform3D(0.75999993, 0, 0, 0, -3.3220644e-08, -0.76, 0, 0.75999975, -3.3220655e-08, 0, 4.028957, -1.3489609)
+transform = Transform3D(0.7599999, 0, 0, 0, -3.3220644e-08, -0.76000017, 0, 0.75999975, -3.3220662e-08, 0, 4.028957, -1.3489609)
 material_override = SubResource("StandardMaterial3D_riyl1")
 height = 2.9819336
 sides = 20
 material = SubResource("StandardMaterial3D_pb8dk")
 
 [node name="solbacak" type="CSGCylinder3D" parent="Ouz" unique_id=1813278020]
-transform = Transform3D(0.9999992, 0, 0, 0, 0.9876315, -0.156777, 0, 0.1567766, 0.9876339, 0, 0.61544114, -0.019796133)
+transform = Transform3D(0.99999905, 0, 0, 0, 0.9876314, -0.156777, 0, 0.15677659, 0.9876339, 0, 0.61544114, -0.019796133)
 material_override = SubResource("StandardMaterial3D_riyl1")
 height = 2.9819336
 sides = 20
 material = SubResource("StandardMaterial3D_pb8dk")
-
-[node name="OmniLight3D" type="OmniLight3D" parent="Ouz" unique_id=2083228913]
-transform = Transform3D(1.7857143, 0, 0, 0, 1.7857143, 0, 0, 0, 1.7857143, -1.1870956, 27.545649, 0.09806013)
-light_color = Color(0.25684804, 0.9858884, 0.9999996, 1)
-omni_range = 1.234
-omni_attenuation = 0.0
 
 [node name="AnimationPlayerOuz" type="AnimationPlayer" parent="Ouz" unique_id=1403202484]
 libraries/ = SubResource("AnimationLibrary_4i7mf")
@@ -4883,7 +5417,7 @@ transform = Transform3D(0.39591753, 0, 0.9182861, 0, 1, 0, -0.9182861, 0, 0.3959
 transform = Transform3D(0.6311822, 0, 0.77563465, 0, 1, 0, -0.77563465, 0, 0.6311822, -1.6704661, 0, 0.28310823)
 
 [node name="Spot_JumpscareOffice" type="Marker3D" parent="MonsterSpots" unique_id=985222822]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3.5167713, 0.3026824, 0.7944123)
+transform = Transform3D(-0.9999813, 0, 0.006121685, 0, 1, 0, -0.006121685, 0, -0.9999813, -3.5167713, 0.3026824, 0.7944123)
 
 [node name="Spot_JumpscareDesk" type="Marker3D" parent="MonsterSpots" unique_id=1538229904]
 transform = Transform3D(-0.99875504, 0, -0.04988307, 0, 1, 0, 0.04988307, 0, -0.99875504, -2.7386503, -1.8637729, 1.0682799)
@@ -4943,7 +5477,11 @@ transform = Transform3D(-0.6709847, 0, -0.7414712, 0, 1, 0, 0.7414712, 0, -0.670
 metadata/pose = "pose_sit"
 
 [node name="ouzSpot_commonroom" type="Marker3D" parent="OuzSpots" unique_id=681801021]
-transform = Transform3D(-0.49017447, 0, -0.87162435, 0, 1, 0, 0.87162435, 0, -0.49017447, 21.312113, 0, -18.539755)
+transform = Transform3D(-0.49017447, 0, -0.87162435, 0, 1, 0, 0.87162435, 0, -0.49017447, 20.31301, 0, -18.539755)
+metadata/pose = "pose_sit"
+
+[node name="ouzSpot_commonroom2" type="Marker3D" parent="OuzSpots" unique_id=1587641839]
+transform = Transform3D(-0.49017447, 0, -0.87162435, 0, 1, 0, 0.87162435, 0, -0.49017447, 16.696, 0, -13.396457)
 metadata/pose = "pose_sit"
 
 [node name="ouzSpot_DoorWindow" type="Marker3D" parent="OuzSpots" unique_id=1050655800]
@@ -5326,6 +5864,7 @@ material = SubResource("StandardMaterial3D_tereu")
 transform = Transform3D(0.9823806, -0.05336744, -0.17910962, 0, 0.95836276, -0.28555343, 0.18689123, 0.28052217, 0.941477, 3.3608866, 3.2940965, -0.47435784)
 operation = 2
 size = Vector3(1.46875, 1.3537598, 0.30786133)
+material = SubResource("StandardMaterial3D_tereu")
 
 [node name="kapiMain2" type="CSGBox3D" parent="DoorSystem/DoorBody/Stage3" unique_id=111212159]
 transform = Transform3D(0.9823806, 0.0583746, -0.17754082, 0, 0.9499687, 0.31234527, 0.18689124, -0.30684194, 0.9332308, 3.3249307, 1.5281786, -0.28535843)

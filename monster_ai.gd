@@ -78,7 +78,11 @@ const LINKS: Dictionary = {
 @export var inside_step_time: float = 1.8
 @export var enter_office_walk_time: float = 1.25
 @export var inside_walk_time: float = 1.0
-@export_range(0.0, 1.0) var notice_chance: float = 0.75
+@export_range(0.0, 1.0) var notice_chance: float = 0.25
+@export_range(0.0, 1.0) var broken_door_notice_chance: float = 0.75
+@export_range(0.0, 1.0) var broken_door_hidden_kill_chance: float = 0.5
+@export var broken_door_window_wait_min: float = 5.0
+@export var broken_door_window_wait_max: float = 10.0
 @export var notice_delay_min: float = 2.0
 @export var notice_delay_max: float = 5.0
 @export var search_time_min: float = 2.5
@@ -127,6 +131,7 @@ var _first_knock_sound: AudioStreamPlayer3D
 var _break_sound: AudioStreamPlayer3D
 var _scare_sound: AudioStreamPlayer3D
 var _woosh_sound: AudioStreamPlayer3D
+var _kicked_door_recently: bool = false
 
 
 func _ready() -> void:
@@ -160,8 +165,9 @@ func _ready() -> void:
 	if _game:
 		_game.night_won.connect(_on_night_over)
 		_game.night_lost.connect(_on_night_over)
-	_hide.unhide_clicked.connect(_on_unhide_clicked)
-	_hide.hidden_changed.connect(_on_hidden_changed)
+	if _hide:
+		_hide.unhide_clicked.connect(_on_unhide_clicked)
+		_hide.hidden_changed.connect(_on_hidden_changed)
 
 	if debug_door_attack_delay >= 0.0:
 		_debug_door_attack()
@@ -307,7 +313,7 @@ func _on_night_over() -> void:
 
 
 func _wait(seconds: float) -> void:
-	await get_tree().create_timer(seconds).timeout
+	await get_tree().create_timer(maxf(seconds, 0.01)).timeout
 
 
 # ---------- Oda değiştirme ----------
@@ -326,7 +332,6 @@ func _do_room_move(room: String) -> void:
 	_busy = true
 	var spot := _spot("Spot_" + room)
 	if _room == "doorway":
-		# DoorWindow'dan lure edilen koridora yürürken kamera geçişini de gizle.
 		if _cam_system:
 			var signal_covers_walk := _cam_system.is_camera_feed_active()
 			var transition_finished: Signal = _cam_system.lost_signal_finished
@@ -340,7 +345,6 @@ func _do_room_move(room: String) -> void:
 
 
 func _walk_to_lured_room(spot: Node3D, room: String, _signal_covers_walk: bool) -> void:
-	# Bu rota kısa olduğundan mevcut yürüyüş süresi Lost Signal süresinin içinde tamamlanır.
 	if room == "southhall":
 		var pre_southhall := _spot("Spot_preSouthhall")
 		if pre_southhall:
@@ -385,9 +389,9 @@ func _relocate(spot: Node3D, pose: String, room_name: String) -> void:
 		_room = room_name
 		_place_at(spot, pose)
 	if _cam_system:
-			var transition_finished: Signal = _cam_system.lost_signal_finished
-			_cam_system.play_lost_signal(apply)
-			await transition_finished
+		var transition_finished: Signal = _cam_system.lost_signal_finished
+		_cam_system.play_lost_signal(apply)
+		await transition_finished
 	else:
 		apply.call()
 
@@ -409,7 +413,6 @@ func _on_lure_requested(cam_index: int) -> void:
 			return
 		if randf() >= door_window_lure_success_chance:
 			return
-		# Başarılı özel lure kapı saldırısını iptal eder ve seçilen koridora çeker.
 		_state = State.ROAM
 		_busy = false
 		_lure_room = target
@@ -421,7 +424,6 @@ func _on_lure_requested(cam_index: int) -> void:
 	var neighbors: Array = _graph.get(_room, [])
 	if not neighbors.has(target):
 		return
-	# Normal lure yalnızca ofisten daha uzak, komşu odaya çalışır.
 	if int(_dist.get(target, 99)) <= int(_dist.get(_room, 99)):
 		return
 	if randf() >= lure_success_chance:
@@ -466,10 +468,8 @@ func _start_door_attack() -> void:
 
 
 func _walk_to_door_window(signal_covers_walk: bool = false) -> void:
-	# Southhall rotası duvarın etrafından PreSouthhall üzerinden geçer.
-	# Kamera açıksa yürüyüşü Lost Signal + Pending süresine sığdır; ekran süresi uzamasın.
 	var covered_walk_budget := 0.0
-	if signal_covers_walk:
+	if signal_covers_walk and _cam_system:
 		covered_walk_budget = maxf(0.1, _cam_system.lost_signal_time + _cam_system.pending_after_lost_time - 0.15)
 	var pre_approach_duration := 0.0
 	if _room == "southhall":
@@ -498,48 +498,99 @@ func _walk_to_door_window(signal_covers_walk: bool = false) -> void:
 
 
 func _door_sequence() -> void:
+	var door_was_already_broken := _door.is_broken if _door else false
+	if door_was_already_broken:
+		await _broken_door_window_sequence()
+		return
+
 	# 1) Kapı penceresinden bakış
-	var peek := peek_time * (0.5 if _door.is_broken else 1.0)
-	var door_was_already_broken := _door.is_broken
-	await _wait(peek)
+	await _wait(peek_time)
 	if not _alive():
 		return
 
-	if not door_was_already_broken:
-		_place_at(_spot("Spot_DoorKnock"), "pose_knock_b")
-		if knocks_before_kick > 0:
-			await _first_knock_at_door()
-		for hit_number in range(2, knocks_before_kick + 1):
-			await _wait(randf_range(knock_gap * 0.8, knock_gap * 1.2))
-			if not _alive():
-				return
-			await _knock(hit_number)
-			if not _alive():
-				return
-		await _wait(knock_gap)
-		if not _alive():
-			return
-		await _kick()
-		if not _alive():
-			return
-		# Tekmeden sonra kısa fırsat ver; oyuncu hâlâ saklanmadıysa saldır.
-		if not _hide.is_concealed():
-			await _wait(unhidden_kick_jumpscare_delay)
-			if not _alive():
-				return
-			if not _hide.is_concealed():
-				_jumpscare("Spot_JumpscareOffice")
-				return
-		await _wait(break_wait)
-		if not _alive():
-			return
+	var knock_spot := _spot("Spot_DoorKnock")
+	if knock_spot:
+		_place_at(knock_spot, "pose_knock_b")
 	else:
-		# Kapı önceden kırılmışsa vuruş olmayacağı için ofise girmeden kilitle.
-		await _lock_cams_for_door()
+		push_warning("MonsterAI: Spot_DoorKnock bulunamadı, mevcut konumda kapıya vuruluyor.")
+		_set_pose("pose_knock_b")
+
+	if knocks_before_kick > 0:
+		await _first_knock_at_door()
+	for hit_number in range(2, knocks_before_kick + 1):
+		await _wait(randf_range(knock_gap * 0.8, knock_gap * 1.2))
 		if not _alive():
 			return
+		await _knock(hit_number)
+		if not _alive():
+			return
+	await _wait(knock_gap)
+	if not _alive():
+		return
+	await _kick()
+	if not _alive():
+		return
+	# Tekmeden sonra kısa fırsat ver; oyuncu hâlâ saklanmadıysa saldır.
+	if _hide and not _hide.is_concealed():
+		await _wait(unhidden_kick_jumpscare_delay)
+		if not _alive():
+			return
+		if _hide and not _hide.is_concealed():
+			_jumpscare("Spot_JumpscareOffice")
+			return
+	await _wait(break_wait)
+	if not _alive():
+		return
 
-	await _enter_office(door_was_already_broken)
+	await _enter_office(false, false)
+
+
+func _broken_door_window_sequence() -> void:
+	var door_window := _spot("Spot_DoorWindow")
+	if door_window:
+		_place_at(door_window, "pose_stand")
+	else:
+		_set_pose("pose_stand")
+
+	await _wait(randf_range(broken_door_window_wait_min, broken_door_window_wait_max))
+	if not _alive():
+		return
+
+	if _hide and not _hide.is_concealed():
+		_jumpscare("Spot_JumpscareOffice")
+		return
+
+	await _lock_cams_for_door()
+	if not _alive():
+		return
+
+	await _enter_office_broken_door_hidden()
+
+
+func _enter_office_broken_door_hidden() -> void:
+	_state = State.INSIDE
+	if _player_cam:
+		_player_cam.set_hidden_ambient_sway_enabled(false)
+	if _cam_system:
+		_cam_system.play_office_static()
+	await _walk_to_spot(_spot("Spot_Inside1"), enter_office_walk_time)
+	if not _alive():
+		return
+	await _wait(inside_step_time)
+	if not _alive():
+		return
+	await _walk_to_spot(_spot("Spot_Inside2"), inside_walk_time)
+	if not _alive():
+		return
+	await _wait(randf_range(search_time_min, search_time_max))
+	if not _alive():
+		return
+
+	if randf() < broken_door_hidden_kill_chance:
+		_jumpscare("Spot_JumpscareDesk")
+		return
+
+	_leave()
 
 
 func _lock_cams_for_door() -> void:
@@ -548,7 +599,25 @@ func _lock_cams_for_door() -> void:
 	_cam_system.lock_cams("door")
 	if _cam_system.is_open():
 		_cam_system.force_close()
-		await _cam_system.closed
+		# Kamera kapanma sinyali gelmezse akışın takılmaması için 1.5s güvenlik süresi
+		var timer := get_tree().create_timer(1.5)
+		await _wait_signal_or_timeout(_cam_system.closed, timer)
+
+
+func _wait_signal_or_timeout(sig: Signal, timer: SceneTreeTimer) -> void:
+	var done := [false]
+	var on_sig := func(_a = null, _b = null, _c = null) -> void:
+		done[0] = true
+	var on_to := func() -> void:
+		done[0] = true
+	sig.connect(on_sig, CONNECT_ONE_SHOT)
+	timer.timeout.connect(on_to, CONNECT_ONE_SHOT)
+	while not done[0]:
+		await get_tree().process_frame
+	if sig.is_connected(on_sig):
+		sig.disconnect(on_sig)
+	if timer.timeout.is_connected(on_to):
+		timer.timeout.disconnect(on_to)
 
 
 func _knock(hit_number: int) -> void:
@@ -561,8 +630,10 @@ func _knock(hit_number: int) -> void:
 	if knock_player:
 		knock_player.global_position = _knock_sound.global_position if _knock_sound else _monster.global_position
 	_play_sound(knock_player)
-	_door.hit(hit_number)
-	_player_cam.shake(0.45, 0.4)
+	if _door:
+		_door.hit(hit_number)
+	if _player_cam:
+		_player_cam.shake(0.45, 0.4)
 	await _wait(0.2)
 	if not _alive():
 		return
@@ -570,52 +641,57 @@ func _knock(hit_number: int) -> void:
 
 
 func _first_knock_at_door() -> void:
-	# DoorWindow'dan DoorKnock'a gelir gelmez ilk vuruşu doğrudan Knock B ile yap.
 	_set_pose("pose_knock_b")
 	if _first_knock_sound:
 		_first_knock_sound.global_position = _knock_sound.global_position if _knock_sound else _monster.global_position
 	_play_sound(_first_knock_sound)
-	# Kamera sistemi ilk Knock B ve FirstKnockSound anında kapanır/kilitlenir.
 	await _lock_cams_for_door()
 	if not _alive():
 		return
-	_door.hit(1)
-	_player_cam.shake(0.45, 0.4)
+	if _door:
+		_door.hit(1)
+	if _player_cam:
+		_player_cam.shake(0.45, 0.4)
 	await _wait(0.2)
 	if _alive():
 		_set_pose("pose_knock_a")
 
 
 func _kick() -> void:
+	_kicked_door_recently = true
 	_set_pose("pose_kick")
 	_play_sound(_break_sound)
+	if _cam_system:
+		_cam_system.play_office_static()
 	var from_spot := _spot("Spot_DoorKnock")
 	var to_spot := _spot("Spot_Inside1")
 	var dir := Vector3.FORWARD
 	if from_spot and to_spot:
 		dir = to_spot.global_position - from_spot.global_position
 		dir.y = 0.0
-	_door.break_door(dir)
-	_player_cam.shake(0.7, 0.6)
+	if _door:
+		_door.break_door(dir)
+	if _player_cam:
+		_player_cam.shake(0.7, 0.6)
 
 
-func _enter_office(jumpscare_on_inside1_if_unhidden: bool = false) -> void:
+func _enter_office(jumpscare_on_inside1_if_unhidden: bool = false, is_broken_door_entry: bool = false) -> void:
 	_state = State.INSIDE
-	_player_cam.set_hidden_ambient_sway_enabled(false)
+	if _player_cam:
+		_player_cam.set_hidden_ambient_sway_enabled(false)
 	if _cam_system:
 		_cam_system.play_office_static()
 	await _walk_to_spot(_spot("Spot_Inside1"), enter_office_walk_time)
 	if not _alive():
 		return
-	if jumpscare_on_inside1_if_unhidden and not _hide.is_concealed():
+	if jumpscare_on_inside1_if_unhidden and _hide and not _hide.is_concealed():
 		_jumpscare("Spot_JumpscareOffice")
 		return
 	await _wait(react_time)
 	if not _alive():
 		return
 
-	# Saklanmadıysa yakalanır
-	if not _hide.is_concealed():
+	if _hide and not _hide.is_concealed():
 		_jumpscare("Spot_JumpscareOffice")
 		return
 
@@ -626,8 +702,8 @@ func _enter_office(jumpscare_on_inside1_if_unhidden: bool = false) -> void:
 	if not _alive():
 		return
 
-	# Saklanana bakarken fark etme şansı
-	if randf() < notice_chance:
+	var active_notice_chance := broken_door_notice_chance if is_broken_door_entry else notice_chance
+	if randf() < active_notice_chance:
 		await _wait(randf_range(notice_delay_min, notice_delay_max))
 		if not _alive():
 			return
@@ -643,7 +719,6 @@ func _enter_office(jumpscare_on_inside1_if_unhidden: bool = false) -> void:
 func _leave() -> void:
 	if _cam_system:
 		_cam_system.stop_office_static()
-	# İçeriden çıkış rotası: Inside2 -> DoorWindow -> Southhall veya Westhall.
 	var door_window := _spot("Spot_DoorWindow")
 	await _walk_to_spot(door_window, enter_office_walk_time, roam_pose)
 	if not _alive():
@@ -660,7 +735,8 @@ func _leave() -> void:
 	if not _alive():
 		return
 	_room = room
-	_player_cam.set_hidden_ambient_sway_enabled(true)
+	if _player_cam:
+		_player_cam.set_hidden_ambient_sway_enabled(true)
 	if _cam_system:
 		_cam_system.unlock_cams("door")
 	_state = State.ROAM
@@ -672,14 +748,19 @@ func _leave() -> void:
 func _on_unhide_clicked() -> void:
 	if _state == State.INSIDE and not _safe_to_unhide:
 		_jumpscare("Spot_JumpscareDesk")
-	else:
+	elif _hide:
 		_hide.unhide()
 
 
 func _on_hidden_changed(value: bool) -> void:
+	if value and _kicked_door_recently and _alive():
+		_kicked_door_recently = false
+		_jumpscare("Spot_JumpscareDesk")
+		return
+	if not _player_cam:
+		return
 	if value and _state == State.INSIDE:
 		_player_cam.set_hidden_ambient_sway_enabled(false)
-		# Canavar odadayken saklanma tamamlanınca kısa, korku kaynaklı bir titreme.
 		_player_cam.shake(0.35, 0.6)
 	elif not value and _state != State.INSIDE:
 		_player_cam.set_hidden_ambient_sway_enabled(true)
@@ -699,27 +780,33 @@ func _jumpscare(spot_name: String) -> void:
 		if was_watching_cameras:
 			_cam_system.interrupt_for_jumpscare()
 
-	var player_is_hidden := _hide.is_concealed()
+	var player_is_hidden := _hide.is_concealed() if _hide else false
 	_jumpscare_camera = _player_cam
 	var scare_cam_is_usable := (
 		_scare_cam != null
 		and is_instance_valid(_scare_cam)
+		and _player_cam != null
 		and _scare_cam.get_viewport() == _player_cam.get_viewport()
 	)
 	if scare_cam_is_usable:
-		if not was_watching_cameras and not player_is_hidden:
+		if not was_watching_cameras and not player_is_hidden and _player_cam:
 			_player_cam.snap_to_base()
 		_jumpscare_camera = _scare_cam
 		_jumpscare_camera.make_current()
-	else:
+	elif _player_cam:
 		_player_cam.make_current()
-	_player_cam.set_frozen(true)
+	if _player_cam:
+		_player_cam.set_frozen(true)
 	var scare_camera_controller := _jumpscare_camera as PlayerCamera
 	if scare_camera_controller:
 		scare_camera_controller.set_frozen(true)
 		scare_camera_controller.shake(jumpscare_shake, jumpscare_time)
 
-	_place_at(_spot(spot_name), "pose_jumpscare")
+	var target_spot := _spot(spot_name)
+	if target_spot:
+		_place_at(target_spot, "pose_jumpscare")
+	else:
+		_set_pose("pose_jumpscare")
 	_play_sound(_scare_sound)
 	await _jumpscare_effect()
 
@@ -730,6 +817,9 @@ func _jumpscare(spot_name: String) -> void:
 
 
 func _jumpscare_effect() -> void:
+	if _jumpscare_camera == null or not is_instance_valid(_jumpscare_camera):
+		await _wait(jumpscare_time)
+		return
 	var start_pos := _monster.global_position
 	var target_pos := _jumpscare_camera.global_position
 	var base_cam_pos := _jumpscare_camera.position
@@ -761,7 +851,6 @@ func _jumpscare_effect() -> void:
 			_jumpscare_camera.v_offset = base_v_offset + randf_range(-jumpscare_shake, jumpscare_shake)
 		_monster.global_position = start_pos.lerp(target_pos, jumpscare_lunge * k)
 
-		# pose_jumpscare_a/b/c varsa hızlıca değiştir
 		if poses.size() > 1:
 			pose_timer += dt
 			if pose_timer >= 0.08:

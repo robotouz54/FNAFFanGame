@@ -18,54 +18,110 @@ const STATIC_DIR_CANDIDATES: PackedStringArray = [
 	"res://png",
 	"res://"
 ]
+const MAP_LINE_1_ANCHOR: Vector2 = Vector2(0.53, 0.71)
+const MAP_LINE_2_ANCHOR: Vector2 = Vector2(0.53, 0.34)
+const MAP_LINE_3_ANCHOR: Vector2 = Vector2(0.35, 0.66)
+const MAP_LINE_4_ANCHOR: Vector2 = Vector2(0.35, 0.39)
+const MAP_LINE_5_ANCHOR: Vector2 = Vector2(0.52, 0.55)
+const MAP_LINE_6_ANCHOR: Vector2 = Vector2(0.59, 0.60)
 signal lure_requested(cam_index: int)
 signal opened
 signal closed
 signal lost_signal_finished
 
 @export_group("Görsel")
-## İsteğe bağlı: özel .ttf/.otf font dosyası (boşsa sistem fontu kullanılır)
 @export var win95_font: FontFile
-## Harita görseli (boş bırakılırsa res://png/camera_map.png kullanılır)
+@export var auto_layout: bool = true
 @export var camera_map_texture: Texture2D = CAMERA_MAP_TEX
-## Haritanın ekrandaki boyutu (piksel)
-@export var map_size_px: Vector2 = Vector2(480.0, 480.0)
-## Harita merkezinin ekran içindeki konumu (0.0 - 1.0 arası oran; (0.5, 0.5) tam orta)
-@export var map_anchor: Vector2 = Vector2(0.80, 0.50)
-## Haritanın sağ kenardan boşluğu (piksel) [eski uyumluluk / yedek]
+@export var map_size_px: Vector2 = Vector2(300.0, 300.0):
+	set(value):
+		map_size_px = Vector2(maxf(value.x, 10.0), maxf(value.y, 10.0))
+		if is_node_ready() and auto_layout:
+			_force_layout()
+@export_range(0.1, 5.0, 0.01) var map_scale: float = 2.0:
+	set(value):
+		map_scale = maxf(value, 0.05)
+		if is_node_ready() and auto_layout:
+			_force_layout()
+@export_range(0.1, 3.0, 0.05) var hud_element_scale: float = 1.1:
+	set(value):
+		hud_element_scale = maxf(value, 0.05)
+		if is_node_ready() and auto_layout:
+			_force_layout()
+@export_range(0.1, 3.0, 0.05) var map_line_scale: float = 1.1:
+	set(value):
+		map_line_scale = maxf(value, 0.05)
+		if is_node_ready() and auto_layout:
+			_force_layout()
+@export_range(0.0, 1.0, 0.001) var map_anchor_x: float = 0.80:
+	set(value):
+		map_anchor_x = clampf(value, 0.0, 1.0)
+		if not _syncing_map_anchor:
+			_syncing_map_anchor = true
+			map_anchor = Vector2(map_anchor_x, map_anchor.y)
+			_syncing_map_anchor = false
+		if is_node_ready() and auto_layout:
+			_force_layout()
+@export_range(0.0, 1.0, 0.001) var map_anchor_y: float = 0.50:
+	set(value):
+		map_anchor_y = clampf(value, 0.0, 1.0)
+		if not _syncing_map_anchor:
+			_syncing_map_anchor = true
+			map_anchor = Vector2(map_anchor.x, map_anchor_y)
+			_syncing_map_anchor = false
+		if is_node_ready() and auto_layout:
+			_force_layout()
+@export var map_anchor: Vector2 = Vector2(0.80, 0.50):
+	set(value):
+		map_anchor = Vector2(clampf(value.x, 0.0, 1.0), clampf(value.y, 0.0, 1.0))
+		if not _syncing_map_anchor:
+			_syncing_map_anchor = true
+			map_anchor_x = map_anchor.x
+			map_anchor_y = map_anchor.y
+			_syncing_map_anchor = false
+		if is_node_ready() and auto_layout:
+			_force_layout()
+@export var map_offset_px: Vector2 = Vector2.ZERO:
+	set(value):
+		map_offset_px = value
+		if is_node_ready() and auto_layout:
+			_force_layout()
 @export var map_margin_px: float = 24.0
-## Haritanın alt kenardan yukarı kayma mesafesi (EXIT butonuyla çakışmaması için) [eski uyumluluk / yedek]
 @export var map_bottom_offset_px: float = 96.0
-## Kamera değiştirme butonlarının boyutu (genişlik, yükseklik)
-@export var cam_button_size: Vector2 = Vector2(44.0, 26.0)
-## Frame (harita) içinde YOU etiketi merkez konumu (0.0 - 1.0 arası oran)
+@export var cam_button_size: Vector2 = Vector2(40.0, 24.0)
 @export var you_map_anchor: Vector2 = Vector2(0.45, 0.62)
-## Frame (harita) içinde büyüyüp küçülen karenin merkez konumu (0.0 - 1.0 arası oran)
 @export var you_square_map_anchor: Vector2 = Vector2(0.45, 0.58)
-## YOU etiketi için çeviri anahtarı (text alanına yazılır, çeviri sistemi otomatik çevirir)
 @export var you_translation_key: String = "YOU"
-## Kamera geçiş ekranı etiketi için çeviri anahtarı (text alanına yazılır, çeviri sistemi otomatik çevirir)
 @export var pending_translation_key: String = "PENDING"
-## static_01 ... static_09 dosyalarını buraya ekle (boş bırakılırsa kod otomatik yükler)
 @export var static_frames: Array[Texture2D]
 @export_range(0.0, 1.0) var static_alpha: float = 0.06
-## Çizgi her saniye ekran yüksekliğinin bu oranı kadar iner
-@export_range(0.005, 0.5) var scanline_step: float = 0.06
-## Çizginin kalınlığı (piksel)
+@export_range(0.005, 0.5) var scanline_step: float = 0.025
 @export var scanline_height: float = 240.0
-## İkinci ince çizginin her saniye ekran yüksekliğinin bu oranı kadar iner (daha hızlı)
-@export_range(0.005, 0.8) var thin_scanline_step: float = 0.15
-## İkinci ince çizginin kalınlığı (piksel)
+@export_range(0.005, 0.8) var thin_scanline_step: float = 0.05
 @export var thin_scanline_height: float = 40.0
-## Üçüncü çizginin her saniye ekran yüksekliğinin bu oranı kadar iner
-@export_range(0.005, 0.8) var third_scanline_step: float = 0.22
-## Üçüncü çizginin kalınlığı (piksel)
+@export_range(0.005, 0.8) var third_scanline_step: float = 0.035
 @export var third_scanline_height: float = 80.0
-## El imlecinin tıklama noktası (parmak ucu)
 @export var hand_hotspot: Vector2 = Vector2.ZERO
 @export var button_margin: int = 4
-## Açıksa buton ve etiketleri kod yerleştirir
-@export var auto_layout: bool = true
+@export var line_2_num_offset_y: float = 8.0
+
+@export_group("Harita Çizgileri")
+@export var map_line_color: Color = Color(0.10, 1.0, 0.25, 0.95)
+@export var map_line_number_color: Color = Color(1.0, 0.35, 0.75, 1.0)
+@export var map_line_thickness: float = 2.0
+@export var map_line_length: float = 28.0
+@export var line_1_name: String = "MapLine1"
+@export var line_1_length: float = 38.0
+@export var line_2_name: String = "MapLine2"
+@export var line_2_length: float = 38.0
+@export var line_3_name: String = "MapLine3"
+@export var line_3_length: float = 38.0
+@export var line_4_name: String = "MapLine4"
+@export var line_4_length: float = 38.0
+@export var line_5_name: String = "MapLine5"
+@export var line_5_length: float = 20.0
+@export var line_6_name: String = "MapLine6"
+@export var line_6_length: float = 20.0
 
 @export_group("Kamera Çeviri Anahtarları")
 @export var cam1_translation_key: String = "CAM_1_NAME"
@@ -98,20 +154,15 @@ signal lost_signal_finished
 @export var cam13_map_anchor: Vector2 = Vector2(0.82, 0.74)
 
 @export_group("Güvenlik Kamerası")
-## Kameranın sağa-sola sallanma açısı (± derece)
 @export var sway_deg: float = 8.0
-## Bir uçtan diğer uca tek yön dönüş süresi (saniye — artırdıkça daha yavaş döner)
 @export var sway_move_time: float = 6.0
-## Sağa veya sola döndükten sonra uçta bekleme süresi (saniye)
 @export var sway_pause_time: float = 4.0
 
 @export_group("Geçişler")
 @export var zoom_time: float = 0.35
 @export var open_fade_time: float = 0.35
 @export var close_fade_time: float = 0.28
-## Yaklaşırken/çıkarken rotasyon yumuşatma hızı
 @export var aim_turn_speed: float = 16.0
-## Alfa 0 bırakırsan monitör ekranının rengi kullanılır
 @export var overlay_color_override: Color = Color(0, 0, 0, 0)
 
 @export_group("Monitör Efekti")
@@ -119,27 +170,26 @@ signal lost_signal_finished
 @export_range(-80.0, 12.0, 0.5) var monitor_glow_max_volume_db: float = -48.0
 @export_range(0.01, 1.0, 0.01) var monitor_glow_fade_in_time: float = 0.06
 @export_range(0.01, 2.0, 0.01) var monitor_glow_fade_out_time: float = 0.55
+@export_range(-80.0, 12.0, 0.5) var after_lost_volume_db: float = -52.0
 
 @export_group("Canavar Sistemi")
 @export var play_sound_translation_key: String = "PLAY_AUDIO"
 @export var lost_signal_translation_key: String = "LOST_SIGNAL"
-## Play Sound butonunun bekleme süresi (saniye)
 @export var play_sound_cooldown: float = 10.0
-## LOST SIGNAL yazısının ekranda kalma süresi
-@export var lost_signal_time: float = 2.5
-## LOST SIGNAL'dan sonra PENDING'in kalma süresi
-@export var pending_after_lost_time: float = 1.45
+@export var lost_signal_time: float = 0.5
+@export var pending_after_lost_time: float = 0.45
 @export var play_sound_button_size: Vector2 = Vector2(220.0, 48.0)
 @export_range(0.0, 0.2) var office_static_alpha: float = 0.05
 @export var office_static_fade_time: float = 0.5
 @export_range(40.0, 200.0, 0.01) var music_box_bpm: float = 81.27
 @export_group("Music Box Caution Anchors")
-## 81 BPM caution anchor (normalized viewport X/Y) and pixel offset from that anchor.
 @export var caution_81_bpm_anchor: Vector2 = Vector2(0.0, 1.0)
 @export var caution_81_bpm_offset: Vector2 = Vector2(280.0, -111.0)
-## 70 BPM caution anchor (normalized viewport X/Y) and pixel offset from that anchor.
 @export var caution_70_bpm_anchor: Vector2 = Vector2(0.0, 1.0)
 @export var caution_70_bpm_offset: Vector2 = Vector2(85.0, -250.0)
+
+@export var line_1_num_offset_x: float = 2.0
+@export var line_2_num_offset_x: float = 1.0
 
 @onready var root_ctrl: Control = $Root
 @onready var cam_viewport: SubViewport = $Root/CamViewContainer/CamViewport
@@ -153,6 +203,7 @@ signal lost_signal_finished
 @onready var btn_exit: Button = $Root/BtnExit
 @onready var overlay: ColorRect = $Root/ScreenOverlay
 @onready var snap_timer: Timer = $Root/SnapTimer
+@onready var snap_timer_you: Timer = $Root/SnapTimerYou
 
 var _cam_buttons: Array[Button] = []
 var _hovered_cam_idx: int = -1
@@ -162,6 +213,16 @@ var _pending_overlay: ColorRect
 var _pending_label: Label
 var _you_label: Label
 var _you_square: ColorRect
+var _map_lines: Array[ColorRect] = []
+var _map_line_labels: Array[Label] = []
+var _map_line_anchors: Array[Vector2] = [
+	MAP_LINE_1_ANCHOR,
+	MAP_LINE_2_ANCHOR,
+	MAP_LINE_3_ANCHOR,
+	MAP_LINE_4_ANCHOR,
+	MAP_LINE_5_ANCHOR,
+	MAP_LINE_6_ANCHOR
+]
 var _you_square_large: bool = true
 var _switching_cam: bool = false
 var _lost_signal_active: bool = false
@@ -186,6 +247,8 @@ var _camera_select_audio: AudioStreamPlayer3D
 var _monitor_glow_audio: AudioStreamPlayer3D
 var _monitor_open_audio: AudioStreamPlayer3D
 var _click_audio: AudioStreamPlayer3D
+var _danger_audio: AudioStreamPlayer3D
+var _universal_audio_players: Dictionary = {}
 var _monitor_glow_tween: Tween
 var _monitor_open_fade_tween: Tween
 var _play_cooldown_left: float = 0.0
@@ -216,9 +279,18 @@ var _music_box_warning_target: bool = false
 var _music_box_warning_late_target: bool = false
 var _music_box_late_active: bool = false
 var _jumpscare_interrupted: bool = false
+var _music_box_danger_beat_count: int = 0
+var _syncing_map_anchor: bool = false
 
 
 func _ready() -> void:
+	map_anchor = Vector2(clampf(map_anchor_x, 0.0, 1.0), clampf(map_anchor_y, 0.0, 1.0))
+	map_anchor_x = map_anchor.x
+	map_anchor_y = map_anchor.y
+	map_scale = maxf(map_scale, 0.05)
+	hud_element_scale = maxf(hud_element_scale, 0.05)
+	map_line_scale = maxf(map_line_scale, 0.05)
+
 	for stale_layer in get_tree().root.find_children("OfficeStaticEffect", "CanvasLayer", true, false):
 		stale_layer.queue_free()
 	visible = false
@@ -230,7 +302,6 @@ func _ready() -> void:
 	static_noise.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	scanline.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	overlay.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	# Mavi monitor katmanı büyük caution ikonunun üstünde kalsın.
 	overlay.z_index = 26
 
 	static_noise.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
@@ -241,13 +312,21 @@ func _ready() -> void:
 	_ensure_extra_scanlines()
 	_ensure_you_label()
 	_ensure_you_square()
+	_ensure_map_lines()
 	_ensure_pending_overlay()
 
-	snap_timer.wait_time = 1.0
+	snap_timer.wait_time = 1.0 / 12.0
 	snap_timer.one_shot = false
 	if not snap_timer.timeout.is_connected(_tick):
 		snap_timer.timeout.connect(_tick)
 	snap_timer.start()
+
+	if snap_timer_you and is_instance_valid(snap_timer_you):
+		snap_timer_you.wait_time = 1.0
+		snap_timer_you.one_shot = false
+		if not snap_timer_you.timeout.is_connected(_tick_you):
+			snap_timer_you.timeout.connect(_tick_you)
+		snap_timer_you.start()
 
 	_force_layout()
 	_update_static()
@@ -266,6 +345,7 @@ func _ready() -> void:
 		_clamp_current_cam()
 		if not _hitbox.clicked.is_connected(_on_monitor_clicked):
 			_hitbox.clicked.connect(_on_monitor_clicked)
+
 
 func _get_cam_translation_keys() -> Array[String]:
 	return [
@@ -326,6 +406,27 @@ func _get_cam_code(index: int) -> String:
 
 func _get_cam_button_text(index: int) -> String:
 	return "CAM\n%s" % _get_cam_code(index)
+
+
+func _get_effective_map_scale() -> float:
+	var base_area := 300.0 * 300.0
+	var rect := _get_map_rect_in_root()
+	var current_area := maxf(rect.size.x * rect.size.y, 1.0)
+	return sqrt(current_area / base_area)
+
+
+func _get_hud_scale() -> float:
+	var s := maxf(_get_effective_map_scale(), 0.05)
+	return lerpf(1.0, s, 0.35) * maxf(hud_element_scale, 0.05)
+
+
+func _get_line_scale() -> float:
+	var s := maxf(_get_effective_map_scale(), 0.05)
+	return lerpf(1.0, s, 0.35) * maxf(map_line_scale, 0.05)
+
+
+func _get_scaled_cam_button_size() -> Vector2:
+	return cam_button_size * _get_hud_scale()
 
 
 func _clamp_current_cam() -> void:
@@ -442,18 +543,207 @@ func _ensure_you_square() -> void:
 	_you_square.visible = true
 
 
+func _apply_map_line_number_style(lbl: Label, num: int) -> void:
+	if not lbl or not is_instance_valid(lbl):
+		return
+	var hs := _get_hud_scale()
+	lbl.text = str(num)
+	lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	lbl.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	lbl.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	if win95_font and is_instance_valid(win95_font):
+		lbl.add_theme_font_override("font", win95_font)
+	else:
+		lbl.remove_theme_font_override("font")
+	lbl.add_theme_font_size_override("font_size", maxi(int(round(11.0 * hs)), 8))
+	lbl.add_theme_color_override("font_color", map_line_number_color)
+	lbl.add_theme_color_override("font_outline_color", Color(0.0, 0.0, 0.0, 1.0))
+	lbl.add_theme_constant_override("outline_size", maxi(int(round(1.0 * hs)), 1))
+	lbl.visible = true
+
+
+func set_map_line_anchor(line_index: int, anchor: Vector2) -> void:
+	if line_index < 0 or line_index >= 6:
+		return
+	while _map_line_anchors.size() < 6:
+		_map_line_anchors.append(Vector2(0.5, 0.5))
+	_map_line_anchors[line_index] = anchor
+	_layout_map_lines()
+	_order_map_layer_stack()
+
+
+func _ensure_map_lines() -> void:
+	while _map_line_anchors.size() < 6:
+		_map_line_anchors.append(Vector2(0.5, 0.5))
+	var desired_names: Array[String] = [
+		line_1_name,
+		line_2_name,
+		line_3_name,
+		line_4_name,
+		line_5_name,
+		line_6_name
+	]
+	for i in range(6):
+		var line_num: int = i + 1
+		var line: ColorRect
+		if i < _map_lines.size() and _map_lines[i] and is_instance_valid(_map_lines[i]):
+			line = _map_lines[i]
+		else:
+			line = ColorRect.new()
+			line.mouse_filter = Control.MOUSE_FILTER_IGNORE
+			root_ctrl.add_child(line)
+			if i < _map_lines.size():
+				_map_lines[i] = line
+			else:
+				_map_lines.append(line)
+		var clean_name := desired_names[i].strip_edges()
+		if clean_name.is_empty():
+			clean_name = "MapLine%d" % line_num
+		if line.name != clean_name:
+			line.name = clean_name
+		line.color = map_line_color
+		line.visible = true
+
+		var num_lbl: Label
+		if i < _map_line_labels.size() and _map_line_labels[i] and is_instance_valid(_map_line_labels[i]):
+			num_lbl = _map_line_labels[i]
+		else:
+			num_lbl = Label.new()
+			root_ctrl.add_child(num_lbl)
+			if i < _map_line_labels.size():
+				_map_line_labels[i] = num_lbl
+			else:
+				_map_line_labels.append(num_lbl)
+		var expected_lbl_name := "MapLineNumber%d" % line_num
+		if num_lbl.name != expected_lbl_name:
+			num_lbl.name = expected_lbl_name
+		_apply_map_line_number_style(num_lbl, line_num)
+
+
+func _clamp_rect_to_bounds(top_left: Vector2, size_px: Vector2, bounds: Rect2) -> Rect2:
+	var clamped_size := Vector2(
+		minf(maxf(size_px.x, 1.0), maxf(bounds.size.x, 1.0)),
+		minf(maxf(size_px.y, 1.0), maxf(bounds.size.y, 1.0))
+	)
+	var max_x := maxf(bounds.position.x, bounds.end.x - clamped_size.x)
+	var max_y := maxf(bounds.position.y, bounds.end.y - clamped_size.y)
+	var clamped_pos := Vector2(
+		clampf(top_left.x, bounds.position.x, max_x),
+		clampf(top_left.y, bounds.position.y, max_y)
+	)
+	return Rect2(clamped_pos, clamped_size)
+
+
+func _layout_map_lines() -> void:
+	_ensure_map_lines()
+	var ls := _get_line_scale()
+	var hs := _get_hud_scale()
+	var map_rect: Rect2 = _get_map_rect_in_root()
+	var vp_rect := Rect2(Vector2.ZERO, _get_root_viewport_size())
+	var safe_bounds: Rect2 = map_rect.intersection(vp_rect)
+	if safe_bounds.size.x <= 1.0 or safe_bounds.size.y <= 1.0:
+		safe_bounds = vp_rect
+
+	var thickness: float = maxf(map_line_thickness * ls, 1.5)
+	var len_1: float = maxf(line_1_length * ls, 2.0)
+	var len_2: float = maxf(line_2_length * ls, 2.0)
+	var len_3: float = maxf(line_3_length * ls, 2.0)
+	var len_4: float = maxf(line_4_length * ls, 2.0)
+	var len_5: float = maxf(line_5_length * ls, 2.0)
+	var len_6: float = maxf(line_6_length * ls, 2.0)
+
+	var configs: Array[Dictionary] = [
+		{"num": 1, "anchor": _map_line_anchors[0], "size": Vector2(thickness, len_1)},
+		{"num": 2, "anchor": _map_line_anchors[1], "size": Vector2(thickness, len_2)},
+		{"num": 3, "anchor": _map_line_anchors[2], "size": Vector2(len_3, thickness)},
+		{"num": 4, "anchor": _map_line_anchors[3], "size": Vector2(len_4, thickness)},
+		{"num": 5, "anchor": _map_line_anchors[4], "size": Vector2(len_5, thickness)},
+		{"num": 6, "anchor": _map_line_anchors[5], "size": Vector2(len_6, thickness)}
+	]
+
+	for i in range(configs.size()):
+		var line: ColorRect = _map_lines[i]
+		if not line or not is_instance_valid(line):
+			continue
+		var cfg: Dictionary = configs[i]
+		var line_num: int = int(cfg["num"])
+		var uv: Vector2 = cfg["anchor"]
+		var sz: Vector2 = cfg["size"]
+		var center := Vector2(
+			map_rect.position.x + map_rect.size.x * uv.x,
+			map_rect.position.y + map_rect.size.y * uv.y
+		)
+		var clamped_rect := _clamp_rect_to_bounds(center - (sz * 0.5), sz, safe_bounds)
+		line.color = map_line_color
+		line.visible = true
+		line.set_anchors_and_offsets_preset(Control.PRESET_TOP_LEFT, Control.PRESET_MODE_KEEP_SIZE)
+		line.offset_left = clamped_rect.position.x
+		line.offset_top = clamped_rect.position.y
+		line.offset_right = clamped_rect.end.x
+		line.offset_bottom = clamped_rect.end.y
+
+		if i < _map_line_labels.size() and _map_line_labels[i] and is_instance_valid(_map_line_labels[i]):
+			var num_lbl: Label = _map_line_labels[i]
+			_apply_map_line_number_style(num_lbl, line_num)
+			var lbl_size := num_lbl.get_combined_minimum_size().max(Vector2(15.0 * hs, 15.0 * hs))
+			var line_center := clamped_rect.get_center()
+			var y_offset: float = (line_2_num_offset_y if line_num == 2 else (0.0 if line_num >= 3 else 0.0)) * hs
+			var x_offset: float = (line_1_num_offset_x if line_num == 10 else (line_2_num_offset_x if line_num == 2 else 0.0)) * hs
+			var target_center := line_center + Vector2(x_offset, y_offset)
+			var lbl_rect := _clamp_rect_to_bounds(target_center - (lbl_size * 0.5), lbl_size, vp_rect)
+			num_lbl.set_anchors_and_offsets_preset(Control.PRESET_TOP_LEFT, Control.PRESET_MODE_KEEP_SIZE)
+			num_lbl.offset_left = lbl_rect.position.x
+			num_lbl.offset_top = lbl_rect.position.y
+			num_lbl.offset_right = lbl_rect.end.x
+			num_lbl.offset_bottom = lbl_rect.end.y
+
+
+func _order_map_layer_stack() -> void:
+	if frame_rect and is_instance_valid(frame_rect) and frame_rect.get_parent() == root_ctrl:
+		frame_rect.z_index = 10
+	for line: ColorRect in _map_lines:
+		if line and is_instance_valid(line) and line.get_parent() == root_ctrl:
+			line.z_index = 11
+			if frame_rect and is_instance_valid(frame_rect) and line.get_index() <= frame_rect.get_index():
+				root_ctrl.move_child(line, frame_rect.get_index() + 1)
+	for num_lbl: Label in _map_line_labels:
+		if num_lbl and is_instance_valid(num_lbl) and num_lbl.get_parent() == root_ctrl:
+			num_lbl.z_index = 12
+			for line: ColorRect in _map_lines:
+				if line and is_instance_valid(line) and line.get_parent() == root_ctrl and num_lbl.get_index() <= line.get_index():
+					root_ctrl.move_child(num_lbl, line.get_index() + 1)
+	var front_of_lines: Array[Control] = [_you_label, _you_square]
+	for b: Button in _cam_buttons:
+		if b and is_instance_valid(b):
+			front_of_lines.append(b)
+	for ctrl: Control in front_of_lines:
+		if ctrl and is_instance_valid(ctrl) and ctrl.get_parent() == root_ctrl:
+			ctrl.z_index = 13
+			for num_lbl: Label in _map_line_labels:
+				if num_lbl and is_instance_valid(num_lbl) and num_lbl.get_parent() == root_ctrl and ctrl.get_index() <= num_lbl.get_index():
+					root_ctrl.move_child(ctrl, num_lbl.get_index() + 1)
+
+
 func _layout_you_square() -> void:
 	if not _you_square or not is_instance_valid(_you_square):
 		return
-	var sq_size_px: float = 10.0 if _you_square_large else 6.0
+	var hs := _get_hud_scale()
+	var sq_size_px: float = (9.5 if _you_square_large else 6.0) * hs
 	var sq_size := Vector2(sq_size_px, sq_size_px)
 	_place_control_on_map(_you_square, you_square_map_anchor, sq_size)
 
 
 func _order_overlay_on_top() -> void:
+	_order_map_layer_stack()
 	if not overlay or not is_instance_valid(overlay) or overlay.get_parent() != root_ctrl:
 		return
 	var below_overlay: Array[Control] = [frame_rect, _you_label, _you_square, cam_label, btn_exit]
+	for line: ColorRect in _map_lines:
+		if line and is_instance_valid(line):
+			below_overlay.append(line)
+	for num_lbl: Label in _map_line_labels:
+		if num_lbl and is_instance_valid(num_lbl):
+			below_overlay.append(num_lbl)
 	for b: Button in _cam_buttons:
 		if b and is_instance_valid(b):
 			below_overlay.append(b)
@@ -507,6 +797,12 @@ func _order_pending_behind_hud() -> void:
 	if _pending_overlay.get_parent() != root_ctrl:
 		return
 	var hud_nodes: Array[Control] = [frame_rect, _you_label, _you_square, cam_label, btn_exit]
+	for line: ColorRect in _map_lines:
+		if line and is_instance_valid(line):
+			hud_nodes.append(line)
+	for num_lbl: Label in _map_line_labels:
+		if num_lbl and is_instance_valid(num_lbl):
+			hud_nodes.append(num_lbl)
 	for b: Button in _cam_buttons:
 		if b and is_instance_valid(b):
 			hud_nodes.append(b)
@@ -523,6 +819,7 @@ func _order_pending_behind_hud() -> void:
 	for hud_node: Control in hud_nodes:
 		if hud_node and hud_node.get_parent() == root_ctrl and hud_node.get_index() < _pending_overlay.get_index():
 			root_ctrl.move_child(hud_node, _pending_overlay.get_index() + 1)
+	_order_map_layer_stack()
 
 
 func _set_transition_controls_behind(behind: bool) -> void:
@@ -550,16 +847,24 @@ func _get_root_viewport_size() -> Vector2:
 
 func _get_map_rect_in_root() -> Rect2:
 	var root_size: Vector2 = _get_root_viewport_size()
-	var clamped_anchor := Vector2(
-		clampf(map_anchor.x, 0.0, 1.0),
-		clampf(map_anchor.y, 0.0, 1.0)
+	var effective_anchor := Vector2(
+		clampf(map_anchor_x, 0.0, 1.0),
+		clampf(map_anchor_y, 0.0, 1.0)
 	)
+	var box_size := Vector2(maxf(map_size_px.x, 10.0), maxf(map_size_px.y, 10.0)) * maxf(map_scale, 0.05)
+	var drawn_size: Vector2 = box_size
+	var tex: Texture2D = camera_map_texture if camera_map_texture else CAMERA_MAP_TEX
+	if tex:
+		var tex_size: Vector2 = tex.get_size()
+		if tex_size.x > 0.0 and tex_size.y > 0.0:
+			var fit_ratio: float = minf(box_size.x / tex_size.x, box_size.y / tex_size.y)
+			drawn_size = tex_size * fit_ratio
 	var center_pos := Vector2(
-		root_size.x * clamped_anchor.x,
-		root_size.y * clamped_anchor.y
-	)
-	var top_left: Vector2 = center_pos - (map_size_px * 0.5)
-	return Rect2(top_left, map_size_px)
+		root_size.x * effective_anchor.x,
+		root_size.y * effective_anchor.y
+	) + map_offset_px
+	var top_left: Vector2 = center_pos - (drawn_size * 0.5)
+	return Rect2(top_left, drawn_size)
 
 
 func _setup_map_frame() -> void:
@@ -607,6 +912,7 @@ func _force_layout() -> void:
 	_ensure_extra_scanlines()
 	_ensure_you_label()
 	_ensure_you_square()
+	_ensure_map_lines()
 	_ensure_pending_overlay()
 
 	_pending_overlay.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
@@ -633,6 +939,7 @@ func _force_layout() -> void:
 	if auto_layout:
 		_layout_ui()
 	_setup_map_frame()
+	_layout_map_lines()
 	_order_pending_behind_hud()
 	_order_overlay_on_top()
 	_layout_play_sound_button()
@@ -645,13 +952,49 @@ func _exit_tree() -> void:
 	_office_static_left = 0.0
 	if _office_static_layer and is_instance_valid(_office_static_layer):
 		_office_static_layer.queue_free()
+	for key: Variant in _universal_audio_players.keys():
+		var p := _universal_audio_players[key] as AudioStreamPlayer
+		if p and is_instance_valid(p):
+			p.queue_free()
+	_universal_audio_players.clear()
+
 
 func _unhandled_input(event: InputEvent) -> void:
 	if event.is_action_pressed("ui_cancel") and _state == State.ACTIVE:
 		_on_exit_pressed()
 
 
-# ---------- Kurulum ----------
+func _register_universal_player(source_3d: AudioStreamPlayer3D, volume_db: float) -> void:
+	if not source_3d or not is_instance_valid(source_3d):
+		return
+	source_3d.stop()
+	source_3d.volume_db = -80.0
+	var player: AudioStreamPlayer
+	if _universal_audio_players.has(source_3d) and is_instance_valid(_universal_audio_players[source_3d]):
+		player = _universal_audio_players[source_3d] as AudioStreamPlayer
+	else:
+		player = AudioStreamPlayer.new()
+		player.name = "%s_Universal" % source_3d.name
+		add_child(player)
+		_universal_audio_players[source_3d] = player
+	player.stream = source_3d.stream
+	player.pitch_scale = source_3d.pitch_scale
+	player.bus = source_3d.bus
+	player.volume_db = volume_db
+
+
+func _get_universal_player(source_3d: AudioStreamPlayer3D) -> AudioStreamPlayer:
+	if not source_3d or not is_instance_valid(source_3d):
+		return null
+	if not _universal_audio_players.has(source_3d) or not is_instance_valid(_universal_audio_players[source_3d]):
+		_register_universal_player(source_3d, -4.0)
+	var player := _universal_audio_players[source_3d] as AudioStreamPlayer
+	if player and is_instance_valid(player):
+		player.stream = source_3d.stream
+		player.pitch_scale = source_3d.pitch_scale
+		player.bus = source_3d.bus
+	return player
+
 
 func _find_world_nodes() -> bool:
 	var tree_root := get_tree().root
@@ -664,16 +1007,18 @@ func _find_world_nodes() -> bool:
 	_monitor_glow_audio = tree_root.find_child("MonitorGlow", true, false) as AudioStreamPlayer3D
 	_monitor_open_audio = tree_root.find_child("MonitorOpens", true, false) as AudioStreamPlayer3D
 	_click_audio = tree_root.find_child("Click", true, false) as AudioStreamPlayer3D
-	for player: AudioStreamPlayer3D in [_lost_signal_audio, _after_lost_audio, _camera_select_audio, _monitor_glow_audio, _monitor_open_audio, _click_audio]:
+	_danger_audio = tree_root.find_child("Danger", true, false) as AudioStreamPlayer3D
+
+	for player: AudioStreamPlayer3D in [_lost_signal_audio, _after_lost_audio, _camera_select_audio, _monitor_glow_audio, _monitor_open_audio, _click_audio, _danger_audio]:
 		if player:
-			player.max_distance = 100.0
-			player.unit_size = 20.0
-			player.volume_db = -4.0
-	# Keep these effects quieter than the shared default above.
-	if _after_lost_audio:
-		_after_lost_audio.volume_db = -16.0
-	if _monitor_open_audio:
-		_monitor_open_audio.volume_db = monitor_open_volume_db
+			_register_universal_player(player, -4.0)
+	if _danger_audio and _universal_audio_players.has(_danger_audio):
+		(_universal_audio_players[_danger_audio] as AudioStreamPlayer).volume_db = -12.0
+	if _after_lost_audio and _universal_audio_players.has(_after_lost_audio):
+		(_universal_audio_players[_after_lost_audio] as AudioStreamPlayer).volume_db = -32.0
+	if _monitor_open_audio and _universal_audio_players.has(_monitor_open_audio):
+		(_universal_audio_players[_monitor_open_audio] as AudioStreamPlayer).volume_db = monitor_open_volume_db
+
 	if _hitbox and not _hitbox.hover_changed.is_connected(_on_monitor_hover_changed):
 		_hitbox.hover_changed.connect(_on_monitor_hover_changed)
 	_cam_points.clear()
@@ -694,60 +1039,78 @@ func _find_world_nodes() -> bool:
 	return true
 
 
+func _ensure_font_ready(font: Font) -> Font:
+	if not font or not is_instance_valid(font):
+		return null
+	if font is SystemFont:
+		var sys_font := font as SystemFont
+		var names: PackedStringArray = sys_font.font_names
+		var has_valid_name: bool = false
+		for n: String in names:
+			if not n.strip_edges().is_empty():
+				has_valid_name = true
+				break
+		if not has_valid_name:
+			sys_font.font_names = PackedStringArray(["Consolas", "Courier New", "Arial", "DejaVu Sans"])
+	return font
+
+
 func _build_cam_btn_font() -> Font:
 	if win95_font:
-		return win95_font
+		return _ensure_font_ready(win95_font)
 	var cam_font := SystemFont.new()
-	cam_font.font_names = PackedStringArray(["Fixedsys", "Terminal", "Lucida Console", "Consolas", "Courier New"])
+	cam_font.font_names = PackedStringArray(["Consolas", "Courier New", "Lucida Console", "Arial", "DejaVu Sans"])
 	cam_font.font_weight = 700
 	cam_font.font_stretch = 110
-	cam_font.antialiasing = TextServer.FONT_ANTIALIASING_NONE
-	cam_font.subpixel_positioning = TextServer.SUBPIXEL_POSITIONING_DISABLED
-	return cam_font
+	return _ensure_font_ready(cam_font)
 
 
 func _build_pending_font() -> Font:
 	if win95_font:
-		return win95_font
+		return _ensure_font_ready(win95_font)
 	var sys_font := SystemFont.new()
-	sys_font.font_names = PackedStringArray(["MS Sans Serif", "Fixedsys", "Terminal", "Courier New", "Arial"])
-	sys_font.antialiasing = TextServer.FONT_ANTIALIASING_NONE
-	sys_font.subpixel_positioning = TextServer.SUBPIXEL_POSITIONING_DISABLED
-	return sys_font
+	sys_font.font_names = PackedStringArray(["Courier New", "Consolas", "Arial", "DejaVu Sans"])
+	return _ensure_font_ready(sys_font)
 
 
 func _build_exit_wide_font() -> Font:
 	if win95_font:
-		return win95_font
+		return _ensure_font_ready(win95_font)
 	var wide_font := SystemFont.new()
-	wide_font.font_names = PackedStringArray(["Fixedsys", "Terminal", "Lucida Console", "Consolas", "Courier New"])
+	wide_font.font_names = PackedStringArray(["Consolas", "Courier New", "Lucida Console", "Arial", "DejaVu Sans"])
 	wide_font.font_weight = 700
 	wide_font.font_stretch = 150
-	wide_font.antialiasing = TextServer.FONT_ANTIALIASING_NONE
-	wide_font.subpixel_positioning = TextServer.SUBPIXEL_POSITIONING_DISABLED
-	return wide_font
+	return _ensure_font_ready(wide_font)
 
 
 func _apply_win95_font() -> void:
+	var hs := _get_hud_scale()
 	var cam_btn_f := _build_cam_btn_font()
 	var initial_f := _build_pending_font()
 	var exit_f := _build_exit_wide_font()
 
-	cam_label.add_theme_font_override("font", initial_f)
+	if initial_f and is_instance_valid(initial_f):
+		cam_label.add_theme_font_override("font", initial_f)
 	cam_label.add_theme_font_size_override("font_size", 22)
 	cam_label.add_theme_color_override("font_color", Color(1.0, 1.0, 1.0, 1.0))
 
 	if _you_label and is_instance_valid(_you_label):
 		_you_label.text = you_translation_key
-		_you_label.add_theme_font_override("font", initial_f)
-		_you_label.add_theme_font_size_override("font_size", 16)
+		if initial_f and is_instance_valid(initial_f):
+			_you_label.add_theme_font_override("font", initial_f)
+		_you_label.add_theme_font_size_override("font_size", maxi(int(round(14.5 * hs)), 9))
 		_you_label.add_theme_color_override("font_color", Color(1.0, 1.0, 1.0, 1.0))
+
+	for i in range(_map_line_labels.size()):
+		if _map_line_labels[i] and is_instance_valid(_map_line_labels[i]):
+			_apply_map_line_number_style(_map_line_labels[i], i + 1)
 
 	var cam_text_white := Color(1.0, 1.0, 1.0, 1.0)
 	var cam_shadow_black := Color(0.0, 0.0, 0.0, 1.0)
 	for b: Button in _cam_buttons:
-		b.add_theme_font_override("font", cam_btn_f)
-		b.add_theme_font_size_override("font_size", 11)
+		if cam_btn_f and is_instance_valid(cam_btn_f):
+			b.add_theme_font_override("font", cam_btn_f)
+		b.add_theme_font_size_override("font_size", maxi(int(round(10.5 * hs)), 8))
 		b.add_theme_constant_override("line_spacing", -1)
 		b.add_theme_constant_override("spacing_glyph", 0)
 		b.add_theme_constant_override("outline_size", 0)
@@ -760,7 +1123,8 @@ func _apply_win95_font() -> void:
 		b.add_theme_constant_override("shadow_offset_y", 1)
 
 	var exit_red := Color(0.75, 0.14, 0.14, 1.0)
-	btn_exit.add_theme_font_override("font", exit_f)
+	if exit_f and is_instance_valid(exit_f):
+		btn_exit.add_theme_font_override("font", exit_f)
 	btn_exit.add_theme_font_size_override("font_size", 20)
 	btn_exit.add_theme_constant_override("spacing_glyph", 3)
 	btn_exit.add_theme_color_override("font_color", exit_red)
@@ -775,12 +1139,14 @@ func _apply_win95_font() -> void:
 
 	if _pending_label and is_instance_valid(_pending_label):
 		_pending_label.text = pending_translation_key
-		_pending_label.add_theme_font_override("font", initial_f)
+		if initial_f and is_instance_valid(initial_f):
+			_pending_label.add_theme_font_override("font", initial_f)
 		_pending_label.add_theme_font_size_override("font_size", 36)
 		_pending_label.add_theme_color_override("font_color", Color(1.0, 1.0, 1.0, 1.0))
 
 
 func _setup_buttons() -> void:
+	var scaled_btn_size := _get_scaled_cam_button_size()
 	if _cam_buttons.is_empty():
 		_cam_buttons.append(btn_cam1)
 		_cam_buttons.append(btn_cam2)
@@ -797,7 +1163,7 @@ func _setup_buttons() -> void:
 		b.text_overrun_behavior = TextServer.OVERRUN_NO_TRIMMING
 		b.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		b.alignment = HORIZONTAL_ALIGNMENT_CENTER
-		b.custom_minimum_size = cam_button_size
+		b.custom_minimum_size = scaled_btn_size
 
 	btn_exit.text = "EXIT"
 	btn_exit.custom_minimum_size = Vector2(144, 48)
@@ -878,6 +1244,7 @@ func _make_cam_style(tex: Texture2D) -> StyleBoxTexture:
 
 func _layout_ui() -> void:
 	var margin: float = 24.0
+	var hs := _get_hud_scale()
 
 	cam_label.visible = true
 	cam_label.modulate = Color(1.0, 1.0, 1.0, 1.0)
@@ -891,16 +1258,20 @@ func _layout_ui() -> void:
 	cam_label.offset_bottom = margin + lbl_size.y
 
 	_setup_map_frame()
+	_layout_map_lines()
 	var anchors := _get_cam_anchors()
+	var scaled_btn_size := _get_scaled_cam_button_size()
 	for i in range(mini(_cam_buttons.size(), anchors.size())):
-		_place_control_on_map(_cam_buttons[i], anchors[i], cam_button_size)
+		_cam_buttons[i].custom_minimum_size = scaled_btn_size
+		_place_control_on_map(_cam_buttons[i], anchors[i], scaled_btn_size)
 
 	if _you_label and is_instance_valid(_you_label):
 		_you_label.text = you_translation_key
-		var you_size: Vector2 = _you_label.get_combined_minimum_size().max(Vector2(56.0, 24.0))
+		var you_size: Vector2 = _you_label.get_combined_minimum_size().max(Vector2(48.0 * hs, 20.0 * hs))
 		_place_control_on_map(_you_label, you_map_anchor, you_size)
 
 	_layout_you_square()
+	_order_map_layer_stack()
 	_layout_pending_label()
 
 	var exit_size: Vector2 = btn_exit.get_combined_minimum_size()
@@ -910,8 +1281,6 @@ func _layout_ui() -> void:
 	btn_exit.offset_bottom = -margin
 	btn_exit.offset_top = -margin - exit_size.y
 
-
-# ---------- Açılış ----------
 
 func _on_monitor_clicked() -> void:
 	if are_cams_locked():
@@ -962,7 +1331,7 @@ func _open_ui() -> void:
 	if _jumpscare_interrupted:
 		return
 
-	await get_tree().create_timer(0.25).timeout
+	await get_tree().create_timer(0.1).timeout
 	if _jumpscare_interrupted:
 		return
 	if _pending_overlay and is_instance_valid(_pending_overlay):
@@ -974,8 +1343,6 @@ func _open_ui() -> void:
 		_close_requested = false
 		_close_ui()
 
-
-# ---------- Kapanış ----------
 
 func _on_exit_pressed() -> void:
 	if _state != State.ACTIVE:
@@ -1012,16 +1379,17 @@ func _close_ui() -> void:
 	_state = State.IDLE
 
 
-# ---------- Saniyede bir çalışan kısım (1 FPS) ----------
-
 func _tick() -> void:
-	_you_square_large = not _you_square_large
-	_layout_you_square()
 	_update_static()
 	if not visible and _state != State.ACTIVE:
 		return
 	_step_scanline()
 	_render_cam()
+
+
+func _tick_you() -> void:
+	_you_square_large = not _you_square_large
+	_layout_you_square()
 
 
 func _get_sway_angle_rad() -> float:
@@ -1091,6 +1459,7 @@ func play_office_static(duration: float = -1.0) -> void:
 	_office_static_tween.tween_property(_office_static_noise, "modulate:a", office_static_alpha, maxf(office_static_fade_time, 0.01))
 	_process_office_static(0.0)
 
+
 func stop_office_static() -> void:
 	if not _office_static_active:
 		return
@@ -1105,6 +1474,7 @@ func stop_office_static() -> void:
 		if not _office_static_active and _office_static_layer and is_instance_valid(_office_static_layer):
 			_office_static_layer.visible = false
 	)
+
 
 func _process_office_static(delta: float) -> void:
 	if not _office_static_noise or not is_instance_valid(_office_static_noise):
@@ -1168,10 +1538,8 @@ func _apply_scanline() -> void:
 	if _thin_scanline and is_instance_valid(_thin_scanline):
 		_thin_scanline.position.y = _thin_scan_y
 	if _third_scanline and is_instance_valid(_third_scanline):
-		_third_scanline.position.y = _third_scan_y
+		_third_scanline.position.y = _third_scanline.size.y * 0.0 + _third_scan_y
 
-
-# ---------- Kamera seçimi ----------
 
 func _select_cam(index: int) -> void:
 	if _state != State.ACTIVE or index == _current_cam:
@@ -1230,8 +1598,6 @@ func _refresh_label() -> void:
 		cam_label.offset_bottom = margin + lbl_size.y
 
 
-# ---------- Yardımcılar ----------
-
 func _get_overlay_color() -> Color:
 	var c := overlay_color_override
 	if c.a <= 0.0:
@@ -1248,8 +1614,6 @@ func _set_cursor(on: bool) -> void:
 		Input.set_custom_mouse_cursor(null, Input.CURSOR_ARROW)
 		Input.set_custom_mouse_cursor(null, Input.CURSOR_POINTING_HAND)
 
-
-# ---------- Canavar sistemi ----------
 
 func lock_cams(reason: String) -> void:
 	_cam_locks[reason] = true
@@ -1310,20 +1674,33 @@ func set_music_box_enabled(value: bool) -> void:
 
 
 func set_music_box_late_active(value: bool) -> void:
+	if _music_box_late_active == value:
+		return
 	_music_box_late_active = value
-	_music_box_beat_left = 0.0
+	_music_box_beat_left = _get_music_box_beat_interval()
 	_layout_music_box_controls()
 	_update_music_box_warning()
 
 
 func set_music_box_charge(value: float) -> void:
 	_music_box_charge = clampf(value, 0.0, 1.0)
+	if not _music_box_late_active and _music_box_charge >= 0.33:
+		_music_box_danger_beat_count = 0
+		_music_box_beat_left = 0.0
+		var danger_player := _get_universal_player(_danger_audio)
+		if danger_player and danger_player.playing:
+			danger_player.stop()
 	if not _music_box_bar_bg or not is_instance_valid(_music_box_bar_bg):
 		return
 	var width := _music_box_bar_bg.size.x * _music_box_charge
 	_music_box_bar_fill.position.x = 0.0
 	_music_box_bar_fill.size.x = width
-	_music_box_bar_fill.color = Color.WHITE.lerp(Color(1.0, 0.04, 0.02, 1.0), 1.0 - _music_box_charge)
+	var red_t := 0.0
+	if _music_box_charge <= 0.16:
+		red_t = 1.0
+	elif _music_box_charge < 0.33:
+		red_t = clampf((0.33 - _music_box_charge) / (0.33 - 0.16), 0.0, 1.0)
+	_music_box_bar_fill.color = Color.WHITE.lerp(Color(1.0, 0.04, 0.02, 1.0), red_t)
 	_update_music_box_warning()
 
 
@@ -1355,7 +1732,9 @@ func _ensure_music_box_controls() -> void:
 	_music_box_wind_button.add_theme_stylebox_override("pressed", _make_style(BTN_PRESSED))
 	_music_box_wind_button.add_theme_stylebox_override("hover_pressed", _make_style(BTN_PRESSED))
 	_music_box_wind_button.add_theme_stylebox_override("focus", StyleBoxEmpty.new())
-	_music_box_wind_button.add_theme_font_override("font", _build_exit_wide_font())
+	var mb_font := _build_exit_wide_font()
+	if mb_font and is_instance_valid(mb_font):
+		_music_box_wind_button.add_theme_font_override("font", mb_font)
 	_music_box_wind_button.add_theme_font_size_override("font_size", 16)
 	_music_box_wind_button.add_theme_color_override("font_color", Color.WHITE)
 	_music_box_wind_button.add_theme_color_override("font_hover_color", Color.WHITE)
@@ -1439,6 +1818,10 @@ func _update_music_box_controls() -> void:
 	set_music_box_charge(_music_box_charge)
 
 
+func _get_music_box_beat_interval() -> float:
+	return 60.0 / (70.0 if _music_box_late_active else maxf(music_box_bpm, 1.0))
+
+
 func _update_music_box_warning() -> void:
 	if not _music_box_caution or not is_instance_valid(_music_box_caution) or not _music_box_caution_late or not is_instance_valid(_music_box_caution_late):
 		return
@@ -1466,7 +1849,15 @@ func _update_music_box_warning() -> void:
 
 func _process_music_box_warning(delta: float) -> void:
 	var late_icon_visible := _music_box_caution_late and _music_box_caution_late.modulate.a > 0.01
+	var normal_icon_visible := _music_box_caution and _music_box_caution.modulate.a > 0.01
 	var animated_icon := _music_box_caution_late if late_icon_visible else _music_box_caution
+	var any_caution_active := _state == State.ACTIVE and (late_icon_visible or normal_icon_visible)
+	if not any_caution_active:
+		_music_box_danger_beat_count = 0
+		_music_box_beat_left = 0.0
+		return
+	if _music_box_beat_left <= 0.0:
+		_music_box_beat_left = 60.0 / (70.0 if _music_box_late_active else maxf(music_box_bpm, 1.0))
 	if not animated_icon or animated_icon.modulate.a <= 0.0 or (not _music_box_late_active and (_music_box_charge > 0.33 or _music_box_charge <= 0.0)):
 		return
 	_music_box_beat_left -= delta
@@ -1474,12 +1865,19 @@ func _process_music_box_warning(delta: float) -> void:
 		return
 	_music_box_beat_left = 60.0 / (70.0 if _music_box_late_active else maxf(music_box_bpm, 1.0))
 	_music_box_beat_sign *= -1.0
+	_music_box_danger_beat_count += 1
+	if _music_box_danger_beat_count % 2 == 1:
+		_play_audio(_danger_audio)
 	if _music_box_caution_tween and _music_box_caution_tween.is_valid():
 		_music_box_caution_tween.kill()
 	animated_icon.rotation = 0.0
 	animated_icon.scale = Vector2.ONE
 	var caution_alpha := animated_icon.modulate.a
-	animated_icon.modulate = Color(1.0, 1.0, 1.0, caution_alpha) if _music_box_beat_sign > 0.0 else Color(1.0, 0.12, 0.12, caution_alpha)
+	var yellow_color := Color(1.0, 0.88, 0.12, caution_alpha)
+	var red_color := Color(1.0, 0.04, 0.02, caution_alpha)
+	var danger_t := clampf(1.0 - (_music_box_charge / 0.33), 0.0, 1.0) if not _music_box_late_active else 1.0
+	var alt_color := yellow_color.lerp(red_color, danger_t)
+	animated_icon.modulate = Color(1.0, 1.0, 1.0, caution_alpha) if _music_box_beat_sign > 0.0 else alt_color
 	_music_box_caution_tween = create_tween()
 	_music_box_caution_tween.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
 	_music_box_caution_tween.tween_property(animated_icon, "rotation", _music_box_beat_sign * 0.18, 0.08)
@@ -1512,7 +1910,6 @@ func is_open() -> bool:
 	return _state != State.IDLE
 
 
-## Jumpscare sırasında monitör görüntüsünü geçiş animasyonu olmadan kapatır.
 func interrupt_for_jumpscare() -> void:
 	_jumpscare_interrupted = true
 	_state = State.IDLE
@@ -1525,7 +1922,6 @@ func interrupt_for_jumpscare() -> void:
 		_hitbox.set_in_use(false)
 
 
-## Kamera sistemini mümkün olan en kısa sürede kapatır
 func force_close() -> void:
 	if _state == State.ACTIVE:
 		_switching_cam = false
@@ -1553,7 +1949,9 @@ func _ensure_play_sound_button() -> void:
 	_btn_play_sound.add_theme_stylebox_override("disabled", _make_style(BTN_PRESSED))
 	_btn_play_sound.add_theme_stylebox_override("focus", StyleBoxEmpty.new())
 
-	_btn_play_sound.add_theme_font_override("font", _build_exit_wide_font())
+	var ps_font := _build_exit_wide_font()
+	if ps_font and is_instance_valid(ps_font):
+		_btn_play_sound.add_theme_font_override("font", ps_font)
 	_btn_play_sound.add_theme_font_size_override("font_size", 20)
 	_btn_play_sound.add_theme_constant_override("spacing_glyph", 3)
 	_btn_play_sound.add_theme_color_override("font_shadow_color", Color.BLACK)
@@ -1614,10 +2012,7 @@ func _on_play_sound_pressed() -> void:
 	lure_requested.emit(_current_cam)
 
 
-## Canavar yer değiştirirken çağrılır: kameralar açıksa LOST SIGNAL → PENDING gösterir.
-## move_callable, ekran tamamen kapalıyken çalıştırılır.
 func play_lost_signal(move_callable: Callable, duration_multiplier: float = 1.0) -> void:
-	# Kamera değiştirme gibi başka bir geçiş sürüyorsa bitmesini bekle
 	while _switching_cam and _state == State.ACTIVE:
 		await get_tree().process_frame
 
@@ -1635,8 +2030,6 @@ func play_lost_signal(move_callable: Callable, duration_multiplier: float = 1.0)
 	_pending_overlay.visible = true
 	_play_audio(_lost_signal_audio)
 	await get_tree().process_frame
-	# Hareketi LOST SIGNAL altında başlat; Lost Signal ve Pending süreleri
-	# hareket süresinden bağımsız olarak diğer oda geçişleriyle aynı kalır.
 	move_callable.call()
 
 	var transition_multiplier := maxf(duration_multiplier, 1.0)
@@ -1661,28 +2054,31 @@ func play_lost_signal(move_callable: Callable, duration_multiplier: float = 1.0)
 
 
 func _start_monitor_glow() -> void:
-	if not _monitor_glow_audio or not is_instance_valid(_monitor_glow_audio):
+	var glow_player := _get_universal_player(_monitor_glow_audio)
+	if not glow_player or not is_instance_valid(glow_player):
 		return
-	_monitor_glow_audio.volume_db = -80.0
-	if not _monitor_glow_audio.playing:
-		_monitor_glow_audio.play()
+	glow_player.volume_db = -80.0
+	if glow_player.stream != null and not glow_player.playing:
+		glow_player.play()
 
 
 func _on_monitor_hover_changed(is_hovering: bool) -> void:
-	if not _monitor_glow_audio or not is_instance_valid(_monitor_glow_audio):
+	var glow_player := _get_universal_player(_monitor_glow_audio)
+	if not glow_player or not is_instance_valid(glow_player):
 		return
 	if _monitor_glow_tween and _monitor_glow_tween.is_valid():
 		_monitor_glow_tween.kill()
-	if not _monitor_glow_audio.playing:
-		_monitor_glow_audio.play()
+	if glow_player.stream != null and not glow_player.playing:
+		glow_player.play()
 	_monitor_glow_tween = create_tween()
 	_monitor_glow_tween.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
 	var target_db := monitor_glow_max_volume_db if is_hovering else -80.0
 	var fade_time := monitor_glow_fade_in_time if is_hovering else monitor_glow_fade_out_time
-	_monitor_glow_tween.tween_property(_monitor_glow_audio, "volume_db", target_db, fade_time)
+	_monitor_glow_tween.tween_property(glow_player, "volume_db", target_db, fade_time)
 
 
-func _play_audio(player: AudioStreamPlayer3D) -> void:
+func _play_audio(source_3d: AudioStreamPlayer3D) -> void:
+	var player := _get_universal_player(source_3d)
 	if not player or not is_instance_valid(player) or player.stream == null:
 		return
 	player.stop()
@@ -1690,14 +2086,15 @@ func _play_audio(player: AudioStreamPlayer3D) -> void:
 
 
 func _play_monitor_open_audio() -> void:
-	if not _monitor_open_audio or not is_instance_valid(_monitor_open_audio) or _monitor_open_audio.stream == null:
+	var open_player := _get_universal_player(_monitor_open_audio)
+	if not open_player or not is_instance_valid(open_player) or open_player.stream == null:
 		return
 	if _monitor_open_fade_tween and _monitor_open_fade_tween.is_valid():
 		_monitor_open_fade_tween.kill()
-	_monitor_open_audio.stop()
-	_monitor_open_audio.volume_db = monitor_open_volume_db
-	_monitor_open_audio.play()
+	open_player.stop()
+	open_player.volume_db = monitor_open_volume_db
+	open_player.play()
 	_monitor_open_fade_tween = create_tween()
 	_monitor_open_fade_tween.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
 	_monitor_open_fade_tween.tween_interval(0.6)
-	_monitor_open_fade_tween.tween_property(_monitor_open_audio, "volume_db", -80.0, 2.0)
+	_monitor_open_fade_tween.tween_property(open_player, "volume_db", -80.0, 2.0)

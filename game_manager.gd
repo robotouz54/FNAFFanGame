@@ -7,17 +7,15 @@ signal night_lost
 
 @export_group("Gece")
 @export var night: int = 1
-## Bir oyun saatinin gerçek süresi (saniye). Her 60 saniyede (1 dakika) 1 saat atlar
-@export var seconds_per_hour: float = 60.0
-## Saat 6 AM olduktan kaç saniye sonra kazanılır
-@export var win_delay_after_6am: float = 10.0
+@export var seconds_per_hour: float = 89.0
+@export var six_am_clock_display_time: float = 2.0
+@export var six_am_fade_duration: float = 1.2
 
 @export_group("HUD")
 @export var hud_font: Font
 @export var hud_font_size: int = 32
 @export var hud_margin: float = 24.0
 @export var end_font_size: int = 96
-## Bitiş ekranının ekranda kalma süresi (saniye)
 @export var end_screen_time: float = 4.0
 
 var hud_root: Control
@@ -27,14 +25,16 @@ var end_screen: ColorRect
 var end_label: Label
 
 var _elapsed: float = 0.0
-var _hour_index: int = 0  # 0 = 12 AM, 1..6 = 1 AM..6 AM
+var _hour_index: int = 0
 var _finished: bool = false
+var _six_am_triggered: bool = false
 var _hud_layer: CanvasLayer
 var _top_right_panel: Control
 var _cam_ui: CameraSystemUI
 var _paused_by_escape: bool = false
 var _mouse_mode_before_pause: int = Input.MOUSE_MODE_VISIBLE
 var _aux_screen_open: bool = false
+var _saved_bus_volumes_db: Dictionary = {}
 
 
 func _ready() -> void:
@@ -47,7 +47,7 @@ func _ready() -> void:
 
 
 func _input(event: InputEvent) -> void:
-	if not event.is_action_pressed("ui_cancel") or _finished:
+	if not event.is_action_pressed("ui_cancel") or _finished or _six_am_triggered:
 		return
 
 	if _paused_by_escape:
@@ -71,8 +71,6 @@ func _notification(what: int) -> void:
 		_layout_top_right()
 
 
-# ---------- Dışarıdan kullanım ----------
-
 func get_hour_index() -> int:
 	return _hour_index
 
@@ -82,7 +80,7 @@ func get_display_hour() -> int:
 
 
 func is_night_active() -> bool:
-	return not _finished
+	return not _finished and not _six_am_triggered
 
 
 func set_night(new_night: int) -> void:
@@ -96,10 +94,9 @@ func set_aux_screen_open(value: bool) -> void:
 	_sync_clock_visibility()
 
 
-## Canavar yakalayınca çağrılacak
 func trigger_game_over() -> void:
 	Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
-	if _finished:
+	if _finished or _six_am_triggered:
 		return
 	_finished = true
 	night_lost.emit()
@@ -107,13 +104,11 @@ func trigger_game_over() -> void:
 	get_tree().reload_current_scene()
 
 
-# ---------- Saat & Konum & Kamera Görünürlüğü ----------
-
 func _process(delta: float) -> void:
 	_layout_top_right()
 	_sync_clock_visibility()
 
-	if _paused_by_escape or _finished:
+	if _paused_by_escape or _finished or _six_am_triggered:
 		return
 
 	var hour_len: float = maxf(seconds_per_hour, 0.01)
@@ -125,18 +120,63 @@ func _process(delta: float) -> void:
 		_refresh_hud()
 		hour_changed.emit(_hour_index)
 
-	if _hour_index >= 6 and _elapsed >= (hour_len * 6.0) + win_delay_after_6am:
-		_win()
+	if _hour_index >= 6:
+		_start_six_am_sequence()
+
+
+func _start_six_am_sequence() -> void:
+	if _six_am_triggered or _finished:
+		return
+	_six_am_triggered = true
+	_refresh_hud()
+	_sync_clock_visibility()
+	await get_tree().create_timer(maxf(six_am_clock_display_time, 0.01)).timeout
+	if _finished:
+		return
+	_win()
 
 
 func _win() -> void:
 	if _finished:
 		return
 	_finished = true
+	_freeze_game_and_mute_audio()
 	night_won.emit()
-	await _show_end_screen("WIN_TEXT", "6 AM")
+	await _show_end_screen("WIN_TEXT", "6 AM", six_am_fade_duration)
+	_restore_audio_and_unpause()
 	if ResourceLoader.exists("res://main_menu.tscn"):
 		get_tree().change_scene_to_file("res://main_menu.tscn")
+
+
+func _freeze_game_and_mute_audio() -> void:
+	Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
+	get_tree().paused = true
+	_saved_bus_volumes_db.clear()
+	for bus_idx in range(AudioServer.bus_count):
+		var bus_name := AudioServer.get_bus_name(bus_idx)
+		_saved_bus_volumes_db[bus_name] = AudioServer.get_bus_volume_db(bus_idx)
+		AudioServer.set_bus_volume_db(bus_idx, -80.0)
+	_stop_all_audio_players(get_tree().root)
+
+
+func _stop_all_audio_players(node: Node) -> void:
+	if node is AudioStreamPlayer:
+		(node as AudioStreamPlayer).stop()
+	elif node is AudioStreamPlayer2D:
+		(node as AudioStreamPlayer2D).stop()
+	elif node is AudioStreamPlayer3D:
+		(node as AudioStreamPlayer3D).stop()
+	for child in node.get_children():
+		_stop_all_audio_players(child)
+
+
+func _restore_audio_and_unpause() -> void:
+	for bus_name in _saved_bus_volumes_db:
+		var bus_idx := AudioServer.get_bus_index(bus_name)
+		if bus_idx >= 0:
+			AudioServer.set_bus_volume_db(bus_idx, _saved_bus_volumes_db[bus_name])
+	_saved_bus_volumes_db.clear()
+	get_tree().paused = false
 
 
 func _connect_camera_system_ui() -> void:
@@ -150,11 +190,11 @@ func _connect_camera_system_ui() -> void:
 
 
 func _on_camera_opened() -> void:
-	_set_clock_visible(false)
+	_sync_clock_visibility()
 
 
 func _on_camera_closed() -> void:
-	_set_clock_visible(true)
+	_sync_clock_visibility()
 	_layout_top_right()
 
 
@@ -179,13 +219,9 @@ func _set_clock_visible(show_clock: bool) -> void:
 		clock_label.visible = show_clock
 
 
-# ---------- Garanti HUD Kurulumu ----------
-
 func _setup_guaranteed_hud() -> void:
 	var r := get_tree().root
 	var scene_root: Node = get_tree().current_scene if get_tree().current_scene else r
-	# Main scene already has a HUD CanvasLayer. Reuse its viewport and labels so
-	# the clock stays in the same canvas as the game's visible interface.
 	var scene_hud := scene_root.find_child("Hud", true, false) as CanvasLayer
 	if scene_hud and scene_hud.get_node_or_null("Control") is Control:
 		_hud_layer = scene_hud
@@ -238,7 +274,6 @@ func _setup_guaranteed_hud() -> void:
 		if hud_font:
 			lbl.add_theme_font_override("font", hud_font)
 
-	# Bitiş ekranı
 	end_screen = hud_root.get_node_or_null("EndScreen") as ColorRect
 	if not end_screen:
 		end_screen = ColorRect.new()
@@ -248,6 +283,7 @@ func _setup_guaranteed_hud() -> void:
 	end_screen.color = Color.BLACK
 	end_screen.mouse_filter = Control.MOUSE_FILTER_STOP
 	end_screen.visible = false
+	end_screen.process_mode = Node.PROCESS_MODE_ALWAYS
 
 	end_label = end_screen.get_node_or_null("EndLabel") as Label
 	if not end_label:
@@ -302,12 +338,13 @@ func _fmt(key: String, value: int, fallback: String) -> String:
 	return template.replace("%d", str(value))
 
 
-func _show_end_screen(key: String, fallback: String) -> void:
+func _show_end_screen(key: String, fallback: String, fade_duration: float = 1.0) -> void:
 	var t := tr(key)
 	end_label.text = fallback if t == key else t
 	end_screen.modulate.a = 0.0
 	end_screen.visible = true
 	var tw := create_tween()
-	tw.tween_property(end_screen, "modulate:a", 1.0, 1.0)
+	tw.set_pause_mode(Tween.TWEEN_PAUSE_PROCESS)
+	tw.tween_property(end_screen, "modulate:a", 1.0, maxf(fade_duration, 0.01))
 	await tw.finished
-	await get_tree().create_timer(end_screen_time).timeout
+	await get_tree().create_timer(end_screen_time, true, false, true).timeout

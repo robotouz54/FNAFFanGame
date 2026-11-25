@@ -6,6 +6,7 @@ const DEBUG_CODE: Array[Key] = [KEY_D, KEY_E, KEY_B, KEY_U, KEY_G]
 @export_group("Hareket")
 @export var walk_speed: float = 5.5
 @export var sprint_speed: float = 9.5
+@export var noclip_vertical_speed: float = 6.5
 @export var accel_ground: float = 12.0
 @export var decel_ground: float = 10.0
 @export var accel_air: float = 3.5
@@ -42,6 +43,9 @@ var _bob_offset: Vector2 = Vector2.ZERO
 var _impact_offset_y: float = 0.0
 var _jump_pitch_offset: float = 0.0
 var _was_on_floor: bool = false
+var _saved_collision_layer: int = 1
+var _saved_collision_mask: int = 1
+var _disabled_colliders: Array[Node] = []
 
 
 func _ready() -> void:
@@ -91,12 +95,44 @@ func _process_debug_code(keycode: Key) -> bool:
 				_enter_debug_mode_permanently()
 			return true
 	else:
-		# Araya başka tuş girerse sıfırla; basılan tuş 'D' ise ilk harf olarak kabul et
 		_debug_code_index = 1 if keycode == DEBUG_CODE[0] else 0
 	return false
 
+
+func _set_noclip_enabled(enabled: bool) -> void:
+	if enabled:
+		_saved_collision_layer = collision_layer
+		_saved_collision_mask = collision_mask
+		collision_layer = 0
+		collision_mask = 0
+		_disabled_colliders.clear()
+		for child in find_children("*", "CollisionShape3D", true, false):
+			var shape := child as CollisionShape3D
+			if shape and not shape.disabled:
+				shape.disabled = true
+				_disabled_colliders.append(shape)
+		for child in find_children("*", "CollisionPolygon3D", true, false):
+			var poly := child as CollisionPolygon3D
+			if poly and not poly.disabled:
+				poly.disabled = true
+				_disabled_colliders.append(poly)
+	else:
+		collision_layer = _saved_collision_layer
+		collision_mask = _saved_collision_mask
+		for node in _disabled_colliders:
+			if not is_instance_valid(node):
+				continue
+			if node is CollisionShape3D:
+				(node as CollisionShape3D).disabled = false
+			elif node is CollisionPolygon3D:
+				(node as CollisionPolygon3D).disabled = false
+		_disabled_colliders.clear()
+
+
 func _enter_debug_mode_permanently() -> void:
 	_debug_mode = true
+	_set_noclip_enabled(true)
+	velocity = Vector3.ZERO
 	set_physics_process(true)
 	Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
 	if debug_audio_listener:
@@ -115,7 +151,7 @@ func _enter_debug_mode_permanently() -> void:
 	if flashlight:
 		flashlight.visible = true
 
-	_was_on_floor = is_on_floor()
+	_was_on_floor = false
 
 
 func is_debug_mode_enabled() -> bool:
@@ -139,11 +175,13 @@ func set_debug_camera_active(active: bool) -> void:
 			player_audio_listener.make_current()
 		Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
 
+
 func _exit_debug_mode() -> void:
 	_debug_mode = false
 	_debug_code_index = 0
 	set_physics_process(false)
 	velocity = Vector3.ZERO
+	_set_noclip_enabled(false)
 	if debug_camera:
 		debug_camera.current = false
 	if flashlight:
@@ -156,6 +194,7 @@ func _exit_debug_mode() -> void:
 		player_audio_listener.make_current()
 	Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
 
+
 func _toggle_flashlight() -> void:
 	if not flashlight:
 		flashlight = find_child("SpotLight3D", true, false) as SpotLight3D
@@ -167,21 +206,9 @@ func _physics_process(delta: float) -> void:
 	if not _debug_mode:
 		return
 
-	var on_floor := is_on_floor()
 	var is_sprinting := Input.is_key_pressed(KEY_SHIFT)
 
-	# Yerçekimi (düşerken biraz daha ağır)
-	if not on_floor:
-		var grav_mult := fall_gravity_multiplier if velocity.y < 0.0 else 1.0
-		velocity.y -= _gravity * grav_mult * delta
-
-	# Zıplama
-	if Input.is_key_pressed(KEY_SPACE) and on_floor:
-		velocity.y = jump_velocity
-		_jump_pitch_offset = deg_to_rad(jump_tilt_deg)
-		on_floor = false
-
-	# WASD yön girişi
+	# WASD yatay hareket
 	var input_vec := Vector2.ZERO
 	if Input.is_key_pressed(KEY_W):
 		input_vec.y -= 1.0
@@ -193,42 +220,36 @@ func _physics_process(delta: float) -> void:
 		input_vec.x += 1.0
 	input_vec = input_vec.limit_length(1.0)
 
-	var target_speed := sprint_speed if is_sprinting else walk_speed
+	# Space: yukarı, Ctrl: aşağı
+	var vert_input := 0.0
+	if Input.is_key_pressed(KEY_SPACE):
+		vert_input += 1.0
+	if Input.is_key_pressed(KEY_CTRL):
+		vert_input -= 1.0
+
+	var horiz_speed := sprint_speed if is_sprinting else walk_speed
+	var vert_speed := noclip_vertical_speed * (sprint_speed / maxf(walk_speed, 0.1) if is_sprinting else 1.0)
 	var wish_dir := (transform.basis * Vector3(input_vec.x, 0.0, input_vec.y)).normalized()
-	var target_vel := wish_dir * target_speed
 
-	var rate: float
-	if on_floor:
-		rate = accel_ground if wish_dir.length_squared() > 0.001 else decel_ground
-	else:
-		rate = accel_air if wish_dir.length_squared() > 0.001 else decel_air
+	var blend := clampf(accel_ground * delta, 0.0, 1.0)
+	velocity.x = lerpf(velocity.x, wish_dir.x * horiz_speed, blend)
+	velocity.z = lerpf(velocity.z, wish_dir.z * horiz_speed, blend)
+	velocity.y = lerpf(velocity.y, vert_input * vert_speed, blend)
 
-	var blend := clampf(rate * delta, 0.0, 1.0)
-	velocity.x = lerpf(velocity.x, target_vel.x, blend)
-	velocity.z = lerpf(velocity.z, target_vel.z, blend)
-
-	var pre_land_vy := velocity.y
-	move_and_slide()
-
-	# Yere iniş sarsıntısı
-	if not _was_on_floor and is_on_floor() and pre_land_vy < -1.5:
-		_impact_offset_y = -clampf(absf(pre_land_vy) * landing_bob_scale, 0.0, 0.22)
-
-	_was_on_floor = is_on_floor()
-	_update_camera_motion(delta, is_sprinting)
+	# Çarpışma kapalıyken doğrudan konum güncelle (her şeyin içinden takılmadan geçer)
+	global_position += velocity * delta
+	_update_noclip_camera_motion(delta, is_sprinting)
 
 
-func _update_camera_motion(delta: float, is_sprinting: bool) -> void:
+func _update_noclip_camera_motion(delta: float, is_sprinting: bool) -> void:
 	if not debug_camera or not is_instance_valid(debug_camera):
 		return
 
 	var horiz_speed := Vector2(velocity.x, velocity.z).length()
-	var moving_on_floor := is_on_floor() and horiz_speed > 0.25
-
-	if bob_enabled and moving_on_floor:
+	if bob_enabled and horiz_speed > 0.25:
 		var freq := sprint_bob_freq if is_sprinting else walk_bob_freq
-		var amp_y := sprint_bob_amp_y if is_sprinting else walk_bob_amp_y
-		var amp_x := sprint_bob_amp_x if is_sprinting else walk_bob_amp_x
+		var amp_y := sprint_bob_amp_y * 0.45 if is_sprinting else walk_bob_amp_y * 0.45
+		var amp_x := sprint_bob_amp_x * 0.45 if is_sprinting else walk_bob_amp_x * 0.45
 		_bob_time += delta * freq * clampf(horiz_speed / maxf(walk_speed, 0.1), 0.5, 1.4)
 		_bob_offset.y = sin(_bob_time * 2.0) * amp_y
 		_bob_offset.x = cos(_bob_time) * amp_x
@@ -236,13 +257,9 @@ func _update_camera_motion(delta: float, is_sprinting: bool) -> void:
 		_bob_time = 0.0
 		_bob_offset = _bob_offset.lerp(Vector2.ZERO, clampf(10.0 * delta, 0.0, 1.0))
 
-	# İniş sarsıntısını yumuşakça toparla
 	_impact_offset_y = lerpf(_impact_offset_y, 0.0, clampf(12.0 * delta, 0.0, 1.0))
-
-	# Pozisyonu baz konum + bob + iniş darbesi olarak uygula
 	debug_camera.position = _cam_base_pos + Vector3(_bob_offset.x, _bob_offset.y + _impact_offset_y, 0.0)
 
-	# Zıplama anındaki hafif pitch sallanmasını geri al
 	if absf(_jump_pitch_offset) > 0.0001:
 		var step := lerpf(_jump_pitch_offset, 0.0, clampf(8.0 * delta, 0.0, 1.0))
 		var diff := step - _jump_pitch_offset
@@ -250,7 +267,6 @@ func _update_camera_motion(delta: float, is_sprinting: bool) -> void:
 		debug_camera.rotation.x = clampf(debug_camera.rotation.x, deg_to_rad(-85.0), deg_to_rad(85.0))
 		_jump_pitch_offset = step
 
-	# Koşarken hafif FOV genişlemesi
 	var active_sprint := is_sprinting and horiz_speed > 1.0
 	var target_fov := _cam_base_fov + (sprint_fov_boost if active_sprint else 0.0)
 	debug_camera.fov = lerpf(debug_camera.fov, target_fov, clampf(8.0 * delta, 0.0, 1.0))
