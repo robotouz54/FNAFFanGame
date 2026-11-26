@@ -7,7 +7,7 @@ signal night_lost
 
 @export_group("Gece")
 @export var night: int = 1
-@export var seconds_per_hour: float = 89.0
+@export var seconds_per_hour: float = 30.0
 @export var six_am_clock_display_time: float = 2.0
 @export var six_am_fade_duration: float = 1.2
 

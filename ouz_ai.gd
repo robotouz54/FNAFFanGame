@@ -15,7 +15,7 @@ const STANDING_POSE := "pose_stand_general"
 const KICKING_POSE := "pose_kicking"
 const JUMPSCARE_POSE := "pose_jumpscare"
 const TRANSFORMING_BUS_NAME := "TransformingEcho"
-const TRANSFORMING_VOLUME_DB := -18.0
+const TRANSFORMING_VOLUME_DB := -24.0
 const TRANSFORMING_REVERB_ROOM_SIZE := 0.5
 const TRANSFORMING_REVERB_DAMPING := 0.15
 const TRANSFORMING_REVERB_WET := 0.5
@@ -24,7 +24,7 @@ const FIRST_KNOCK_SOUND: AudioStream = preload("res://audio/knockfirst.wav")
 const JUMPSCARE_SOUND: AudioStream = preload("res://audio/jumpscare.wav")
 
 @export_group("Music Box")
-@export_range(0.1, 600.0, 0.1) var charge_drain_seconds: float = 30.0
+@export_range(0.1, 600.0, 0.1) var charge_drain_seconds: float = 5.0
 @export_range(1.0, 60.0, 1.0) var full_wind_seconds: float = 5.0
 @export_range(10.0, 20.0, 0.5) var commonroom_pose_wait_min: float = 5.0
 @export_range(10.0, 20.0, 0.5) var commonroom_pose_wait_max: float = 7.0
@@ -35,14 +35,14 @@ const JUMPSCARE_SOUND: AudioStream = preload("res://audio/jumpscare.wav")
 @export_range(-80.0, 12.0, 0.1) var office_ambience_monitor_db: float = -60.000
 @export_group("Karamsar WorldEnvironment")
 @export_range(1.0, 30.0, 0.5) var dread_env_fade_seconds: float = 10.0
-@export var dread_bg_color: Color = Color(0.04, 0.14, 0.36, 1.0)
-@export_range(0.0, 2.0, 0.05) var dread_ambient_energy: float = 0.95
-@export var dread_fog_color: Color = Color(0.08, 0.26, 0.58, 1.0)
-@export_range(0.001, 0.5, 0.001) var dread_fog_density: float = 0.011
-@export_range(0.5, 2.0, 0.05) var dread_contrast: float = 1.08
-@export_range(0.0, 1.5, 0.05) var dread_saturation: float = 1.15
-@export_range(0.2, 1.5, 0.05) var dread_brightness: float = 0.96
-@export var dread_light_color: Color = Color(0.18, 0.55, 1.0, 1.0)
+@export var dread_bg_color: Color = Color(0.14, 0.28, 0.48, 1.0)
+@export_range(0.0, 2.0, 0.05) var dread_ambient_energy: float = 1.12
+@export var dread_fog_color: Color = Color(0.32, 0.52, 0.78, 1.0)
+@export_range(0.001, 0.5, 0.001) var dread_fog_density: float = 0.009
+@export_range(0.5, 2.0, 0.05) var dread_contrast: float = 1.02
+@export_range(0.0, 1.5, 0.05) var dread_saturation: float = 0.85
+@export_range(0.2, 1.5, 0.05) var dread_brightness: float = 1.04
+@export var dread_light_color: Color = Color(0.45, 0.72, 1.0, 1.0)
 @export_group("Oda Rotası")
 @export_range(15.0, 20.0, 0.5) var room_wait_min: float = 7.0
 @export_range(15.0, 20.0, 0.5) var room_wait_max: float = 10.0
@@ -50,7 +50,7 @@ const JUMPSCARE_SOUND: AudioStream = preload("res://audio/jumpscare.wav")
 @export_range(-80.0, 12.0, 0.5) var music_box_cam10_volume_db: float = -6.0
 @export_range(-80.0, 12.0, 0.5) var music_box_cam9_volume_db: float = -7.0
 @export_range(-80.0, 12.0, 0.5) var music_box_cam6b_volume_db: float = -10.0
-@export_range(-80.0, 12.0, 0.5) var music_box_late_volume_db: float = 0.0
+@export_range(-80.0, 12.0, 0.5) var music_box_late_volume_db: float = -6.0
 @export_range(0.5, 15.0, 0.5) var office_approach_walk_seconds: float = 3.0
 
 @export_group("Transforming")
@@ -282,19 +282,21 @@ func _begin_wake_sequence() -> void:
 	if _ended:
 		return
 
-	_set_pose(KICKING_POSE)
-	_break_door_stage3()
-	if _player_camera:
-		_player_camera.shake(0.7, 0.6)
+	var door_already_broken := _door != null and is_instance_valid(_door) and _door.is_broken
+	if not door_already_broken:
+		_set_pose(KICKING_POSE)
+		_break_door_stage3()
+		if _player_camera:
+			_player_camera.shake(0.7, 0.6)
 
-	var post_break_delay := randf_range(
-		minf(post_break_jumpscare_delay_min, post_break_jumpscare_delay_max),
-		maxf(post_break_jumpscare_delay_min, post_break_jumpscare_delay_max)
-	)
-	if post_break_delay > 0.0:
-		await get_tree().create_timer(post_break_delay).timeout
-	if _ended:
-		return
+		var post_break_delay := randf_range(
+			minf(post_break_jumpscare_delay_min, post_break_jumpscare_delay_max),
+			maxf(post_break_jumpscare_delay_min, post_break_jumpscare_delay_max)
+		)
+		if post_break_delay > 0.0:
+			await get_tree().create_timer(post_break_delay).timeout
+		if _ended:
+			return
 
 	_sequence_running = false
 	await _walk_to_camera_xz_in_jumpscare_pose()
