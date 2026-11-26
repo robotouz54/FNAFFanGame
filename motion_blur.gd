@@ -13,16 +13,29 @@ var _previous_camera: Camera3D
 var _transform_history: Array[Transform3D] = []
 var _history_times: Array[float] = []
 var _shader_material: ShaderMaterial
+var _motion_blur_enabled: bool = true
 
 
 func _ready() -> void:
 	_shader_material = material as ShaderMaterial
 	if _shader_material == null:
 		push_error("Motion blur requires a ShaderMaterial on its SubViewportContainer.")
+	set_process(_motion_blur_enabled)
+
+
+func set_motion_blur_enabled(enabled: bool) -> void:
+	_motion_blur_enabled = enabled
+	set_process(enabled)
+	if not enabled:
+		_previous_camera = null
+		_transform_history.clear()
+		_history_times.clear()
+		if _shader_material != null:
+			_shader_material.set_shader_parameter("motion_vector", Vector2.ZERO)
 
 
 func _process(_delta: float) -> void:
-	if _shader_material == null:
+	if not _motion_blur_enabled or _shader_material == null:
 		return
 
 	var camera := _render_viewport.get_camera_3d()

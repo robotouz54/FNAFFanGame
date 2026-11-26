@@ -16,6 +16,11 @@ run/main_scene="uid://be53ihdr00kpe"
 config/features=PackedStringArray("4.7", "GL Compatibility")
 config/icon="res://icon.svg"
 
+[autoload]
+
+AudioSettings="*res://audio_settings.gd"
+GameSettings="*res://game_settings.gd"
+
 [display]
 
 window/stretch/mode="canvas_items"

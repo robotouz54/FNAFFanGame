@@ -94,7 +94,6 @@ const LINKS: Dictionary = {
 @export var jumpscare_time: float = 1.4
 @export var jumpscare_shake: float = 0.9
 @export var jumpscare_rotation_shake_deg: float = 32.0
-@export_range(-12.0, 12.0, 0.5) var jumpscare_volume_db: float = 12.0
 ## Canavarın kameraya doğru atılma oranı (0-1)
 @export_range(0.0, 1.0) var jumpscare_lunge: float = 0.3
 
@@ -214,12 +213,12 @@ func _find_nodes() -> bool:
 	for sound: AudioStreamPlayer3D in audio_players:
 		sound.max_distance = 100.0
 		sound.unit_size = 20.0
-		sound.volume_db = 0.0
+		sound.volume_db = AudioSettings.DEFAULT_WORLD_SFX_DB
 	for lure_player: AudioStreamPlayer3D in _lure_sounds:
-		lure_player.volume_db = 6.0
+		lure_player.volume_db = AudioSettings.LURE_DB
 		lure_player.attenuation_model = AudioStreamPlayer3D.ATTENUATION_DISABLED
 	if _scare_sound:
-		_scare_sound.volume_db = jumpscare_volume_db
+		_scare_sound.volume_db = AudioSettings.JUMPSCARE_DB
 	if not _monster or not _anim or not _door or not _hide or not _player_cam:
 		push_error("MonsterAI: gerekli düğümler bulunamadı (MayinMelih+AnimationPlayer, DoorSystem, HideHitbox, Camera3D). Scriptlerin bağlı olduğundan emin ol.")
 		return false

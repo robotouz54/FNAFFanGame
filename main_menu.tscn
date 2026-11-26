@@ -42,6 +42,10 @@ text = "MENU_READY"
 [node name="Buttons" type="HBoxContainer" parent="MenuPage/VBox" unique_id=1751495261]
 layout_mode = 2
 
+[node name="SettingsButton" type="Button" parent="MenuPage/VBox" unique_id=1902407716]
+layout_mode = 2
+text = "settings"
+
 [node name="BtnNo" type="Button" parent="MenuPage/VBox/Buttons" unique_id=1345999077]
 layout_mode = 2
 text = "MENU_NO"
@@ -82,6 +86,74 @@ anchor_right = 1.0
 offset_left = -40.0
 offset_bottom = 40.0
 grow_horizontal = 0
+
+[node name="SettingsPage" type="ColorRect" parent="." unique_id=1807843201]
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 0
+color = Color(0.13, 0.13, 0.13, 1)
+
+[node name="ContentCenter" type="CenterContainer" parent="SettingsPage" unique_id=749632810]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 1
+
+[node name="SettingsContent" type="VBoxContainer" parent="SettingsPage/ContentCenter" unique_id=487152925]
+layout_mode = 2
+theme_override_constants/separation = 24
+
+[node name="QualityRow" type="HBoxContainer" parent="SettingsPage/ContentCenter/SettingsContent" unique_id=849232754]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="QualityLabel" type="Label" parent="SettingsPage/ContentCenter/SettingsContent/QualityRow" unique_id=1211667584]
+layout_mode = 2
+text = "quality: "
+
+[node name="QualityOption" type="OptionButton" parent="SettingsPage/ContentCenter/SettingsContent/QualityRow" unique_id=1560472831]
+custom_minimum_size = Vector2(220, 0)
+layout_mode = 2
+
+[node name="FpsRow" type="HBoxContainer" parent="SettingsPage/ContentCenter/SettingsContent" unique_id=1896610445]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="FpsLabel" type="Label" parent="SettingsPage/ContentCenter/SettingsContent/FpsRow" unique_id=468121561]
+layout_mode = 2
+text = "fps: "
+
+[node name="FpsOption" type="OptionButton" parent="SettingsPage/ContentCenter/SettingsContent/FpsRow" unique_id=1942401298]
+custom_minimum_size = Vector2(220, 0)
+layout_mode = 2
+
+[node name="MotionBlurCheck" type="CheckButton" parent="SettingsPage/ContentCenter/SettingsContent" unique_id=1981217032]
+layout_mode = 2
+text = "Motion blur"
+
+[node name="ShadowsCheck" type="CheckButton" parent="SettingsPage/ContentCenter/SettingsContent" unique_id=1237342353]
+layout_mode = 2
+text = "Shadows"
+
+[node name="CloseSettingsButton" type="Button" parent="SettingsPage" unique_id=1636288443]
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -108.0
+offset_top = 18.0
+offset_right = -18.0
+offset_bottom = 108.0
+grow_horizontal = 0
+text = "X"
 
 [node name="SFX" type="Node" parent="." unique_id=1483926711]
 

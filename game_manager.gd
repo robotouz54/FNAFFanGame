@@ -155,7 +155,7 @@ func _freeze_game_and_mute_audio() -> void:
 	for bus_idx in range(AudioServer.bus_count):
 		var bus_name := AudioServer.get_bus_name(bus_idx)
 		_saved_bus_volumes_db[bus_name] = AudioServer.get_bus_volume_db(bus_idx)
-		AudioServer.set_bus_volume_db(bus_idx, -80.0)
+		AudioServer.set_bus_volume_db(bus_idx, AudioSettings.MUTED_DB)
 	_stop_all_audio_players(get_tree().root)
 
 
@@ -348,3 +348,11 @@ func _show_end_screen(key: String, fallback: String, fade_duration: float = 1.0)
 	tw.tween_property(end_screen, "modulate:a", 1.0, maxf(fade_duration, 0.01))
 	await tw.finished
 	await get_tree().create_timer(end_screen_time, true, false, true).timeout
+
+
+func get_current_hour() -> int:
+	return get_hour_index()
+
+
+func trigger_game_over_frozen() -> void:
+	await trigger_game_over()

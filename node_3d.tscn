@@ -20,6 +20,7 @@
 [ext_resource type="AudioStream" uid="uid://dvmlybp8pmr3u" path="res://audio/lure1.ogg" id="16_lggff"]
 [ext_resource type="AudioStream" uid="uid://5r334a8pe8cj" path="res://audio/monitoropen.ogg" id="17_id0nj"]
 [ext_resource type="AudioStream" uid="uid://bvvb4yfow8vfv" path="res://audio/knock.wav" id="17_jsnrv"]
+[ext_resource type="AudioStream" uid="uid://cfragxwrdnsls" path="res://audio/OuzChanged.ogg" id="17_qpkl4"]
 [ext_resource type="AudioStream" uid="uid://up02gfq6yd13" path="res://audio/lure2.ogg" id="17_s0gvp"]
 [ext_resource type="AudioStream" uid="uid://dvadmvgcdvhq" path="res://audio/OuzWillKill.ogg" id="17_vmvb8"]
 [ext_resource type="AudioStream" uid="uid://b5y68cqe6m7sd" path="res://audio/door_break.wav" id="18_lggff"]
@@ -33,6 +34,7 @@
 [ext_resource type="AudioStream" uid="uid://ycp178x2nc4c" path="res://audio/lostsignal.wav" id="24_id0nj"]
 [ext_resource type="AudioStream" uid="uid://vq5k1yip4r23" path="res://audio/monitorglow.wav" id="25_1q667"]
 [ext_resource type="AudioStream" uid="uid://cg112v32aaxfg" path="res://audio/buttonclick.mp3" id="25_2yde8"]
+[ext_resource type="AudioStream" uid="uid://drtalijyl6o6u" path="res://audio/MusicChangeRequest.wav" id="26_g4s1x"]
 [ext_resource type="AudioStream" uid="uid://crfg704jlmkta" path="res://audio/officeambiance.ogg" id="26_ype4i"]
 [ext_resource type="AudioStream" uid="uid://c1q4rmygv5oxk" path="res://audio/woosh.wav" id="27_riyl1"]
 [ext_resource type="Texture2D" uid="uid://cqckyagtuerjt" path="res://textures/OuzSurat.png" id="29_1q667"]
@@ -5127,6 +5129,11 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 18.811163, 2.559491, -10.5970
 stream = ExtResource("16_2mu51")
 volume_db = 80.0
 
+[node name="MusicBox2" type="AudioStreamPlayer3D" parent="SFX" unique_id=538788673]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 18.811163, 2.559491, -10.59703)
+stream = ExtResource("17_qpkl4")
+volume_db = 80.0
+
 [node name="MusicBoxLate" type="AudioStreamPlayer3D" parent="SFX" unique_id=593479386]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 18.893795, 2.559491, -10.520012)
 stream = ExtResource("17_vmvb8")
@@ -5174,10 +5181,19 @@ unit_size = 20.0
 max_db = 6.0
 max_distance = 100.0
 
+[node name="ChangeRequest" type="AudioStreamPlayer3D" parent="SFX" unique_id=1445364142]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.2201982, 2.5033417, 0.9337956)
+visible = false
+stream = ExtResource("26_g4s1x")
+volume_db = -80.0
+unit_size = 20.0
+max_db = 6.0
+max_distance = 100.0
+
 [node name="CameraSelect" type="AudioStreamPlayer3D" parent="SFX" unique_id=1786032520]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.2201982, 2.5033417, 0.9337956)
 stream = ExtResource("23_2yde8")
-volume_db = -4.0
+volume_db = -12.0
 unit_size = 20.0
 max_db = 6.0
 max_distance = 100.0

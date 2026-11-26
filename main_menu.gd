@@ -36,6 +36,13 @@ const BTN_PRESSED = preload("res://png/btn_pressed.png")
 @onready var buttons_row: BoxContainer = $MenuPage/VBox/Buttons
 @onready var btn_no: Button = $MenuPage/VBox/Buttons/BtnNo
 @onready var btn_yes: Button = $MenuPage/VBox/Buttons/BtnYes
+@onready var settings_button: Button = $MenuPage/VBox/SettingsButton
+@onready var settings_page: ColorRect = $SettingsPage
+@onready var quality_option: OptionButton = $SettingsPage/ContentCenter/SettingsContent/QualityRow/QualityOption
+@onready var fps_option: OptionButton = $SettingsPage/ContentCenter/SettingsContent/FpsRow/FpsOption
+@onready var motion_blur_check: CheckButton = $SettingsPage/ContentCenter/SettingsContent/MotionBlurCheck
+@onready var shadows_check: CheckButton = $SettingsPage/ContentCenter/SettingsContent/ShadowsCheck
+@onready var close_settings_button: Button = $SettingsPage/CloseSettingsButton
 @onready var loading_page: Control = $LoadingPage
 @onready var loading_vbox: BoxContainer = $LoadingPage/VBox
 @onready var loading_label: Label = $LoadingPage/VBox/LoadingLabel
@@ -77,6 +84,8 @@ func _ready() -> void:
 
 	_style_labels()
 	_style_buttons()
+	_setup_settings_controls()
+	_style_settings_controls()
 	_style_progress_bar()
 	_style_flag()
 	_layout_loading_bar()
@@ -94,10 +103,16 @@ func _ready() -> void:
 
 	btn_yes.pressed.connect(_on_yes_pressed)
 	btn_no.pressed.connect(_on_no_pressed)
+	settings_button.pressed.connect(_on_settings_button_pressed)
+	close_settings_button.pressed.connect(_on_settings_close_pressed)
+	quality_option.item_selected.connect(_on_quality_selected)
+	fps_option.item_selected.connect(_on_fps_selected)
+	motion_blur_check.toggled.connect(GameSettings.set_motion_blur_enabled)
+	shadows_check.toggled.connect(GameSettings.set_shadows_enabled)
 	lang_button.pressed.connect(_on_lang_button_pressed)
 
 	if not OS.has_feature("mobile") and not OS.has_feature("android"):
-		for button: Button in [btn_yes, btn_no]:
+		for button: Button in [btn_yes, btn_no, settings_button, close_settings_button]:
 			button.mouse_entered.connect(_play_hover_audio)
 		lang_button.mouse_entered.connect(_play_hover_audio)
 
@@ -143,7 +158,7 @@ func _style_labels() -> void:
 
 
 func _style_buttons() -> void:
-	for b: Button in [btn_yes, btn_no]:
+	for b: Button in [btn_yes, btn_no, settings_button]:
 		var pressed_style := _make_style(BTN_PRESSED)
 		b.add_theme_stylebox_override("normal", _make_style(BTN_NORMAL))
 		b.add_theme_stylebox_override("hover", _make_style(BTN_HOVER))
@@ -159,6 +174,76 @@ func _style_buttons() -> void:
 		b.action_mode = BaseButton.ACTION_MODE_BUTTON_RELEASE
 		b.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
 		b.custom_minimum_size = button_min_size
+
+
+func _setup_settings_controls() -> void:
+	for option: String in GameSettings.QUALITY_OPTIONS:
+		quality_option.add_item(option)
+	quality_option.select(GameSettings.QUALITY_OPTIONS.find(GameSettings.quality))
+
+	for fps: int in GameSettings.FPS_OPTIONS:
+		fps_option.add_item(str(fps))
+	fps_option.select(GameSettings.FPS_OPTIONS.find(GameSettings.max_fps))
+	motion_blur_check.button_pressed = GameSettings.motion_blur_enabled
+	shadows_check.button_pressed = GameSettings.shadows_enabled
+
+
+func _style_settings_controls() -> void:
+	for label: Label in [
+		$SettingsPage/ContentCenter/SettingsContent/QualityRow/QualityLabel,
+		$SettingsPage/ContentCenter/SettingsContent/FpsRow/FpsLabel,
+	]:
+		label.add_theme_font_size_override("font_size", 24)
+		label.add_theme_color_override("font_color", Color.WHITE)
+		if custom_font:
+			label.add_theme_font_override("font", custom_font)
+
+	for option: OptionButton in [quality_option, fps_option]:
+		option.focus_mode = Control.FOCUS_NONE
+		option.add_theme_font_size_override("font_size", 24)
+		option.add_theme_color_override("font_color", Color.WHITE)
+		var option_style := StyleBoxFlat.new()
+		option_style.bg_color = Color(0.20, 0.20, 0.20)
+		option_style.set_content_margin_all(10.0)
+		option.add_theme_stylebox_override("normal", option_style)
+		option.add_theme_stylebox_override("hover", option_style)
+		option.add_theme_stylebox_override("pressed", option_style)
+		if custom_font:
+			option.add_theme_font_override("font", custom_font)
+
+	for checkbox: CheckButton in [motion_blur_check, shadows_check]:
+		checkbox.focus_mode = Control.FOCUS_NONE
+		checkbox.add_theme_font_size_override("font_size", 24)
+		checkbox.add_theme_color_override("font_color", Color.WHITE)
+		if custom_font:
+			checkbox.add_theme_font_override("font", custom_font)
+
+	close_settings_button.focus_mode = Control.FOCUS_NONE
+	close_settings_button.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
+	close_settings_button.add_theme_font_size_override("font_size", 64)
+	close_settings_button.add_theme_color_override("font_color", Color.WHITE)
+	if custom_font:
+		close_settings_button.add_theme_font_override("font", custom_font)
+
+
+func _on_settings_button_pressed() -> void:
+	_play_click_audio()
+	settings_page.visible = true
+
+
+func _on_settings_close_pressed() -> void:
+	_play_click_audio()
+	settings_page.visible = false
+
+
+func _on_quality_selected(index: int) -> void:
+	if index >= 0 and index < GameSettings.QUALITY_OPTIONS.size():
+		GameSettings.set_quality(GameSettings.QUALITY_OPTIONS[index])
+
+
+func _on_fps_selected(index: int) -> void:
+	if index >= 0 and index < GameSettings.FPS_OPTIONS.size():
+		GameSettings.set_max_fps(GameSettings.FPS_OPTIONS[index])
 
 
 func _make_style(tex: Texture2D) -> StyleBoxTexture:
