@@ -2082,6 +2082,8 @@ func _play_audio(source_3d: AudioStreamPlayer3D) -> void:
 	if not player or not is_instance_valid(player) or player.stream == null:
 		return
 	player.stop()
+	if source_3d == _lost_signal_audio:
+		player.pitch_scale = randf_range(0.80, 1.20)
 	player.play()
 
 

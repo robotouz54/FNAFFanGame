@@ -1,8 +1,7 @@
 extends Node
-## Ouz'un davranışlarını MayinMelih'in AI'sinden ayrı tutar.
 
-const MUSIC_BOX_ECHO_CAMERA := 10 # CAM 11
-const MUSIC_BOX_REMOTE_CAMERAS: Array[int] = [9, 8, 11] # CAM 10, CAM 9, CAM 6B
+const MUSIC_BOX_ECHO_CAMERA := 10
+const MUSIC_BOX_REMOTE_CAMERAS: Array[int] = [9, 8, 11]
 const LURE_CAM_ROOMS: PackedStringArray = [
 	"fireescape", "storage", "northhall", "janitorcloset", "backstage",
 	"frontauditorium", "coliseum", "westhall", "southhall", "tearoom",
@@ -35,14 +34,10 @@ const JUMPSCARE_SOUND: AudioStream = preload("res://audio/jumpscare.wav")
 @export_range(-80.0, 12.0, 0.1) var office_ambience_monitor_db: float = -60.000
 @export_group("Karamsar WorldEnvironment")
 @export_range(1.0, 30.0, 0.5) var dread_env_fade_seconds: float = 10.0
-@export var dread_bg_color: Color = Color(0.14, 0.28, 0.48, 1.0)
-@export_range(0.0, 2.0, 0.05) var dread_ambient_energy: float = 1.12
-@export var dread_fog_color: Color = Color(0.32, 0.52, 0.78, 1.0)
-@export_range(0.001, 0.5, 0.001) var dread_fog_density: float = 0.009
-@export_range(0.5, 2.0, 0.05) var dread_contrast: float = 1.02
-@export_range(0.0, 1.5, 0.05) var dread_saturation: float = 0.85
-@export_range(0.2, 1.5, 0.05) var dread_brightness: float = 1.04
-@export var dread_light_color: Color = Color(0.45, 0.72, 1.0, 1.0)
+@export var dread_bg_color: Color = Color(0.18, 0.28, 0.44, 1.0)
+@export var dread_fog_color: Color = Color(0.28, 0.44, 0.68, 1.0)
+@export_range(0.0, 0.1, 0.001) var dread_fog_density: float = 0.003
+@export_range(0.0, 1.0, 0.05) var dread_blue_tint: float = 0.28
 @export_group("Oda Rotası")
 @export_range(15.0, 20.0, 0.5) var room_wait_min: float = 7.0
 @export_range(15.0, 20.0, 0.5) var room_wait_max: float = 10.0
@@ -91,14 +86,9 @@ var _map_lights: Array[Light3D] = []
 var _init_light_colors: Array[Color] = []
 var _dread_tween: Tween
 var _init_bg_color: Color
-var _init_ambient_energy: float
 var _init_fog_enabled: bool
 var _init_fog_color: Color
 var _init_fog_density: float
-var _init_adj_enabled: bool
-var _init_contrast: float
-var _init_saturation: float
-var _init_brightness: float
 var _transforming_sound: Node
 var _transforming_reverb: AudioEffectReverb
 var _first_knock_sound: AudioStreamPlayer3D
@@ -237,7 +227,6 @@ func _begin_wake_sequence() -> void:
 	if _ended:
 		return
 
-	# Commonroom içinde poz değişimi
 	await _play_pose_with_signal(AWAKE_POSE, true)
 	await _wait_commonroom_pose_change()
 	if _ended:
@@ -251,7 +240,6 @@ func _begin_wake_sequence() -> void:
 	if _ended:
 		return
 
-	# Vent rotası bu sürümde kapalı; uyanışın ilk hedefi her zaman South Hall.
 	await _teleport_with_signal("southhall", STANDING_POSE, 1.0, true)
 	if _ended:
 		return
@@ -259,7 +247,6 @@ func _begin_wake_sequence() -> void:
 	if _ended:
 		return
 
-	# ouzSpot_southhall -> ouzSpot_preSouthhall -> ouzSpot_preDoorWindow -> ouzSpot_DoorWindow
 	await _walk_to_room_with_signal("preSouthhall", STANDING_POSE, office_approach_walk_seconds)
 	if _ended:
 		return
@@ -284,10 +271,14 @@ func _begin_wake_sequence() -> void:
 
 	var door_already_broken := _door != null and is_instance_valid(_door) and _door.is_broken
 	if not door_already_broken:
+		if _camera_ui and is_instance_valid(_camera_ui) and _camera_ui.is_open():
+			if _camera_ui.has_method("force_close"):
+				_camera_ui.force_close()
+			elif _camera_ui.has_method("interrupt_for_jumpscare"):
+				_camera_ui.interrupt_for_jumpscare()
 		_set_pose(KICKING_POSE)
 		_break_door_stage3()
-		if _player_camera:
-			_player_camera.shake(0.7, 0.6)
+		_shake_camera_on_door_kick(0.7, 0.6)
 
 		var post_break_delay := randf_range(
 			minf(post_break_jumpscare_delay_min, post_break_jumpscare_delay_max),
@@ -305,6 +296,34 @@ func _begin_wake_sequence() -> void:
 	await _start_jumpscare()
 
 
+func _shake_camera_on_door_kick(intensity: float, duration: float) -> void:
+	if not _player_camera or not is_instance_valid(_player_camera):
+		return
+	if _player_camera.has_method("shake"):
+		_player_camera.shake(intensity, duration)
+	var base_pos := _player_camera.position
+	var base_rot := _player_camera.rotation
+	var elapsed := 0.0
+	var shake_dur := maxf(duration, 0.05)
+	while elapsed < shake_dur and not _ended:
+		await get_tree().process_frame
+		if not is_instance_valid(_player_camera):
+			return
+		elapsed += get_process_delta_time()
+		var decay := 1.0 - clampf(elapsed / shake_dur, 0.0, 1.0)
+		var jitter := intensity * 0.08 * decay
+		_player_camera.position = base_pos + Vector3(
+			randf_range(-1.0, 1.0), randf_range(-1.0, 1.0), randf_range(-0.5, 0.5)
+		) * jitter
+		var rot_jitter := deg_to_rad(10.0 * intensity * decay)
+		_player_camera.rotation = base_rot + Vector3(
+			randf_range(-1.0, 1.0), randf_range(-1.0, 1.0), randf_range(-0.6, 0.6)
+		) * rot_jitter
+	if is_instance_valid(_player_camera):
+		_player_camera.position = base_pos
+		_player_camera.rotation = base_rot
+
+
 func _setup_world_environment() -> void:
 	if not _world_env or not is_instance_valid(_world_env):
 		return
@@ -315,14 +334,9 @@ func _setup_world_environment() -> void:
 	if _env_initialized:
 		return
 	_init_bg_color = _env.background_color
-	_init_ambient_energy = _env.ambient_light_energy
 	_init_fog_enabled = _env.fog_enabled
 	_init_fog_color = _env.fog_light_color
 	_init_fog_density = _env.fog_density
-	_init_adj_enabled = _env.adjustment_enabled
-	_init_contrast = _env.adjustment_contrast
-	_init_saturation = _env.adjustment_saturation
-	_init_brightness = _env.adjustment_brightness
 	_env_initialized = true
 
 
@@ -344,6 +358,15 @@ func _setup_map_lights(world: Node) -> void:
 			_init_light_colors.append(light_node.light_color)
 
 
+func _tint_color_blue(base_color: Color, strength: float) -> Color:
+	var s := clampf(strength, 0.0, 1.0)
+	var tinted := base_color.lerp(Color(0.55, 0.78, 1.0, base_color.a), s)
+	tinted.r = minf(tinted.r, base_color.r * lerp(1.0, 0.85, s))
+	tinted.g = minf(tinted.g, base_color.g * lerp(1.0, 0.95, s))
+	tinted.b = maxf(tinted.b, base_color.b)
+	return tinted
+
+
 func _reset_dread_environment_and_lights() -> void:
 	if _dread_tween and _dread_tween.is_valid():
 		_dread_tween.kill()
@@ -352,14 +375,9 @@ func _reset_dread_environment_and_lights() -> void:
 	if _env and _env_initialized:
 		if _env.background_mode == Environment.BG_COLOR:
 			_env.background_color = _init_bg_color
-		_env.ambient_light_energy = _init_ambient_energy
 		_env.fog_enabled = _init_fog_enabled
 		_env.fog_light_color = _init_fog_color
 		_env.fog_density = _init_fog_density
-		_env.adjustment_enabled = _init_adj_enabled
-		_env.adjustment_contrast = _init_contrast
-		_env.adjustment_saturation = _init_saturation
-		_env.adjustment_brightness = _init_brightness
 
 	for i in range(mini(_map_lights.size(), _init_light_colors.size())):
 		var light_node := _map_lights[i]
@@ -380,24 +398,9 @@ func _start_dread_environment_fade() -> void:
 	if has_env:
 		if _env.background_mode == Environment.BG_COLOR:
 			_env.background_color = _init_bg_color
-		_env.ambient_light_energy = _init_ambient_energy
 		_env.fog_enabled = true
-		if not _init_fog_enabled:
-			_env.fog_light_color = dread_fog_color
-			_env.fog_density = 0.0
-		else:
-			_env.fog_light_color = _init_fog_color
-			_env.fog_density = _init_fog_density
-
-		_env.adjustment_enabled = true
-		if not _init_adj_enabled:
-			_env.adjustment_contrast = 1.0
-			_env.adjustment_saturation = 1.0
-			_env.adjustment_brightness = 1.0
-		else:
-			_env.adjustment_contrast = _init_contrast
-			_env.adjustment_saturation = _init_saturation
-			_env.adjustment_brightness = _init_brightness
+		_env.fog_light_color = _init_fog_color if _init_fog_enabled else dread_fog_color
+		_env.fog_density = _init_fog_density if _init_fog_enabled else 0.0
 
 	for i in range(mini(_map_lights.size(), _init_light_colors.size())):
 		var light_node := _map_lights[i]
@@ -411,19 +414,24 @@ func _start_dread_environment_fade() -> void:
 	_dread_tween.set_parallel(true)
 	_dread_tween.set_trans(Tween.TRANS_SINE)
 	_dread_tween.set_ease(Tween.EASE_IN_OUT)
+
 	if has_env:
 		if _env.background_mode == Environment.BG_COLOR:
-			_dread_tween.tween_property(_env, "background_color", dread_bg_color, duration)
-		_dread_tween.tween_property(_env, "ambient_light_energy", dread_ambient_energy, duration)
-		_dread_tween.tween_property(_env, "fog_light_color", dread_fog_color, duration)
-		_dread_tween.tween_property(_env, "fog_density", dread_fog_density, duration)
-		_dread_tween.tween_property(_env, "adjustment_contrast", dread_contrast, duration)
-		_dread_tween.tween_property(_env, "adjustment_saturation", dread_saturation, duration)
-		_dread_tween.tween_property(_env, "adjustment_brightness", dread_brightness, duration)
+			var target_bg := _init_bg_color.lerp(dread_bg_color, dread_blue_tint)
+			_dread_tween.tween_property(_env, "background_color", target_bg, duration)
+		var target_fog_color := _tint_color_blue(
+			_init_fog_color if _init_fog_enabled else dread_fog_color,
+			dread_blue_tint
+		)
+		var target_fog_density := maxf(_init_fog_density, dread_fog_density) if _init_fog_enabled else dread_fog_density
+		_dread_tween.tween_property(_env, "fog_light_color", target_fog_color, duration)
+		_dread_tween.tween_property(_env, "fog_density", target_fog_density, duration)
 
-	for light_node in _map_lights:
+	for i in range(mini(_map_lights.size(), _init_light_colors.size())):
+		var light_node := _map_lights[i]
 		if light_node and is_instance_valid(light_node):
-			_dread_tween.tween_property(light_node, "light_color", dread_light_color, duration)
+			var target_light := _tint_color_blue(_init_light_colors[i], dread_blue_tint)
+			_dread_tween.tween_property(light_node, "light_color", target_light, duration)
 
 
 func _break_door_stage3() -> void:
